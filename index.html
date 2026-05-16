@@ -577,6 +577,484 @@ function updateGulagUI() {
     document.getElementById('gulag-anger').innerText = anger;
 }
 </script>
+<section class="card" style="background:#0f0f23; color:#e0e0e0; margin-top:40px; padding:0; border:2px solid #a00000; font-family: 'Courier New', monospace;">
+    <div style="background:#a00000; padding:10px; text-align:center;">
+        <h2 style="color:white; margin:0;">🕵️ 第7厅：意识形态纯度测试</h2>
+        <p style="font-size:11px; margin:0;">根据《第78号指令》，甄别潜伏的破坏分子。</p>
+    </div>
+
+    <div style="padding:20px;">
+        <p id="k7-intro" style="color:#00ff00;"></p>
+        <div id="k7-suspects" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; margin:20px 0;"></div>
+        
+        <div id="k7-dossier" style="background:#1a1a1a; padding:15px; border:1px solid #444; min-height:120px; margin-bottom:15px;">
+            <p style="color:#888;">点击嫌疑人查看档案...</p>
+        </div>
+
+        <div id="k7-accuse-area" style="display:none; text-align:center; padding:10px; background:#2a0a0a; border:1px dashed red;">
+            <p>确认指控 <span id="k7-accused-name" style="color:red; font-weight:bold;"></span> 为破坏分子？</p>
+            <button onclick="accuse(true)" style="background:#008000; color:white; padding:8px 15px; border:none;">确认逮捕</button>
+            <button onclick="accuse(false)" style="background:#555; color:white; padding:8px 15px; border:none;">继续观察</button>
+        </div>
+
+        <div id="k7-result" style="text-align:center; font-size:18px; margin-top:15px;"></div>
+    </div>
+</section>
+
+<script>
+const k7_data = [
+    { id: 0, name: "伊万·彼得罗夫", clues: ["邻居说他常去教堂", "档案记录身高180cm"], isSpy: false, bio: "工人，忠诚，只是信教。" },
+    { id: 1, name: "鲍里斯·卡根诺维奇", clues: ["出生地：基辅", "大学专业：核物理", "档案备注：祖父是犹太人"], isSpy: true, bio: "高智商，有海外联系，典型的托派伪装。" },
+    { id: 2, name: "谢尔盖·伊万诺夫", clues: ["职业：集体农庄主席", "曾获得红旗勋章"], isSpy: false, bio: "战斗英雄，纯粹的布尔什维克。" }
+];
+let k7_current = null;
+
+function initK7() {
+    const intro = document.getElementById('k7-intro');
+    const suspectsDiv = document.getElementById('k7-suspects');
+    intro.innerText = "命令：三人中有一人是西方间谍。根据档案线索，找出他。\n提示：真正的无产阶级不会有复杂的海外背景。";
+    suspectsDiv.innerHTML = '';
+    
+    k7_data.forEach(p => {
+        const btn = document.createElement('button');
+        btn.innerText = p.name;
+        btn.style.cssText = "padding:10px; background:#333; color:white; border:1px solid #666; cursor:pointer;";
+        btn.onclick = () => selectSuspect(p);
+        suspectsDiv.appendChild(btn);
+    });
+}
+initK7();
+
+function selectSuspect(person) {
+    k7_current = person;
+    const dossier = document.getElementById('k7-dossier');
+    dossier.innerHTML = `<h3>${person.name}</h3><p>${person.bio}</p><ul>${person.clues.map(c => `<li>${c}</li>`).join('')}</ul>`;
+    
+    const accuseArea = document.getElementById('k7-accuse-area');
+    document.getElementById('k7-accused-name').innerText = person.name;
+    accuseArea.style.display = 'block';
+}
+
+function accuse(isAccusing) {
+    const result = document.getElementById('k7-result');
+    if (isAccusing && k7_current.isSpy) {
+        result.innerHTML = '<span style="color:lime;">正确！间谍已被送往古拉格。</span>';
+    } else if (isAccusing && !k7_current.isSpy) {
+        result.innerHTML = '<span style="color:red;">错误！你逮捕了无辜工人！你被流放了！</span>';
+    } else {
+        result.innerHTML = '<span style="color:yellow;">谨慎是对的，但时间不多了。</span>';
+    }
+    document.getElementById('k7-accuse-area').style.display = 'none';
+}
+</script>
+<section class="card" style="background:#0a0a0a; color:#e0e0e0; margin-top:50px; padding:0; border:2px solid #cc0000; font-family: 'Courier New', monospace;">
+    <div style="background:#1a1a1a; padding:15px; text-align:center; border-bottom:1px solid #333;">
+        <h2 style="color:#ff3333; margin:0;">🧱 柏林墙防线：第9防区</h2>
+        <p style="font-size:11px; margin:5px 0 0 0;">阻止西方渗透。建造碉堡，部署铁丝网。</p>
+    </div>
+
+    <div style="display:flex;">
+        <!-- 侧边栏 -->
+        <div style="width:200px; background:#1a1a1a; padding:10px; border-right:1px solid #333;">
+            <div style="margin-bottom:15px;">
+                <p>💰 意识形态点数: <b id="td-points">500</b></p>
+                <p>❤️ 防线耐久: <b id="td-health">100</b></p>
+                <p>🌊 波次: <b id="td-wave">1</b></p>
+            </div>
+            <div style="font-size:12px;">
+                <p style="color:#ccc;">建造单位:</p>
+                <button onclick="td_build('gun')" style="width:100%; margin-bottom:5px; padding:5px; background:#333; color:white; border:1px solid #666;">哨戒机枪 (50)</button>
+                <button onclick="td_build('wall')" style="width:100%; margin-bottom:5px; padding:5px; background:#333; color:white; border:1px solid #666;">混凝土墙 (30)</button>
+                <button onclick="td_build('aa')" style="width:100%; margin-bottom:5px; padding:5px; background:#333; color:white; border:1px solid #666;">防空导弹 (100)</button>
+            </div>
+            <button onclick="td_startWave()" style="width:100%; margin-top:20px; padding:10px; background:#cc0000; color:white; border:none;">发动下一波攻势</button>
+        </div>
+
+        <!-- 游戏画布 -->
+        <canvas id="td-canvas" width="780" height="450" style="background:#050505; display:block;"></canvas>
+    </div>
+    <div id="td-log" style="height:50px; overflow-y:scroll; background:black; padding:5px; font-size:11px;"></div>
+</section>
+
+<script>
+// 塔防游戏核心引擎
+const td_cvs = document.getElementById('td-canvas');
+const td_ctx = td_cvs.getContext('2d');
+let td_state = { points:500, health:100, wave:0, enemies:[], towers:[], bullets:[], building:null };
+const td_log = document.getElementById('td-log');
+
+function td_logMsg(msg) { td_log.innerHTML += msg + "<br>"; td_log.scrollTop = td_log.scrollHeight; }
+
+// 游戏循环
+function td_gameLoop() {
+    // 清空画布
+    td_ctx.clearRect(0,0,td_cvs.width, td_cvs.height);
+    
+    // 绘制路径
+    td_ctx.strokeStyle = '#333';
+    td_ctx.beginPath(); td_ctx.moveTo(750, 0); td_ctx.lineTo(750, 450); td_ctx.stroke();
+    
+    // 更新敌人
+    td_state.enemies.forEach((e, i) => {
+        e.x -= e.speed;
+        if(e.x < 0) { td_state.health -= 10; td_logMsg("敌人突破了防线！"); td_state.enemies.splice(i, 1); }
+        td_ctx.fillStyle = e.color; td_ctx.fillRect(e.x-10, e.y-10, 20, 20);
+    });
+    
+    // 更新炮塔
+    td_state.towers.forEach(t => {
+        td_ctx.fillStyle = t.color; td_ctx.fillRect(t.x-15, t.y-15, 30, 30);
+        // 射击逻辑
+        const target = td_state.enemies.find(en => Math.abs(en.y - t.y) < 50 && en.x < t.x);
+        if(target) {
+            td_state.bullets.push({x:t.x, y:t.y, tx:target.x, ty:target.y});
+            td_ctx.beginPath(); td_ctx.moveTo(t.x, t.y); td_ctx.lineTo(target.x, target.y); td_ctx.strokeStyle = "yellow"; td_ctx.stroke();
+        }
+    });
+
+    // 更新UI
+    document.getElementById('td-points').innerText = td_state.points;
+    document.getElementById('td-health').innerText = td_state.health;
+    document.getElementById('td-wave').innerText = td_state.wave;
+    
+    if(td_state.health <= 0) { alert("柏林墙倒塌了！"); location.reload(); }
+    requestAnimationFrame(td_gameLoop);
+}
+td_gameLoop();
+
+// 操作函数
+function td_build(type) {
+    let cost = {gun:50, wall:30, aa:100}[type];
+    if(td_state.points >= cost) {
+        td_state.points -= cost;
+        td_state.building = type;
+        td_logMsg(`选择了 ${type}，点击地图放置。`);
+    } else { td_logMsg("点数不足！"); }
+}
+
+td_cvs.addEventListener('click', e => {
+    if(!td_state.building) return;
+    const rect = td_cvs.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const colors = {gun:'#666', wall:'#888', aa:'#aa3333'};
+    td_state.towers.push({type:td_state.building, x:x, y:y, color:colors[td_state.building]});
+    td_state.building = null;
+    td_logMsg("建筑已部署。");
+});
+
+function td_startWave() {
+    td_state.wave++;
+    for(let i=0; i<5 + td_state.wave*2; i++) {
+        setTimeout(() => {
+            td_state.enemies.push({x:780, y:50 + Math.random()*350, speed:1 + Math.random(), color:'#ff4444'});
+        }, i * 500);
+    }
+    td_logMsg(`第 ${td_state.wave} 波攻势开始！`);
+}
+</script>
+<section class="card" style="background:#1a2a1a; color:#c0d0c0; margin-top:50px; padding:20px; border:2px solid #4a6a4a;">
+    <h2 style="color:#90ee90; text-align:center;">🏭 第404号自动化工厂</h2>
+    <p style="text-align:center; font-size:12px;">任务：生产拖拉机。规则：必须经过三次质检（逻辑门）才能组装。</p>
+    
+    <div style="display:flex; margin-top:20px;">
+        <!-- 工具栏 -->
+        <div style="width:150px; padding:10px; background:#0a1a0a;">
+            <p style="color:#90ee90;">工厂组件:</p>
+            <button onclick="af_selectTool('belt')" style="width:100%; margin-bottom:5px; padding:5px; background:#333;">传送带</button>
+            <button onclick="af_selectTool('splitter')" style="width:100%; margin-bottom:5px; padding:5px; background:#333;">分流器</button>
+            <button onclick="af_selectTool('and')" style="width:100%; margin-bottom:5px; padding:5px; background:#333;">与门 (AND)</button>
+            <button onclick="af_selectTool('assembler')" style="width:100%; margin-bottom:5px; padding:5px; background:#333;">组装机</button>
+            <hr>
+            <p>库存:</p>
+            <p>铁矿: <b id="af-iron">10</b></p>
+            <p>拖拉机: <b id="af-tractor">0</b></p>
+        </div>
+        
+        <!-- 工厂网格 -->
+        <div id="af-grid" style="flex:1; display:grid; grid-template-columns:repeat(10, 60px); grid-template-rows:repeat(6, 60px); gap:2px; background:#0a1a0a; padding:10px; border:1px solid #333;">
+            <!-- 格子由JS生成 -->
+        </div>
+    </div>
+    <div id="af-log" style="height:60px; overflow-y:scroll; background:#050f05; padding:10px; margin-top:15px; font-size:11px;"></div>
+</section>
+
+<script>
+const af_grid = document.getElementById('af-grid');
+let af_state = { tool:null, grid:[], iron:10, tractor:0 };
+const af_log = document.getElementById('af-log');
+
+// 初始化网格
+for(let i=0; i<60; i++) { 
+    const cell = document.createElement('div');
+    cell.style.cssText = "background:#1a2a1a; border:1px solid #2a3a2a; cursor:pointer;";
+    cell.onclick = () => af_place(cell);
+    af_grid.appendChild(cell); 
+}
+
+function af_selectTool(tool) { af_state.tool = tool; af_log.innerHTML += `选择了：${tool}<br>`; }
+function af_place(cell) {
+    if(!af_state.tool) return;
+    cell.innerHTML = af_state.tool.charAt(0).toUpperCase();
+    cell.style.background = '#2a4a2a';
+    af_log.innerHTML += `放置了 ${af_state.tool}。<br>`;
+}
+
+// 自动化逻辑（简化版循环）
+setInterval(() => {
+    if(af_state.iron > 0) {
+        af_state.iron--;
+        document.getElementById('af-iron').innerText = af_state.iron;
+        // 假设经过复杂的传送带逻辑后...
+        if(Math.random() > 0.7) {
+            af_state.tractor++;
+            document.getElementById('af-tractor').innerText = af_state.tractor;
+            af_log.innerHTML += "<span style='color:lime;'>一辆拖拉机生产完毕！</span><br>";
+        }
+    }
+    if(af_state.iron <= 0) af_log.innerHTML += "<span style='color:red;'>原料耗尽！计划停滞！</span><br>";
+    af_log.scrollTop = af_log.scrollHeight;
+}, 2000);
+</script>
+<section class="card" style="background:#1a1a2e; color:#e0e0e0; margin-top:50px; padding:20px; border:2px solid #4a4a6a;">
+    <h2 style="color:#ff6b6b; text-align:center;">☠️ 红场求生：大清洗之夜</h2>
+    <p style="text-align:center; font-size:12px;">在这片广场上，有人是内务部特工。活下去，或者找出他。</p>
+    
+    <div style="position:relative; width:100%; height:300px; background:#0f0f1a; margin-top:20px; border:1px solid #333; overflow:hidden;" id="survival-arena">
+        <!-- 玩家方块由JS生成 -->
+    </div>
+    
+    <div style="margin-top:15px; text-align:center;">
+        <p>存活人数: <b id="surv-alive">8</b></p>
+        <p id="surv-status" style="color:#ff6b6b;"></p>
+        <button onclick="surv_callVote()" style="padding:10px 20px; background:#4a4a6a; color:white; border:none;">紧急会议（怀疑某人）</button>
+    </div>
+    <div id="surv-log" style="height:60px; overflow-y:scroll; background:black; padding:10px; margin-top:15px; font-size:11px;"></div>
+</section>
+
+<script>
+const surv_arena = document.getElementById('survival-arena');
+let surv_state = { players: [], killer: null, alive: 8 };
+const surv_log = document.getElementById('surv-log');
+
+function surv_logMsg(msg) { surv_log.innerHTML += msg + "<br>"; surv_log.scrollTop = surv_log.scrollHeight; }
+
+function surv_init() {
+    for(let i=0; i<8; i++) {
+        const p = document.createElement('div');
+        p.style.cssText = `position:absolute; width:30px; height:30px; background:hsl(${Math.random()*360}, 70%, 60%); border-radius:5px; cursor:pointer; transition: all 0.5s;`;
+        p.style.left = Math.random()*90 + '%';
+        p.style.top = Math.random()*80 + '%';
+        p.onclick = () => surv_vote(p);
+        surv_arena.appendChild(p);
+        surv_state.players.push(p);
+    }
+    surv_state.killer = surv_state.players[Math.floor(Math.random()*8)];
+    surv_state.killer.dataset.role = 'killer';
+    surv_logMsg("游戏开始。谁是内务部特工？");
+}
+
+function surv_movement() {
+    surv_state.players.forEach(p => {
+        if(p.style.opacity !== '0.2') { // 如果还活着
+            const dx = (Math.random()-0.5)*10;
+            const dy = (Math.random()-0.5)*10;
+            p.style.left = (parseFloat(p.style.left) + dx) + '%';
+            p.style.top = (parseFloat(p.style.top) + dy) + '%';
+        }
+    });
+    requestAnimationFrame(surv_movement);
+}
+surv_movement();
+
+// 杀手逻辑
+setInterval(() => {
+    if(surv_state.killer && surv_state.alive > 2) {
+        const target = surv_state.players.filter(p => p !== surv_state.killer && p.style.opacity !== '0.2')[Math.floor(Math.random()*surv_state.players.length)];
+        if(target) {
+            target.style.opacity = '0.2'; // 被淘汰
+            target.style.transform = 'scale(0)';
+            surv_state.alive--;
+            document.getElementById('surv-alive').innerText = surv_state.alive;
+            surv_logMsg(`有人失踪了！剩余 ${surv_state.alive} 人。`);
+        }
+    }
+    if(surv_state.alive <= 2) { alert("特工获胜！所有人都被清洗了！"); location.reload(); }
+}, 5000);
+
+function surv_callVote() {
+    surv_logMsg("紧急会议！请点击你怀疑的对象。");
+    document.getElementById('surv-status').innerText = "投票中...";
+}
+
+function surv_vote(player) {
+    if(player === surv_state.killer) {
+        alert("正确！特工被揪出来了！你赢了！");
+        location.reload();
+    } else {
+        surv_logMsg("你投票给了错误的人。他被流放了，但特工还在。");
+        player.style.opacity = '0.2';
+        surv_state.alive--;
+        document.getElementById('surv-alive').innerText = surv_state.alive;
+    }
+}
+
+surv_init();
+</script>
+<section class="card" style="background:#0d0d0d; color:#e0e0e0; margin-top:50px; padding:0; border:3px solid #8b0000; font-family: 'Georgia', serif;">
+    <div style="background:#1a1a1a; padding:15px; text-align:center; border-bottom:1px solid #333;">
+        <h2 style="color:#ffd700; margin:0;">☭ 政治局会议：改革与停滞</h2>
+        <p style="font-size:11px; margin:5px 0 0 0;">第26届中央委员会。你的选择将决定国家的命运。</p>
+    </div>
+
+    <div style="display:flex; padding:15px;">
+        <!-- 玩家状态 -->
+        <div style="width:220px; padding-right:15px; border-right:1px solid #333;">
+            <p>👑 威望: <b id="pc-prestige">30</b></p>
+            <p>🏭 产能: <b id="pc-industry">0</b></p>
+            <p>🌾 粮食: <b id="pc-food">0</b></p>
+            <p>😱 恐惧: <b id="pc-fear">0</b> / 100</p>
+            <button onclick="pc_endTurn()" style="width:100%; margin-top:10px; padding:10px; background:#8b0000; color:white; border:none;">结束回合 (抽牌)</button>
+        </div>
+
+        <!-- 游戏区域 -->
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+            <p style="font-size:12px; color:#888;">【手牌】点击打出。卡牌效果极其复杂。</p>
+            <div id="pc-hand" style="display:flex; gap:10px; margin-top:10px; min-height:150px; align-items:center; justify-content:center; flex-wrap:wrap;">
+                <!-- 卡牌动态生成 -->
+            </div>
+            
+            <!-- 奖励选择区 -->
+            <div id="pc-reward" style="width:100%; margin-top:15px; padding:10px; background:#1a1a1a; border:1px dashed #666; text-align:center;">
+                <p>回合结束奖励（选择1张加入卡组）:</p>
+                <div id="pc-choices" style="display:flex; gap:10px; justify-content:center; margin-top:5px;"></div>
+            </div>
+
+            <div id="pc-log" style="width:100%; height:80px; background:black; margin-top:15px; padding:10px; overflow-y:scroll; font-size:11px; border:1px solid #444;">
+                会议开始。勃列日涅夫同志宣布会议开幕。<br>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+let pc_state = { prestige: 30, industry: 0, food: 0, fear: 0, deck: [], hand: [], discard: [], rewardPool: [] };
+const pc_log = document.getElementById('pc-log');
+
+// ===== 庞大的卡牌库 =====
+const pc_masterDeck = {
+    // 基础卡
+    strike: { name: "罢工动员", cost: 2, text: "+5 产能\n+2 恐惧", effect: () => { pc_state.industry += 5; pc_state.fear += 2; }},
+    speech: { name: "激情演讲", cost: 3, text: "+8 威望", effect: () => { pc_state.prestige += 8; }},
+    ration: { name: "粮食配给", cost: 2, text: "+10 粮食", effect: () => { pc_state.food += 10; }},
+    
+    // 红色流派 (重工业)
+    tractorFactory: { name: "拖拉机厂", cost: 8, text: "每回合 +3 产能", effect: () => { pc_state.industry += 3; }, passive: true },
+    nuclearTest: { name: "核试验", cost: 10, text: "+15 威望\n+10 恐惧", effect: () => { pc_state.prestige += 15; pc_state.fear += 10; }},
+    steelMill: { name: "钢铁厂", cost: 5, text: "+7 产能", effect: () => { pc_state.industry += 7; }},
+    
+    // 绿色流派 (农业)
+    collectiveFarm: { name: "集体农庄", cost: 4, text: "每回合 +5 粮食", effect: () => { pc_state.food += 5; }, passive: true },
+    cornCampaign: { name: "玉米运动", cost: 6, text: "+20 粮食\n-5 威望", effect: () => { pc_state.food += 20; pc_state.prestige -= 5; }},
+    virginLands: { name: "垦荒运动", cost: 7, text: "+15 粮食\n+3 产能", effect: () => { pc_state.food += 15; pc_state.industry += 3; }},
+    
+    // 黑色流派 (秘密警察)
+    kgbAudit: { name: "克格勃审查", cost: 5, text: "移除对手一张强力卡牌\n+5 恐惧", effect: () => { pc_state.fear += 5; /* 简化逻辑 */ }},
+    purge: { name: "大清洗", cost: 12, text: "清空对手手牌\n+15 恐惧", effect: () => { pc_state.fear += 15; pc_state.hand = []; }},
+    showTrial: { name: "公审大会", cost: 4, text: "+10 威望\n+5 恐惧", effect: () => { pc_state.prestige += 10; pc_state.fear += 5; }},
+    
+    // 黄色流派 (外交/特殊)
+    detente: { name: "缓和战略", cost: 6, text: "-10 恐惧\n+5 威望", effect: () => { pc_state.fear = Math.max(0, pc_state.fear - 10); pc_state.prestige += 5; }},
+    spaceRace: { name: "太空竞赛", cost: 9, text: "抽2张牌\n+10 威望", effect: () => { pc_drawCard(); pc_drawCard(); pc_state.prestige += 10; }},
+};
+
+function pc_logMsg(msg) { pc_log.innerHTML += msg + "<br>"; pc_log.scrollTop = pc_log.scrollHeight; }
+
+function pc_drawCard() {
+    if (pc_state.deck.length === 0) { pc_state.deck = [...pc_state.discard]; pc_state.discard = []; pc_logMsg("洗切弃牌堆。"); }
+    if (pc_state.deck.length > 0) pc_state.hand.push(pc_state.deck.pop());
+}
+
+function pc_init() {
+    // 初始卡组
+    pc_state.deck = [pc_masterDeck.strike, pc_masterDeck.speech, pc_masterDeck.ration, pc_masterDeck.strike];
+    for(let i=0; i<5; i++) pc_drawCard();
+    pc_renderHand();
+    pc_generateRewards();
+}
+
+function pc_renderHand() {
+    const handDiv = document.getElementById('pc-hand');
+    handDiv.innerHTML = '';
+    pc_state.hand.forEach((card, index) => {
+        const cardEl = document.createElement('div');
+        cardEl.style.cssText = "width:110px; height:160px; background:#2a2a2a; border:1px solid #666; padding:5px; cursor:pointer; text-align:center; font-size:10px; display:flex; flex-direction:column; justify-content:space-between;";
+        cardEl.innerHTML = `<strong>${card.name}</strong><small>(${card.cost})</small><p style="flex:1; font-size:9px;">${card.text}</p><small>点击打出</small>`;
+        cardEl.onclick = () => pc_playCard(index);
+        handDiv.appendChild(cardEl);
+    });
+}
+
+function pc_playCard(index) {
+    const card = pc_state.hand[index];
+    if (pc_state.prestige >= card.cost) {
+        pc_state.prestige -= card.cost;
+        card.effect();
+        pc_state.discard.push(pc_state.hand.splice(index, 1)[0]);
+    } else {
+        pc_logMsg("威望不足！");
+    }
+    pc_checkGameOver();
+    pc_renderHand();
+}
+
+function pc_generateRewards() {
+    const choicesDiv = document.getElementById('pc-choices');
+    choicesDiv.innerHTML = '';
+    pc_state.rewardPool = [];
+    const keys = Object.keys(pc_masterDeck);
+    for(let i=0; i<3; i++) {
+        const randomCard = pc_masterDeck[keys[Math.floor(Math.random()*keys.length)]];
+        pc_state.rewardPool.push(randomCard);
+        const choiceEl = document.createElement('div');
+        choiceEl.style.cssText = "width:100px; height:140px; background:#3a3a3a; border:1px solid #888; padding:5px; cursor:pointer; font-size:10px;";
+        choiceEl.innerHTML = `<strong>${randomCard.name}</strong><p>${randomCard.text}</p>`;
+        choiceEl.onclick = () => pc_takeReward(i);
+        choicesDiv.appendChild(choiceEl);
+    }
+}
+
+function pc_takeReward(index) {
+    pc_state.deck.push(pc_state.rewardPool[index]);
+    pc_logMsg(`你将 "${pc_state.rewardPool[index].name}" 加入了你的卡组！`);
+    pc_generateRewards(); // 生成新的奖励
+}
+
+function pc_endTurn() {
+    pc_state.fear += 2; // 自然增长
+    pc_drawCard();
+    pc_drawCard();
+    pc_checkGameOver();
+    pc_renderHand();
+    pc_updateStats();
+}
+
+function pc_updateStats() {
+    document.getElementById('pc-prestige').innerText = pc_state.prestige;
+    document.getElementById('pc-industry').innerText = pc_state.industry;
+    document.getElementById('pc-food').innerText = pc_state.food;
+    document.getElementById('pc-fear').innerText = pc_state.fear;
+}
+
+function pc_checkGameOver() {
+    pc_updateStats();
+    if (pc_state.fear >= 100) { alert("恐惧失控！政变爆发！你被推翻了！"); location.reload(); }
+    if (pc_state.prestige <= 0) { alert("失去威望！你被赶下台了！"); location.reload(); }
+    if (pc_state.food < 0) { alert("饥荒爆发！"); pc_state.prestige -= 10; }
+}
+
+pc_init();
+</script>
 
 </body>
 </html>
