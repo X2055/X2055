@@ -144,3 +144,131 @@ body {
         flex-wrap: wrap;
     }
 }
+/* 历史时间线 */
+.history-timeline {
+    margin: 40px 0;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.history-timeline h2 {
+    color: #cc0000;
+    border-bottom: 2px solid #cc0000;
+    padding-bottom: 10px;
+}
+
+.timeline .event {
+    margin: 15px 0;
+    padding: 10px;
+    background: #f9f9f9;
+    border-left: 4px solid #cc0000;
+}
+
+/* 领导人卡片 */
+.leaders-section {
+    margin: 40px 0;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.leaders-section h2 {
+    color: #cc0000;
+    border-bottom: 2px solid #cc0000;
+    padding-bottom: 10px;
+}
+
+.leader-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.leader-card {
+    flex: 1 1 200px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.leader-card h3 {
+    color: #cc0000;
+    margin-top: 0;
+}
+
+/* 航天成就 */
+.space-achievements {
+    margin: 40px 0;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.space-achievements h2 {
+    color: #cc0000;
+    border-bottom: 2px solid #cc0000;
+    padding-bottom: 10px;
+}
+
+.space-achievements ul {
+    padding-left: 20px;
+}
+
+.space-achievements li {
+    margin: 10px 0;
+}
+
+/* 名言录 */
+.quotes-section {
+    margin: 40px 0;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.quotes-section h2 {
+    color: #cc0000;
+    border-bottom: 2px solid #cc0000;
+    padding-bottom: 10px;
+}
+
+blockquote {
+    margin: 20px 0;
+    padding: 15px 20px;
+    background: #f9f9f9;
+    border-left: 4px solid #cc0000;
+    font-style: italic;
+    position: relative;
+}
+
+blockquote:before {
+    content: "“";
+    font-size: 3em;
+    color: #cc0000;
+    position: absolute;
+    left: 10px;
+    top: 5px;
+    opacity: 0.3;
+}
+
+/* 页脚 */
+footer {
+    margin-top: 50px;
+    padding: 20px;
+    text-align: center;
+    background-color: #222;
+    color: #fff;
+    font-size: 0.9em;
+}
+
+footer p {
+    margin: 5px 0;
+}
