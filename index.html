@@ -150,6 +150,104 @@
         <p>电子邮箱:Duck230@outlook.com</p>
         <p> </p>
     </footer>
+<!-- ===== 克格勃小游戏 1：审讯室 ===== -->
+<section class="card" style="background:#111; color:#f0f0f0; border:2px solid #cc0000;">
+    <h2 style="color:#ffd700;">🕵️♂️ 第 205 号审讯室</h2>
+    <p style="font-size:14px;">公民，请审查以下言论。犹豫即是背叛！</p>
+    
+    <div id="interrogation-box" style="padding:20px; background:#000; border:1px solid #444; min-height:120px; margin-top:15px;">
+        <p id="statement-text" style="font-size:22px; font-weight:bold; color:#fff; text-align:center; padding:20px 0;">
+            正在连接莫斯科...
+        </p>
+        <div style="text-align:center;">
+            <button onclick="judge(true)" style="background:#006400; color:white; border:none; padding:10px 30px; font-size:18px; cursor:pointer; margin:5px;">忠诚 👍</button>
+            <button onclick="judge(false)" style="background:#8b0000; color:white; border:none; padding:10px 30px; font-size:18px; cursor:pointer; margin:5px;">叛徒 👎</button>
+        </div>
+    </div>
+    <p id="kgb-status" style="text-align:center; font-size:18px; color:#ffd700; margin-top:10px;">等待审查...</p>
+</section>
+
+<script>
+const statements = [
+    { text: "斯大林同志是慈父。", isLoyal: true },
+    { text: "我想移民去美国。", isLoyal: false },
+    { text: "五年计划超额完成了。", isLoyal: true },
+    { text: "这双皮鞋质量很差。", isLoyal: false },
+    { text: "加加林是英雄。", isLoyal: true },
+    { text: "我不喜欢排队。", isLoyal: false }
+];
+let currentStatement = 0;
+
+function judge(userChoice) {
+    const statement = statements[currentStatement];
+    const statusEl = document.getElementById('kgb-status');
+    const boxEl = document.getElementById('interrogation-box');
+
+    if (userChoice === statement.isLoyal) {
+        statusEl.innerText = "正确！你通过了审查。";
+        statusEl.style.color = "#00FF00";
+        boxEl.style.borderColor = "#00FF00";
+    } else {
+        statusEl.innerText = "错误！你将被流放到西伯利亚！";
+        statusEl.style.color = "#FF0000";
+        boxEl.style.borderColor = "#FF0000";
+        // 屏幕闪烁效果
+        document.body.style.background = '#8b0000';
+        setTimeout(() => { document.body.style.background = ''; }, 200);
+    }
+
+    currentStatement = (currentStatement + 1) % statements.length;
+    setTimeout(() => {
+        document.getElementById('statement-text').innerText = statements[currentStatement].text;
+        boxEl.style.borderColor = '#444';
+    }, 1500);
+}
+
+// 初始化
+window.onload = () => {
+    document.getElementById('statement-text').innerText = statements[0].text;
+};
+</script>
+<!-- ===== 克格勃小游戏 2：名单审查 ===== -->
+<section class="card" style="background:#f5f5dc; color:#333; border:2px solid #8b4513; margin-top:30px;">
+    <h2 style="color:#8b0000;">📝 真理部：名单审查</h2>
+    <p style="font-size:14px;">划线处决。注意：<strong>勃列日涅夫同志</strong>必须保留！</p>
+    
+    <ul id="list-to-purge" style="list-style:none; padding:0; font-size:18px;">
+        <li onclick="purge(this)" data-safe="false">伊万·彼得罗夫 <span style="color:red;">[可疑]</span></li>
+        <li onclick="purge(this)" data-safe="false">玛丽亚·伊万诺娃 <span style="color:red;">[可疑]</span></li>
+        <li onclick="purge(this)" data-safe="true">列昂尼德·勃列日涅夫 <span style="color:green;">[核心]</span></li>
+        <li onclick="purge(this)" data-safe="false">亚历山大·索尔仁尼琴 <span style="color:red;">[危险]</span></li>
+        <li onclick="purge(this)" data-safe="false">瓦西里·朱加什维利 <span style="color:red;">[可疑]</span></li>
+    </ul>
+    <p id="purge-status" style="text-align:center; font-size:16px; color:#8b0000; margin-top:10px;">点击名字进行清洗。</p>
+</section>
+
+<style>
+/* 被划掉的效果 */
+.strikeout {
+    text-decoration: line-through;
+    color: #999 !important;
+}
+</style>
+
+<script>
+function purge(element) {
+    const statusEl = document.getElementById('purge-status');
+    const isSafe = element.getAttribute('data-safe') === 'true';
+
+    if (isSafe) {
+        statusEl.innerText = "大清洗失败！你清洗了领导人！";
+        statusEl.style.color = "red";
+        alert("古拉格在等着你！");
+        location.reload(); // 刷新重来
+    } else {
+        element.classList.add('strikeout');
+        statusEl.innerText = "清洗成功。下一个。";
+        statusEl.style.color = "green";
+    }
+}
+</script>
 
 </body>
 </html>
