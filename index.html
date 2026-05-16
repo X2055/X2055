@@ -408,59 +408,7 @@ function planAlloc(){
     if(happy>80) document.getElementById('plan-msg').innerText="乌拉！五年计划圆满完成（表面）！";
 }
 </script>
-<section class="card" style="background:#1e272e; color:white; margin-top:30px; padding:20px; border:2px solid #e84118;">
-    <h2 style="color:#f5f6fa;">📠 信访局急件处理：禁忌词过滤</h2>
-    <p style="font-size:13px;">禁忌词（红色）掉到底部会被记录。输入下方白词（安全词）并按回车消除一个禁忌词。</p>
-    <div id="word-drop-zone" style="height:150px; background:#0c2461; position:relative; overflow:hidden; margin-top:10px; border:1px solid #4a69bd;">
-        <!-- 词会在这里生成 -->
-    </div>
-    <div style="margin-top:10px; display:flex;">
-        <input id="safe-input" placeholder="输入'拥护'并按回车..." style="flex:1; padding:8px; background:black; color:white; border:1px solid gray;" />
-    </div>
-    <p style="font-size:12px;">已记录禁忌: <b id="bad-count">0</b>/10 | 安全词命中: <b id="good-count">0</b></p>
-</section>
-<script>
-let bad=0, good=0, dropInterval;
-const zone = document.getElementById('word-drop-zone');
-const badWords = ['自由','罢工','抗议','真相','私有制','北约'];
-const goodWord = '拥护';
-
-function spawnWord(){
-    const isBad = Math.random() > 0.3;
-    const word = isBad ? badWords[Math.floor(Math.random()*badWords.length)] : goodWord;
-    const el = document.createElement('div');
-    el.innerText = word;
-    el.style.position = 'absolute';
-    el.style.left = Math.random()*80 + '%';
-    el.style.top = '0px';
-    el.style.color = isBad ? '#e84118' : '#44bd32';
-    el.style.fontWeight = 'bold';
-    el.dataset.type = isBad ? 'bad' : 'good';
-    zone.appendChild(el);
-
-    let y = 0;
-    const fall = setInterval(() => {
-        y+=1;
-        el.style.top = y + 'px';
-        if(y > 130) {
-            clearInterval(fall);
-            if(el.dataset.type === 'bad') { bad++; document.getElementById('bad-count').innerText=bad; if(bad>=10) { alert("克格勃已锁定你的IP，请关闭页面。"); clearInterval(dropInterval); } }
-            el.remove();
-        }
-    }, 30);
-}
-dropInterval = setInterval(spawnWord, 1200);
-
-document.getElementById('safe-input').addEventListener('keydown', e => {
-    if(e.key === 'Enter' && e.target.value === goodWord){
-        e.target.value = '';
-        good++;
-        document.getElementById('good-count').innerText=good;
-        const badEls = zone.querySelectorAll('div[data-type="bad"]');
-        if(badEls.length > 0) { badEls[badEls.length-1].remove(); bad = Math.max(0, bad-1); document.getElementById('bad-count').innerText=bad; }
-    }
-});
-</script>
+    
 <section class="card" style="background:#1e1e1e; color:#dcdcdc; margin-top:40px; padding:25px; border:3px solid #8b0000;">
     <h2 style="color:#ffd700; text-align:center;">📰 真理报 (Pravda) 头条生成器</h2>
     <p style="text-align:center; font-size:12px;">只需一键，即可生成符合中央精神的完美新闻。</p>
@@ -577,76 +525,9 @@ function updateGulagUI() {
     document.getElementById('gulag-anger').innerText = anger;
 }
 </script>
-<section class="card" style="background:#0f0f23; color:#e0e0e0; margin-top:40px; padding:0; border:2px solid #a00000; font-family: 'Courier New', monospace;">
-    <div style="background:#a00000; padding:10px; text-align:center;">
-        <h2 style="color:white; margin:0;">🕵️ 第7厅：意识形态纯度测试</h2>
-        <p style="font-size:11px; margin:0;">根据《第78号指令》，甄别潜伏的破坏分子。</p>
-    </div>
 
-    <div style="padding:20px;">
-        <p id="k7-intro" style="color:#00ff00;"></p>
-        <div id="k7-suspects" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; margin:20px 0;"></div>
-        
-        <div id="k7-dossier" style="background:#1a1a1a; padding:15px; border:1px solid #444; min-height:120px; margin-bottom:15px;">
-            <p style="color:#888;">点击嫌疑人查看档案...</p>
-        </div>
-
-        <div id="k7-accuse-area" style="display:none; text-align:center; padding:10px; background:#2a0a0a; border:1px dashed red;">
-            <p>确认指控 <span id="k7-accused-name" style="color:red; font-weight:bold;"></span> 为破坏分子？</p>
-            <button onclick="accuse(true)" style="background:#008000; color:white; padding:8px 15px; border:none;">确认逮捕</button>
-            <button onclick="accuse(false)" style="background:#555; color:white; padding:8px 15px; border:none;">继续观察</button>
-        </div>
-
-        <div id="k7-result" style="text-align:center; font-size:18px; margin-top:15px;"></div>
-    </div>
-</section>
-
-<script>
-const k7_data = [
-    { id: 0, name: "伊万·彼得罗夫", clues: ["邻居说他常去教堂", "档案记录身高180cm"], isSpy: false, bio: "工人，忠诚，只是信教。" },
-    { id: 1, name: "鲍里斯·卡根诺维奇", clues: ["出生地：基辅", "大学专业：核物理", "档案备注：祖父是犹太人"], isSpy: true, bio: "高智商，有海外联系，典型的托派伪装。" },
-    { id: 2, name: "谢尔盖·伊万诺夫", clues: ["职业：集体农庄主席", "曾获得红旗勋章"], isSpy: false, bio: "战斗英雄，纯粹的布尔什维克。" }
-];
-let k7_current = null;
-
-function initK7() {
-    const intro = document.getElementById('k7-intro');
-    const suspectsDiv = document.getElementById('k7-suspects');
-    intro.innerText = "命令：三人中有一人是西方间谍。根据档案线索，找出他。\n提示：真正的无产阶级不会有复杂的海外背景。";
-    suspectsDiv.innerHTML = '';
-    
-    k7_data.forEach(p => {
-        const btn = document.createElement('button');
-        btn.innerText = p.name;
-        btn.style.cssText = "padding:10px; background:#333; color:white; border:1px solid #666; cursor:pointer;";
-        btn.onclick = () => selectSuspect(p);
-        suspectsDiv.appendChild(btn);
-    });
-}
-initK7();
-
-function selectSuspect(person) {
     k7_current = person;
-    const dossier = document.getElementById('k7-dossier');
-    dossier.innerHTML = `<h3>${person.name}</h3><p>${person.bio}</p><ul>${person.clues.map(c => `<li>${c}</li>`).join('')}</ul>`;
     
-    const accuseArea = document.getElementById('k7-accuse-area');
-    document.getElementById('k7-accused-name').innerText = person.name;
-    accuseArea.style.display = 'block';
-}
-
-function accuse(isAccusing) {
-    const result = document.getElementById('k7-result');
-    if (isAccusing && k7_current.isSpy) {
-        result.innerHTML = '<span style="color:lime;">正确！间谍已被送往古拉格。</span>';
-    } else if (isAccusing && !k7_current.isSpy) {
-        result.innerHTML = '<span style="color:red;">错误！你逮捕了无辜工人！你被流放了！</span>';
-    } else {
-        result.innerHTML = '<span style="color:yellow;">谨慎是对的，但时间不多了。</span>';
-    }
-    document.getElementById('k7-accuse-area').style.display = 'none';
-}
-</script>
 <section class="card" style="background:#0a0a0a; color:#e0e0e0; margin-top:50px; padding:0; border:2px solid #cc0000; font-family: 'Courier New', monospace;">
     <div style="background:#1a1a1a; padding:15px; text-align:center; border-bottom:1px solid #333;">
         <h2 style="color:#ff3333; margin:0;">🧱 柏林墙防线：第9防区</h2>
@@ -833,74 +714,7 @@ setInterval(() => {
 </section>
 
 <script>
-const surv_arena = document.getElementById('survival-arena');
-let surv_state = { players: [], killer: null, alive: 8 };
-const surv_log = document.getElementById('surv-log');
 
-function surv_logMsg(msg) { surv_log.innerHTML += msg + "<br>"; surv_log.scrollTop = surv_log.scrollHeight; }
-
-function surv_init() {
-    for(let i=0; i<8; i++) {
-        const p = document.createElement('div');
-        p.style.cssText = `position:absolute; width:30px; height:30px; background:hsl(${Math.random()*360}, 70%, 60%); border-radius:5px; cursor:pointer; transition: all 0.5s;`;
-        p.style.left = Math.random()*90 + '%';
-        p.style.top = Math.random()*80 + '%';
-        p.onclick = () => surv_vote(p);
-        surv_arena.appendChild(p);
-        surv_state.players.push(p);
-    }
-    surv_state.killer = surv_state.players[Math.floor(Math.random()*8)];
-    surv_state.killer.dataset.role = 'killer';
-    surv_logMsg("游戏开始。谁是内务部特工？");
-}
-
-function surv_movement() {
-    surv_state.players.forEach(p => {
-        if(p.style.opacity !== '0.2') { // 如果还活着
-            const dx = (Math.random()-0.5)*10;
-            const dy = (Math.random()-0.5)*10;
-            p.style.left = (parseFloat(p.style.left) + dx) + '%';
-            p.style.top = (parseFloat(p.style.top) + dy) + '%';
-        }
-    });
-    requestAnimationFrame(surv_movement);
-}
-surv_movement();
-
-// 杀手逻辑
-setInterval(() => {
-    if(surv_state.killer && surv_state.alive > 2) {
-        const target = surv_state.players.filter(p => p !== surv_state.killer && p.style.opacity !== '0.2')[Math.floor(Math.random()*surv_state.players.length)];
-        if(target) {
-            target.style.opacity = '0.2'; // 被淘汰
-            target.style.transform = 'scale(0)';
-            surv_state.alive--;
-            document.getElementById('surv-alive').innerText = surv_state.alive;
-            surv_logMsg(`有人失踪了！剩余 ${surv_state.alive} 人。`);
-        }
-    }
-    if(surv_state.alive <= 2) { alert("特工获胜！所有人都被清洗了！"); location.reload(); }
-}, 5000);
-
-function surv_callVote() {
-    surv_logMsg("紧急会议！请点击你怀疑的对象。");
-    document.getElementById('surv-status').innerText = "投票中...";
-}
-
-function surv_vote(player) {
-    if(player === surv_state.killer) {
-        alert("正确！特工被揪出来了！你赢了！");
-        location.reload();
-    } else {
-        surv_logMsg("你投票给了错误的人。他被流放了，但特工还在。");
-        player.style.opacity = '0.2';
-        surv_state.alive--;
-        document.getElementById('surv-alive').innerText = surv_state.alive;
-    }
-}
-
-surv_init();
-</script>
 <section class="card" style="background:#0d0d0d; color:#e0e0e0; margin-top:50px; padding:0; border:3px solid #8b0000; font-family: 'Georgia', serif;">
     <div style="background:#1a1a1a; padding:15px; text-align:center; border-bottom:1px solid #333;">
         <h2 style="color:#ffd700; margin:0;">☭ 政治局会议：改革与停滞</h2>
