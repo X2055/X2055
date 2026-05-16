@@ -377,6 +377,206 @@ window.onload = () => {
     }, 500);
 };
 </script>
+<section class="card" style="background:#2F3542; color:white; margin-top:30px; padding:20px; border:2px solid #FF4757;">
+    <h2 style="color:#FFDD59;">🏭 计划经济大亨：五年计划模拟器</h2>
+    <p style="font-size:13px;">目标是全民幸福度>80。注意：系统总会优先造坦克！</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:15px;">
+        <div>🍞 面包: <b id="res-bread">50</b></div>
+        <div>🔩 螺丝: <b id="res-screw">200</b></div>
+        <div>🛡️ 坦克: <b id="res-tank">20</b></div>
+        <div>😊 幸福度: <b id="res-happy">50</b></div>
+    </div>
+    <div style="margin-top:15px;">
+        <button onclick="planAlloc()" style="padding:10px; background:#3742FA; color:white; border:none;">执行下一年计划</button>
+    </div>
+    <p id="plan-msg" style="color:#FFDD59; margin-top:10px;"></p>
+</section>
+<script>
+let bread=50, screw=200, tank=20, happy=50;
+function planAlloc(){
+    bread+=Math.floor(Math.random()*20)-5;
+    screw+=30; tank+=5; // 系统自动偏向重工业
+    if(Math.random()>0.7) { bread=Math.max(0,bread-30); happy-=15; document.getElementById('plan-msg').innerText="警报：乌克兰丰收数据造假，发生短缺！";}
+    if(bread<10) happy-=20;
+    if(tank>50) happy+=5;
+    happy = Math.max(0, Math.min(100, happy));
+    if(happy<=0) { alert("幸福度归零！群众在红场抗议！"); location.reload(); }
+    document.getElementById('res-bread').innerText=bread;
+    document.getElementById('res-screw').innerText=screw;
+    document.getElementById('res-tank').innerText=tank;
+    document.getElementById('res-happy').innerText=happy;
+    if(happy>80) document.getElementById('plan-msg').innerText="乌拉！五年计划圆满完成（表面）！";
+}
+</script>
+<section class="card" style="background:#1e272e; color:white; margin-top:30px; padding:20px; border:2px solid #e84118;">
+    <h2 style="color:#f5f6fa;">📠 信访局急件处理：禁忌词过滤</h2>
+    <p style="font-size:13px;">禁忌词（红色）掉到底部会被记录。输入下方白词（安全词）并按回车消除一个禁忌词。</p>
+    <div id="word-drop-zone" style="height:150px; background:#0c2461; position:relative; overflow:hidden; margin-top:10px; border:1px solid #4a69bd;">
+        <!-- 词会在这里生成 -->
+    </div>
+    <div style="margin-top:10px; display:flex;">
+        <input id="safe-input" placeholder="输入'拥护'并按回车..." style="flex:1; padding:8px; background:black; color:white; border:1px solid gray;" />
+    </div>
+    <p style="font-size:12px;">已记录禁忌: <b id="bad-count">0</b>/10 | 安全词命中: <b id="good-count">0</b></p>
+</section>
+<script>
+let bad=0, good=0, dropInterval;
+const zone = document.getElementById('word-drop-zone');
+const badWords = ['自由','罢工','抗议','真相','私有制','北约'];
+const goodWord = '拥护';
+
+function spawnWord(){
+    const isBad = Math.random() > 0.3;
+    const word = isBad ? badWords[Math.floor(Math.random()*badWords.length)] : goodWord;
+    const el = document.createElement('div');
+    el.innerText = word;
+    el.style.position = 'absolute';
+    el.style.left = Math.random()*80 + '%';
+    el.style.top = '0px';
+    el.style.color = isBad ? '#e84118' : '#44bd32';
+    el.style.fontWeight = 'bold';
+    el.dataset.type = isBad ? 'bad' : 'good';
+    zone.appendChild(el);
+
+    let y = 0;
+    const fall = setInterval(() => {
+        y+=1;
+        el.style.top = y + 'px';
+        if(y > 130) {
+            clearInterval(fall);
+            if(el.dataset.type === 'bad') { bad++; document.getElementById('bad-count').innerText=bad; if(bad>=10) { alert("克格勃已锁定你的IP，请关闭页面。"); clearInterval(dropInterval); } }
+            el.remove();
+        }
+    }, 30);
+}
+dropInterval = setInterval(spawnWord, 1200);
+
+document.getElementById('safe-input').addEventListener('keydown', e => {
+    if(e.key === 'Enter' && e.target.value === goodWord){
+        e.target.value = '';
+        good++;
+        document.getElementById('good-count').innerText=good;
+        const badEls = zone.querySelectorAll('div[data-type="bad"]');
+        if(badEls.length > 0) { badEls[badEls.length-1].remove(); bad = Math.max(0, bad-1); document.getElementById('bad-count').innerText=bad; }
+    }
+});
+</script>
+<section class="card" style="background:#1e1e1e; color:#dcdcdc; margin-top:40px; padding:25px; border:3px solid #8b0000;">
+    <h2 style="color:#ffd700; text-align:center;">📰 真理报 (Pravda) 头条生成器</h2>
+    <p style="text-align:center; font-size:12px;">只需一键，即可生成符合中央精神的完美新闻。</p>
+    
+    <div id="pravda-frontpage" style="background:white; color:black; padding:20px; margin-top:20px; border:5px double black; font-family: 'Times New Roman', serif;">
+        <h1 id="pravda-title" style="font-size:28px; text-align:center; color:red; text-transform:uppercase;">
+            伟大的苏维埃取得史诗般胜利
+        </h1>
+        <p id="pravda-subtitle" style="text-align:center; font-style:italic; margin-bottom:20px;">
+            人民欢呼雀跃，资本主义世界瑟瑟发抖
+        </p>
+        <div style="border-top:2px solid black; padding-top:10px;">
+            <p><strong>莫斯科讯：</strong>在<b id="pravda-leader">勃列日涅夫</b>同志的英明领导下，我国于<b id="pravda-project">第聂伯河水电站</b>项目中再次取得了举世瞩目的成就。尽管西方媒体恶意报道称<b id="pravda-lie">发生了技术故障</b>，但事实是，我们的产量已经超过了计划的<b id="pravda-percent">150%</b>。</p>
+            <p>专家表示，这完全归功于<b id="pravda-reason">集体农庄的高度积极性</b>。与此同时，美帝国主义正陷入严重的<b id="pravda-crisis">通货膨胀与经济危机</b>之中，无法自拔。</p>
+        </div>
+    </div>
+    
+    <div style="text-align:center; margin-top:20px;">
+        <button onclick="generatePravda()" style="padding:12px 30px; font-size:16px; background:#8b0000; color:gold; border:none; cursor:pointer;">
+            印刷下一期（严禁篡改）
+        </button>
+    </div>
+</section>
+
+<script>
+const leaders = ["斯大林", "赫鲁晓夫", "勃列日涅夫", "安德罗波夫", "契尔年科"];
+const projects = ["第聂伯河水电站", "斯普特尼克计划", "五年计划", "集体农庄丰收", "切尔诺贝利抢险"];
+const lies = ["发生了轻微的技术故障", "由于天气原因推迟", "遭到帝国主义间谍破坏", "数据录入错误"];
+const reasons = ["社会主义制度的优越性", "人民的无私奉献", "党的正确领导", "科学的伟大进步"];
+const crises = ["失业潮", "毒品泛滥", "种族冲突", "股市崩盘", "枪支暴力"];
+
+function generatePravda() {
+    document.getElementById('pravda-leader').innerText = leaders[Math.floor(Math.random()*leaders.length)];
+    document.getElementById('pravda-project').innerText = projects[Math.floor(Math.random()*projects.length)];
+    document.getElementById('pravda-lie').innerText = lies[Math.floor(Math.random()*lies.length)];
+    document.getElementById('pravda-reason').innerText = reasons[Math.floor(Math.random()*reasons.length)];
+    document.getElementById('pravda-crisis').innerText = crises[Math.floor(Math.random()*crises.length)];
+    document.getElementById('pravda-percent').innerText = (Math.floor(Math.random()*200)+100) + "%";
+}
+</script>
+<section class="card" style="background:#3d3d3d; color:#f0f0f0; margin-top:40px; padding:25px; border:3px solid #556b2f;">
+    <h2 style="color:#FFD700;">⛏️ 第37号避难所：古拉格模拟经营</h2>
+    <p style="font-size:12px;">目标：活下去。注意：挖坑是为了填坑，填坑是为了挖坑。</p>
+    
+    <div style="display:flex; justify-content:space-around; text-align:center; margin:20px 0; font-size:18px;">
+        <div>🥔 土豆: <b id="gulag-potato">10</b></div>
+        <div>🕳️ 坑洞: <b id="gulag-hole">0</b></div>
+        <div>👷 囚犯: <b id="gulag-prisoner">50</b></div>
+        <div>😡 不满度: <b id="gulag-anger">0</b>%</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <button onclick="assignWork('potato')" style="padding:10px; background:#6b8e23;">强迫挖土豆 (+食物)</button>
+        <button onclick="assignWork('hole')" style="padding:10px; background:#8b4513;">强迫挖坑 (+劳改)</button>
+        <button onclick="assignWork('fill')" style="padding:10px; background:#a0522d;">强迫填坑 (-劳改)</button>
+        <button onclick="assignWork('punish')" style="padding:10px; background:#8b0000; color:white;">惩罚怠工 (降不满)</button>
+    </div>
+
+    <p id="gulag-log" style="height:60px; overflow-y:scroll; background:black; padding:10px; margin-top:15px; font-size:12px; border:1px solid #666;">
+        系统启动：古拉格第37号营地已就绪。<br>
+    </p>
+</section>
+
+<script>
+let potato=10, hole=0, prisoner=50, anger=0;
+const logEl = document.getElementById('gulag-log');
+
+function log(text) {
+    logEl.innerHTML += text + "<br>";
+    logEl.scrollTop = logEl.scrollHeight;
+}
+
+function assignWork(type) {
+    if (prisoner <= 0) { alert("囚犯死光了！你也去挖坑吧！"); return; }
+    
+    switch(type) {
+        case 'potato':
+            potato += 5;
+            anger += 5;
+            log("囚犯挖了5个土豆。他们在抱怨土壤太硬。");
+            break;
+        case 'hole':
+            hole += 3;
+            anger += 10;
+            log("挖了3个新坑。第37条法案执行中...");
+            break;
+        case 'fill':
+            if (hole > 0) { hole -= 3; potato -= 2; log("填了3个坑。浪费了2个土豆作为燃料。"); }
+            else { log("没有坑可填了！计划停滞！"); anger += 20; }
+            break;
+        case 'punish':
+            if (potato >= 5) { potato -= 5; anger = Math.max(0, anger-30); log("用5个土豆贿赂了守卫，不满度下降。"); }
+            else { log("没有土豆用来贿赂！暴动即将发生！"); anger += 50; }
+            break;
+    }
+    
+    // 随机事件：逃跑
+    if (Math.random() > 0.9) {
+        prisoner--;
+        log("<span style='color:red;'>一名囚犯逃跑了！</span>");
+    }
+
+    // 检查失败条件
+    if (anger >= 100) { alert("暴动了！囚犯推翻了你的统治！"); location.reload(); }
+    if (hole > 20 && potato < 5) { alert("计划失衡！挖坑太多没饭吃，你也去挖坑吧！"); location.reload(); }
+
+    updateGulagUI();
+}
+
+function updateGulagUI() {
+    document.getElementById('gulag-potato').innerText = potato;
+    document.getElementById('gulag-hole').innerText = hole;
+    document.getElementById('gulag-prisoner').innerText = prisoner;
+    document.getElementById('gulag-anger').innerText = anger;
+}
+</script>
 
 </body>
 </html>
