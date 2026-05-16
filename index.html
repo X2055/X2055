@@ -248,6 +248,135 @@ function purge(element) {
     }
 }
 </script>
+<!-- ===== 游戏三：五年计划 ===== -->
+<section class="card" style="background:#2c3e50; padding:20px; border:2px solid #f1c40f; margin-top:30px;">
+    <h2 style="color:#f1c40f;">🏭 第五个五年计划</h2>
+    <p style="color:#ecf0f1;">目标：生产 1000 万吨钢铁！</p>
+    
+    <div style="text-align:center; padding:20px;">
+        <p style="color:white; font-size:16px;">当前产量：<span id="steel-count" style="font-size:32px; color:#f1c40f;">0</span> 万吨</p>
+        <button onclick="produceSteel()" style="padding:15px 30px; font-size:18px; background:#27ae60; color:white; border:none; cursor:pointer;">
+            炼钢！
+        </button>
+        <p id="plan-status" style="color:#e74c3c; margin-top:10px; height:20px;"></p>
+    </div>
+</section>
+
+<script>
+let steel = 0;
+function produceSteel() {
+    steel += 10;
+    document.getElementById('steel-count').innerText = steel;
+    let status = document.getElementById('plan-status');
+    
+    // 随机事件：大饥荒
+    if (Math.random() < 0.2 && steel > 0) { // 20% 概率触发
+        status.innerText = "警报：乌克兰发生大饥荒！粮食产量归零，钢铁运输受阻！";
+        steel = Math.max(0, steel - 50); // 扣减产量
+        document.getElementById('steel-count').innerText = steel;
+        setTimeout(() => { status.innerText = ""; }, 3000);
+    }
+
+    if (steel >= 1000) {
+        alert("乌拉！五年计划提前完成！(其实并没有)");
+        steel = 0;
+        document.getElementById('steel-count').innerText = 0;
+    }
+}
+</script>
+<!-- ===== 游戏四：勋章收集 ===== -->
+<section class="card" style="background:#34495e; padding:20px; border:2px solid #e67e22; margin-top:30px;">
+    <h2 style="color:#e67e22;">🎖️ 勃列日涅夫勋章授予仪式</h2>
+    <p style="color:#bdc3c7;">勋章太多，胸口挂不下了！</p>
+
+    <div style="text-align:center; padding:20px;">
+        <p style="color:white;">已获得勋章：<span id="medal-count" style="font-size:32px; color:#f1c40f;">0</span> 枚</p>
+        <button onclick="addMedal()" style="padding:15px 30px; font-size:18px; background:#e67e22; color:white; border:none; cursor:pointer;">
+            授予一枚勋章！
+        </button>
+        <div id="medal-wall" style="margin-top:20px; font-size:30px; height:60px; overflow:hidden;">
+            <!-- 勋章堆在这里 -->
+        </div>
+    </div>
+</section>
+
+<script>
+let medals = 0;
+function addMedal() {
+    medals++;
+    document.getElementById('medal-count').innerText = medals;
+    let medalWall = document.getElementById('medal-wall');
+    
+    // 随机选一个勋章符号
+    let symbols = ['🎖️', '🏅', '✨', '🌟', '🔴'];
+    let symbol = symbols[Math.floor(Math.random() * symbols.length)];
+    
+    medalWall.innerHTML += symbol;
+    
+    if (medals > 20) {
+        medalWall.innerHTML += "<br>"; // 换行，防止溢出
+        medals = 0; // 重置计数，表示胸口的衣服烂了
+        alert("衣服被勋章压破了！");
+    }
+}
+</script>
+<!-- ===== 游戏五：切尔诺贝利 ===== -->
+<section class="card" style="background:#1c1c1c; padding:20px; border:2px solid #c0392b; margin-top:30px;">
+    <h2 style="color:#c0392b;">☢️ 切尔诺贝利：反应堆冷却</h2>
+    <p style="color:#7f8c8d;">按住按钮降温，松开就会爆炸！</p>
+
+    <div style="text-align:center; padding:20px;">
+        <p style="color:#e74c3c; font-size:24px;">温度：<span id="temp">20</span>°C</p>
+        <button id="cool-btn" 
+                onmousedown="startCooling()" 
+                onmouseup="stopCooling()" 
+                ontouchstart="startCooling()" 
+                ontouchend="stopCooling()"
+                style="width:150px; height:150px; border-radius:50%; background:#3498db; color:white; font-size:20px; border:5px solid #2980b9; cursor:pointer;">
+            按住冷却
+        </button>
+        <p id="radiation-status" style="color:#e74c3c; font-size:18px; margin-top:10px;"></p>
+    </div>
+</section>
+
+<script>
+let temp = 20;
+let coolingInterval = null;
+let heatingInterval = null;
+
+function startCooling() {
+    clearInterval(heatingInterval); // 停止升温
+    coolingInterval = setInterval(() => {
+        if(temp > 0) temp -= 2;
+        document.getElementById('temp').innerText = temp;
+    }, 100);
+}
+
+function stopCooling() {
+    clearInterval(coolingInterval); // 停止降温
+    heatingInterval = setInterval(() => {
+        temp += 5;
+        document.getElementById('temp').innerText = temp;
+        if (temp >= 1200) {
+            document.getElementById('radiation-status').innerText = "BOOM! 反应堆爆炸了！古拉格见！";
+            document.body.style.background = "orange";
+            clearInterval(heatingInterval);
+        }
+    }, 100);
+}
+
+// 默认开始升温
+window.onload = () => {
+    heatingInterval = setInterval(() => {
+        temp += 1;
+        let tempEl = document.getElementById('temp');
+        if(tempEl) tempEl.innerText = temp;
+        if (temp >= 1200 && document.getElementById('radiation-status')) {
+            document.getElementById('radiation-status').innerText = "警告：温度过高！";
+        }
+    }, 500);
+};
+</script>
 
 </body>
 </html>
