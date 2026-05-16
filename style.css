@@ -305,39 +305,3 @@ footer p {
 footer {
     color: #FFD700 !important;
 }
-/* =============================================== */
-/* 精准修复：领导人介绍卡片字体颜色 */
-/* =============================================== */
-
-/* 针对截图中这种带有灰色副标题的卡片 */
-.card p {
-    color: #000000 !important; 
-}
-/* =============================================== */
-/* 审讯室文字浅色化 (针对黑色背景) */
-/* =============================================== */
-
-/* 1. 强制审讯室大标题变浅 (金色/浅黄) */
-#interrogation-box h3, 
-#interrogation-box .title,
-.card h3 { 
-    color: #f1c40f !important; /* 亮金色，醒目 */
-}
-
-/* 2. 强制审讯室正文/提示语变浅 (浅灰/白) */
-#interrogation-box p, 
-#interrogation-box .subtitle,
-.card p {
-    color: #ffffff !important; /* 纯白色 */
-}
-
-/* 3. 如果里面还有小字（比如“等待审查...”），也强制变浅 */
-#interrogation-box span, 
-#interrogation-box small {
-    color: #cccccc !important; /* 浅灰色 */
-}
-
-/* 4. 按钮文字如果看不清，也改一下 */
-#interrogation-box button {
-    color: white !important;
-}
