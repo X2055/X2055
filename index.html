@@ -265,12 +265,12 @@ function purge(element) {
 <script>
 let steel = 0;
 function produceSteel() {
-    steel += 10;
+    steel += 20;
     document.getElementById('steel-count').innerText = steel;
     let status = document.getElementById('plan-status');
     
     // 随机事件：大饥荒
-    if (Math.random() < 0.2 && steel > 0) { // 20% 概率触发
+    if (Math.random() < 0.1 && steel > 0) { // 10% 概率触发
         status.innerText = "警报：乌克兰发生大饥荒！粮食产量归零，钢铁运输受阻！";
         steel = Math.max(0, steel - 50); // 扣减产量
         document.getElementById('steel-count').innerText = steel;
@@ -308,7 +308,7 @@ function addMedal() {
     let medalWall = document.getElementById('medal-wall');
     
     // 随机选一个勋章符号
-    let symbols = ['🎖️', '🏅', '✨', '🌟', '🔴'];
+    let symbols = ['🎖️', '🏅'];
     let symbol = symbols[Math.floor(Math.random() * symbols.length)];
     
     medalWall.innerHTML += symbol;
