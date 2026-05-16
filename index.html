@@ -273,7 +273,7 @@
     </footer>
 <!-- ===== 克格勃小游戏 1：审讯室 ===== -->
 <section class="card" style="background:#111; color:#f0f0f0; border:2px solid #cc0000;">
-    <h2 style="color:#ffd700;">🕵️♂️ 第 205 号审讯室</h2>
+    <h2 style="color:#ffd700;"> 第 205 号审讯室</h2>
     <p style="font-size:14px;">公民，请审查以下言论。犹豫即是背叛！</p>
     
     <div id="interrogation-box" style="padding:20px; background:#000; border:1px solid #444; min-height:120px; margin-top:15px;">
@@ -331,7 +331,7 @@ window.onload = () => {
 </script>
 <!-- ===== 克格勃小游戏 2：名单审查 ===== -->
 <section class="card" style="background:#f5f5dc; color:#333; border:2px solid #8b4513; margin-top:30px;">
-    <h2 style="color:#8b0000;">📝 真理部：名单审查</h2>
+    <h2 style="color:#8b0000;"> 真理部：名单审查</h2>
     <p style="font-size:14px;">划线处决。注意：<strong>勃列日涅夫同志</strong>必须保留！</p>
     
     <ul id="list-to-purge" style="list-style:none; padding:0; font-size:18px;">
@@ -761,63 +761,7 @@ function td_startWave() {
     
     <div style="display:flex; margin-top:20px;">
         <!-- 工具栏 -->
-        <div style="width:150px; padding:10px; background:#0a1a0a;">
-            <p style="color:#90ee90;">工厂组件:</p>
-            <button onclick="af_selectTool('belt')" style="width:100%; margin-bottom:5px; padding:5px; background:#333;">传送带</button>
-            <button onclick="af_selectTool('splitter')" style="width:100%; margin-bottom:5px; padding:5px; background:#333;">分流器</button>
-            <button onclick="af_selectTool('and')" style="width:100%; margin-bottom:5px; padding:5px; background:#333;">与门 (AND)</button>
-            <button onclick="af_selectTool('assembler')" style="width:100%; margin-bottom:5px; padding:5px; background:#333;">组装机</button>
-            <hr>
-            <p>库存:</p>
-            <p>铁矿: <b id="af-iron">10</b></p>
-            <p>拖拉机: <b id="af-tractor">0</b></p>
-        </div>
-        
-        <!-- 工厂网格 -->
-        <div id="af-grid" style="flex:1; display:grid; grid-template-columns:repeat(10, 60px); grid-template-rows:repeat(6, 60px); gap:2px; background:#0a1a0a; padding:10px; border:1px solid #333;">
-            <!-- 格子由JS生成 -->
-        </div>
-    </div>
-    <div id="af-log" style="height:60px; overflow-y:scroll; background:#050f05; padding:10px; margin-top:15px; font-size:11px;"></div>
-</section>
 
-<script>
-const af_grid = document.getElementById('af-grid');
-let af_state = { tool:null, grid:[], iron:10, tractor:0 };
-const af_log = document.getElementById('af-log');
-
-// 初始化网格
-for(let i=0; i<60; i++) { 
-    const cell = document.createElement('div');
-    cell.style.cssText = "background:#1a2a1a; border:1px solid #2a3a2a; cursor:pointer;";
-    cell.onclick = () => af_place(cell);
-    af_grid.appendChild(cell); 
-}
-
-function af_selectTool(tool) { af_state.tool = tool; af_log.innerHTML += `选择了：${tool}<br>`; }
-function af_place(cell) {
-    if(!af_state.tool) return;
-    cell.innerHTML = af_state.tool.charAt(0).toUpperCase();
-    cell.style.background = '#2a4a2a';
-    af_log.innerHTML += `放置了 ${af_state.tool}。<br>`;
-}
-
-// 自动化逻辑（简化版循环）
-setInterval(() => {
-    if(af_state.iron > 0) {
-        af_state.iron--;
-        document.getElementById('af-iron').innerText = af_state.iron;
-        // 假设经过复杂的传送带逻辑后...
-        if(Math.random() > 0.7) {
-            af_state.tractor++;
-            document.getElementById('af-tractor').innerText = af_state.tractor;
-            af_log.innerHTML += "<span style='color:lime;'>一辆拖拉机生产完毕！</span><br>";
-        }
-    }
-    if(af_state.iron <= 0) af_log.innerHTML += "<span style='color:red;'>原料耗尽！计划停滞！</span><br>";
-    af_log.scrollTop = af_log.scrollHeight;
-}, 2000);
-</script>
 
 
 <section class="card" style="background:#0d0d0d; color:#e0e0e0; margin-top:50px; padding:0; border:3px solid #8b0000; font-family: 'Georgia', serif;">
