@@ -313,8 +313,3 @@ footer {
 .card p {
     color: #000000 !important; 
 }
-
-/* 如果上面那个不管用，就用这个终极绝招：强制页面上所有文字变黑 */
-p, span, div {
-    color: #000000 !important;
-}
