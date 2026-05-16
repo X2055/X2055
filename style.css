@@ -272,3 +272,36 @@ footer {
 footer p {
     margin: 5px 0;
 }
+/* =============================================== */
+/* 强制修正文字颜色 - 添加到 style.css 最底部 */
+/* =============================================== */
+
+/* 修复时间线文字（黑色） */
+.timeline .event {
+    color: #000000 !important;
+}
+
+/* 修复领导人介绍文字（深黑色） */
+.leader-card p {
+    color: #000000 !important;
+}
+
+/* 修复航天成就列表文字（深黑色） */
+.space-achievements li {
+    color: #000000 !important;
+}
+
+/* 修复名言录文字（深黑色） */
+.quotes-section blockquote {
+    color: #000000 !important;
+}
+
+/* 修复新闻列表文字（深黑色） */
+.card ul li {
+    color: #000000 !important;
+}
+
+/* 修复页脚文字（亮金色，防止太淡） */
+footer {
+    color: #FFD700 !important;
+}
