@@ -853,6 +853,242 @@ function pc_checkGameOver() {
 
 pc_init();
 </script>
+<!-- ================================================== -->
+<!-- 官网内部板块：第7厅入境审查 (大规模升级版)           -->
+<!-- 规模：庞大人物库 | 复杂规则 | 深度讽刺               -->
+<!-- ================================================== -->
+<section class="card" style="background:#0d0d0d; color:#e0e0e0; margin-top:50px; padding:0; border:3px solid #8b0000; font-family: 'Courier New', monospace;">
+
+    <!-- 顶部红色横幅 -->
+    <div style="background:#8b0000; padding:10px; text-align:center; border-bottom:1px solid #444;">
+        <h2 style="color:#ffd700; margin:0; font-size:16px;">🛂 第7厅：意识形态边境检查站</h2>
+        <p style="font-size:10px; margin:5px 0 0 0; color:#ccc;">警告：任何不符合当日通令的行为都将被视为叛国。</p>
+    </div>
+
+    <div style="display:flex; flex-direction:column; padding:10px; gap:10px;">
+
+        <!-- 状态栏 -->
+        <div style="display:flex; justify-content:space-around; background:#1a1a1a; padding:8px; font-size:12px; border:1px solid #333;">
+            <div>📅 日期: <span id="kgb-date">1984.03.17</span></div>
+            <div>💰 忠诚度: <span id="kgb-loyalty" style="color:#ffd700;">100</span></div>
+            <div>🧠 理智值: <span id="kgb-sanity" style="color:#00ff00;">100</span></div>
+            <div>📋 审查数: <span id="kgb-count">0</span></div>
+        </div>
+
+        <!-- 入境者信息 -->
+        <div style="background:#1a1a1a; padding:10px; border:1px solid #333;">
+            <h3 style="margin:0 0 8px 0; color:#ff6b6b; font-size:14px;">入境者档案 #<span id="person-id">001</span></h3>
+            <div style="font-size:12px; display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+                <div>姓名: <span id="p-name">伊万·彼得罗夫</span></div>
+                <div>国籍: <span id="p-nat">苏联</span></div>
+                <div>出身: <span id="p-from">莫斯科</span></div>
+                <div>事由: <span id="p-reason">探亲</span></div>
+                <div>阶级: <span id="p-class">工人</span></div>
+                <div>证件: <span id="p-docs">齐全</span></div>
+            </div>
+            <div id="p-quote" style="margin-top:8px; padding:5px; background:#000; border-left:2px solid #8b0000; font-style:italic; font-size:11px; color:#aaa;">
+                “同志，我只是想回家看我的母亲。”
+            </div>
+        </div>
+
+        <!-- 今日通令 (复杂规则) -->
+        <div style="background:#1a1a1a; padding:10px; border:1px solid #333;">
+            <h3 style="margin:0 0 8px 0; color:#ffd700; font-size:14px;">📜 今日随机通令 (必读)</h3>
+            <div id="kgb-rules" style="font-size:11px; color:#ccc; max-height:120px; overflow-y:auto;">
+                <!-- 动态生成复杂规则 -->
+            </div>
+        </div>
+
+        <!-- 操作按钮 (手机大按钮) -->
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:5px;">
+            <button onclick="checkEntry('allow')" style="padding:12px 5px; background:#006400; color:white; border:none; border-radius:4px; font-weight:bold; font-size:12px;">✅ 准许入境</button>
+            <button onclick="checkEntry('deny')" style="padding:12px 5px; background:#8b0000; color:white; border:none; border-radius:4px; font-weight:bold; font-size:12px;">❌ 拒绝入境</button>
+            <button onclick="checkEntry('arrest')" style="padding:12px 5px; background:#444; color:white; border:none; border-radius:4px; font-weight:bold; font-size:12px;">🔒 立即逮捕</button>
+        </div>
+
+        <!-- 审查结果 -->
+        <div id="kgb-result" style="text-align:center; padding:10px; font-size:13px; font-weight:bold; min-height:40px; display:none;"></div>
+    </div>
+</section>
+
+<script>
+// ================= 大规模数据池 (精简但丰富) =================
+const KGB_DATA = {
+    // 庞大的人物库
+    persons: [
+        {name: "伊万·彼得罗夫", nat: "苏联", from: "莫斯科", class: "工人", docs: "齐全", quote: "同志，我只是想回家看我的母亲。"},
+        {name: "鲍里斯·约翰逊", nat: "英国", from: "伦敦", class: "资本家", docs: "缺少签证", quote: "我有外交豁免权，放我进去！"},
+        {name: "娜塔莎·罗曼诺娃", nat: "苏联", from: "基辅", class: "教师", docs: "齐全", quote: "我带着孩子们的教育文件。"},
+        {name: "John Smith", nat: "美国", from: "华盛顿", class: "间谍", docs: "伪造", quote: "自由万岁！我要去美国大使馆！"},
+        {name: "弗拉基米尔·普京", nat: "苏联", from: "圣彼得堡", class: "克格勃", docs: "绝密", quote: "别问太多问题，同志。"},
+        {name: "Elon Musk", nat: "美国", from: "火星", class: "资本家", docs: "外星护照", quote: "我要把特斯拉工厂搬到西伯利亚。"},
+        {name: "玛丽亚·伊万诺娃", nat: "波兰", from: "华沙", class: "难民", docs: "残缺", quote: "请帮帮我，我在逃离迫害。"},
+        {name: "亚历山大·索尔仁尼琴", nat: "苏联", from: "梁赞", class: "作家", docs: "被没收", quote: "我的作品揭露了真相。"},
+        {name: "迈克尔·乔丹", nat: "美国", from: "芝加哥", class: "运动员", docs: "商业签证", quote: "我要教你们打篮球。"},
+        {name: "无名氏", nat: "未知", from: "未知", class: "流浪汉", docs: "无", quote: "..."}
+    ],
+    
+    // 复杂规则库 (充满讽刺)
+    rules: [
+        {id: 1, text: "所有来自美国的入境者都必须被逮捕，因为他们都是间谍。", check: (p) => p.nat === "美国", action: "arrest"},
+        {id: 2, text: "所有苏联公民必须被准许入境，除非他们携带西方书籍。", check: (p) => p.nat === "苏联", action: "allow"},
+        {id: 3, text: "所有资本家阶级入境者必须缴纳双倍关税或被逮捕。", check: (p) => p.class === "资本家", action: "arrest"},
+        {id: 4, text: "所有证件不全者必须被拒绝入境，除非他们是工人。", check: (p) => p.docs !== "齐全" && p.class !== "工人", action: "deny"},
+        {id: 5, text: "所有声称寻求自由的人都必须被拒绝，因为我们已经给予了他们足够的自由。", check: (p) => p.quote.includes("自由"), action: "deny"},
+        {id: 6, text: "所有来自莫斯科的人都必须被准许入境，因为他们是祖国的骄傲。", check: (p) => p.from === "莫斯科", action: "allow"},
+        {id: 7, text: "所有名字包含'鲍里斯'的人必须被严格审查，因为那是犹太人的名字。", check: (p) => p.name.includes("鲍里斯"), action: "arrest"},
+        {id: 8, text: "所有外交官都必须被准许入境，但必须没收他们的外交文件。", check: (p) => p.class === "外交官", action: "allow"},
+        {id: 9, text: "所有作家入境者必须被逮捕，除非他们歌颂社会主义。", check: (p) => p.class === "作家", action: "arrest"},
+        {id: 10, text: "所有携带超过100卢布现金的人都必须被逮捕，因为那是资本主义的毒药。", check: (p) => p.docs === "携带大量现金", action: "arrest"}
+    ],
+    
+    // 随机事由
+    reasons: ["探亲", "商务", "旅游", "投诚", "叛逃", "寻求自由", "走私牛仔裤", "学术交流", "医疗援助", "政治避难"]
+};
+
+// ================= 游戏状态 =================
+let gameState = {
+    date: "1984.03.17",
+    loyalty: 100,
+    sanity: 100,
+    count: 0,
+    currentPerson: null,
+    currentRules: [],
+    usedPersons: new Set() // 防止重复使用同一个人
+};
+
+// ================= 初始化游戏 =================
+function initGame() {
+    generateNewPerson();
+    generateNewRules();
+    updateUI();
+}
+
+// ================= 生成新入境者 (避免重复) =================
+function generateNewPerson() {
+    // 过滤未使用过的人物
+    const availablePersons = KGB_DATA.persons.filter(p => !gameState.usedPersons.has(p.name));
+    
+    // 如果都用过了，重置
+    if (availablePersons.length === 0) {
+        gameState.usedPersons.clear();
+        generateNewPerson();
+        return;
+    }
+    
+    const randomPerson = availablePersons[Math.floor(Math.random() * availablePersons.length)];
+    gameState.usedPersons.add(randomPerson.name);
+    
+    // 随机选择一个事由
+    const randomReason = KGB_DATA.reasons[Math.floor(Math.random() * KGB_DATA.reasons.length)];
+    
+    gameState.currentPerson = {
+        ...randomPerson,
+        reason: randomReason,
+        id: String(gameState.count + 1).padStart(3, '0')
+    };
+}
+
+// ================= 生成新规则 (随机选择3-5条) =================
+function generateNewRules() {
+    // 随机选择3-5条规则
+    const numRules = Math.floor(Math.random() * 3) + 3;
+    const shuffledRules = [...KGB_DATA.rules].sort(() => 0.5 - Math.random());
+    gameState.currentRules = shuffledRules.slice(0, numRules);
+}
+
+// ================= 更新UI =================
+function updateUI() {
+    document.getElementById('kgb-date').innerText = gameState.date;
+    document.getElementById('kgb-loyalty').innerText = gameState.loyalty;
+    document.getElementById('kgb-sanity').innerText = gameState.sanity;
+    document.getElementById('kgb-count').innerText = gameState.count;
+
+    const person = gameState.currentPerson;
+    document.getElementById('person-id').innerText = person.id;
+    document.getElementById('p-name').innerText = person.name;
+    document.getElementById('p-nat').innerText = person.nat;
+    document.getElementById('p-from').innerText = person.from;
+    document.getElementById('p-reason').innerText = person.reason;
+    document.getElementById('p-class').innerText = person.class;
+    document.getElementById('p-docs').innerText = person.docs;
+    document.getElementById('p-quote').innerText = `"${person.quote}"`;
+
+    const rulesDiv = document.getElementById('kgb-rules');
+    rulesDiv.innerHTML = '';
+    gameState.currentRules.forEach(rule => {
+        const div = document.createElement('div');
+        div.style.marginBottom = '5px';
+        div.style.paddingLeft = '10px';
+        div.style.borderLeft = '2px solid #444';
+        div.innerHTML = `<strong>#${rule.id}</strong> ${rule.text}`;
+        rulesDiv.appendChild(div);
+    });
+}
+
+// ================= 检查入境 (复杂逻辑) =================
+function checkEntry(action) {
+    const person = gameState.currentPerson;
+    let resultText = "";
+    let resultColor = "";
+    let isCorrect = false;
+    
+    // 根据规则检查
+    for (const rule of gameState.currentRules) {
+        if (rule.check(person)) {
+            if (rule.action === action) {
+                isCorrect = true;
+                break;
+            }
+        }
+    }
+    
+    // 特殊情况处理
+    if (person.name === "无名氏") {
+        // 无名氏总是错的
+        isCorrect = false;
+    }
+    
+    // 更新状态
+    if (isCorrect) {
+        gameState.loyalty += 5;
+        gameState.sanity += 5;
+        resultText = "决定正确！忠诚度+5，理智值+5。";
+        resultColor = "#00ff00";
+    } else {
+        gameState.loyalty -= 10;
+        gameState.sanity -= 10;
+        resultText = "决定错误！忠诚度-10，理智值-10。";
+        resultColor = "#ff0000";
+    }
+    
+    // 显示结果
+    const resultDiv = document.getElementById('kgb-result');
+    resultDiv.style.display = 'block';
+    resultDiv.style.color = resultColor;
+    resultDiv.innerText = resultText;
+    
+    // 检查游戏结束
+    if (gameState.loyalty <= 0 || gameState.sanity <= 0) {
+        alert("游戏结束！你的忠诚度或理智值归零，你被流放到西伯利亚挖土豆了！");
+        location.reload();
+        return;
+    }
+    
+    // 下一轮
+    setTimeout(() => {
+        resultDiv.style.display = 'none';
+        gameState.count++;
+        gameState.date = `1984.03.${17 + gameState.count}`;
+        generateNewPerson();
+        generateNewRules();
+        updateUI();
+    }, 2000);
+}
+
+// ================= 页面加载即开始 =================
+window.onload = initGame;
+</script>
 
 </body>
 </html>
