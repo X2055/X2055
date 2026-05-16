@@ -816,88 +816,6 @@ setInterval(() => {
     af_log.scrollTop = af_log.scrollHeight;
 }, 2000);
 </script>
-<section class="card" style="background:#1a1a2e; color:#e0e0e0; margin-top:50px; padding:20px; border:2px solid #4a4a6a;">
-    <h2 style="color:#ff6b6b; text-align:center;">☠️ 红场求生：大清洗之夜</h2>
-    <p style="text-align:center; font-size:12px;">在这片广场上，有人是内务部特工。活下去，或者找出他。</p>
-    
-    <div style="position:relative; width:100%; height:300px; background:#0f0f1a; margin-top:20px; border:1px solid #333; overflow:hidden;" id="survival-arena">
-        <!-- 玩家方块由JS生成 -->
-    </div>
-    
-    <div style="margin-top:15px; text-align:center;">
-        <p>存活人数: <b id="surv-alive">8</b></p>
-        <p id="surv-status" style="color:#ff6b6b;"></p>
-        <button onclick="surv_callVote()" style="padding:10px 20px; background:#4a4a6a; color:white; border:none;">紧急会议（怀疑某人）</button>
-    </div>
-    <div id="surv-log" style="height:60px; overflow-y:scroll; background:black; padding:10px; margin-top:15px; font-size:11px;"></div>
-</section>
-
-<script>
-const surv_arena = document.getElementById('survival-arena');
-let surv_state = { players: [], killer: null, alive: 8 };
-const surv_log = document.getElementById('surv-log');
-
-function surv_logMsg(msg) { surv_log.innerHTML += msg + "<br>"; surv_log.scrollTop = surv_log.scrollHeight; }
-
-function surv_init() {
-    for(let i=0; i<8; i++) {
-        const p = document.createElement('div');
-        p.style.cssText = `position:absolute; width:30px; height:30px; background:hsl(${Math.random()*360}, 70%, 60%); border-radius:5px; cursor:pointer; transition: all 0.5s;`;
-        p.style.left = Math.random()*90 + '%';
-        p.style.top = Math.random()*80 + '%';
-        p.onclick = () => surv_vote(p);
-        surv_arena.appendChild(p);
-        surv_state.players.push(p);
-    }
-    surv_state.killer = surv_state.players[Math.floor(Math.random()*8)];
-    surv_state.killer.dataset.role = 'killer';
-    surv_logMsg("游戏开始。谁是内务部特工？");
-}
-
-function surv_movement() {
-    surv_state.players.forEach(p => {
-        if(p.style.opacity !== '0.2') { // 如果还活着
-            const dx = (Math.random()-0.5)*10;
-            const dy = (Math.random()-0.5)*10;
-            p.style.left = (parseFloat(p.style.left) + dx) + '%';
-            p.style.top = (parseFloat(p.style.top) + dy) + '%';
-        }
-    });
-    requestAnimationFrame(surv_movement);
-}
-surv_movement();
-
-// 杀手逻辑
-setInterval(() => {
-    if(surv_state.killer && surv_state.alive > 2) {
-        const target = surv_state.players.filter(p => p !== surv_state.killer && p.style.opacity !== '0.2')[Math.floor(Math.random()*surv_state.players.length)];
-        if(target) {
-            target.style.opacity = '0.2'; // 被淘汰
-            target.style.transform = 'scale(0)';
-            surv_state.alive--;
-            document.getElementById('surv-alive').innerText = surv_state.alive;
-            surv_logMsg(`有人失踪了！剩余 ${surv_state.alive} 人。`);
-        }
-    }
-    if(surv_state.alive <= 2) { alert("特工获胜！所有人都被清洗了！"); location.reload(); }
-}, 5000);
-
-function surv_callVote() {
-    surv_logMsg("紧急会议！请点击你怀疑的对象。");
-    document.getElementById('surv-status').innerText = "投票中...";
-}
-
-function surv_vote(player) {
-    if(player === surv_state.killer) {
-        alert("正确！特工被揪出来了！你赢了！");
-        location.reload();
-    } else {
-        surv_logMsg("你投票给了错误的人。他被流放了，但特工还在。");
-        player.style.opacity = '0.2';
-        surv_state.alive--;
-        document.getElementById('surv-alive').innerText = surv_state.alive;
-    }
-}
 
 surv_init();
 </script>
@@ -1054,6 +972,278 @@ function pc_checkGameOver() {
 }
 
 pc_init();
+</script>
+<!-- ================================================== -->
+<!-- 大型游戏：第7厅：永久审查 (高随机性版本)          -->
+<!-- 核心机制：伪随机生成人物、动态规则、文档逻辑校验     -->
+<!-- ================================================== -->
+<div id="inspector-game" style="position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9999; background:#1a1a2e; display:none; color:#e0e0e0; font-family: 'Courier New', monospace; padding:10px; box-sizing:border-box; font-size:12px;">
+
+    <!-- 顶部状态栏 -->
+    <div style="display:flex; justify-content:space-between; background:#16213e; padding:8px; border:1px solid #0f3460; margin-bottom:10px;">
+        <div>日期: <span id="ig-date">1984.03.17</span></div>
+        <div>信用点: <span id="ig-credits">100</span></div>
+        <div>审查员状态: <span id="ig-status">清醒</span></div>
+        <div>今日谬论: <span id="ig-directive" style="color:#e94560;">待发布</span></div>
+    </div>
+
+    <div style="display:flex; height:calc(100% - 80px); gap:10px;">
+        <!-- 左侧：入境者 -->
+        <div style="width:25%; background:#0f3460; padding:10px; border:1px solid #16213e; overflow-y:auto;">
+            <h4 id="ig-person-name" style="margin:0 0 10px 0; color:#e94560;">等待数据...</h4>
+            <p>国籍: <span id="ig-person-nat"></span></p>
+            <p>入境口: <span id="ig-person-gate"></span></p>
+            <p>申报理由: <span id="ig-person-reason"></span></p>
+            <div id="ig-dialogue" style="margin-top:20px; font-style:italic; border-left:2px solid #e94560; padding-left:5px; min-height:40px;">
+                准备接受审查。
+            </div>
+        </div>
+
+        <!-- 中间：文件检查区 (核心) -->
+        <div style="width:45%; background:#1a1a2e; padding:10px; border:1px solid #0f3460; display:grid; grid-template-columns:1fr 1fr; gap:10px; overflow-y:auto;">
+            <!-- 护照 -->
+            <div id="doc-passport" class="doc-paper" style="background:#f1f1f1; color:#333; padding:10px; border:1px solid #ccc; cursor:pointer;">
+                <h5>护照 / PASSPORT</h5>
+                <p>编号: <span id="doc-pass-num"></span></p>
+                <p>姓名: <span id="doc-pass-name"></span></p>
+                <p>出生地: <span id="doc-pass-birth"></span></p>
+                <p>有效期: <span id="doc-pass-exp"></span></p>
+            </div>
+            <!-- 签证 -->
+            <div id="doc-visa" class="doc-paper" style="background:#f1f1f1; color:#333; padding:10px; border:1px solid #ccc; cursor:pointer;">
+                <h5>入境签证 / VISA</h5>
+                <p>签证号: <span id="doc-visa-num"></span></p>
+                <p>签发地: <span id="doc-visa-issuer"></span></p>
+                <p>入境次数: <span id="doc-visa-entries"></span></p>
+                <p>停留天数: <span id="doc-visa-days"></span></p>
+            </div>
+            <!-- 工作证 -->
+            <div id="doc-work" class="doc-paper" style="background:#f1f1f1; color:#333; padding:10px; border:1px solid #ccc; cursor:pointer;">
+                <h5>工作证 / WORK ID</h5>
+                <p>单位: <span id="doc-work-unit"></span></p>
+                <p>职位: <span id="doc-work-post"></span></p>
+                <p>等级: <span id="doc-work-level"></span></p>
+            </div>
+            <!-- 海关申报单 -->
+            <div id="doc-customs" class="doc-paper" style="background:#f1f1f1; color:#333; padding:10px; border:1px solid #ccc; cursor:pointer;">
+                <h5>海关申报 / DECLARATION</h5>
+                <p>携带货币: <span id="doc-customs-money"></span></p>
+                <p>违禁品: <span id="doc-customs-contraband"></span></p>
+                <p>目的地: <span id="doc-customs-dest"></span></p>
+            </div>
+        </div>
+
+        <!-- 右侧：规则手册与决定 -->
+        <div style="width:30%; background:#0f3460; padding:10px; border:1px solid #16213e; display:flex; flex-direction:column;">
+            <h4>第<span id="ig-rule-day">0</span>号通令 (随机生成)</h4>
+            <div id="ig-rules" style="flex:1; background:#16213e; padding:10px; font-size:11px; overflow-y:auto;">
+                <!-- 动态生成规则 -->
+            </div>
+            <textarea id="ig-conclusion" style="width:100%; height:60px; background:#1a1a2e; color:white; border:1px solid #e94560; margin-top:10px;" placeholder="在此输入审查结论..."></textarea>
+            <div style="margin-top:10px; display:flex; gap:5px;">
+                <button onclick="ig_makeDecision('approve')" style="flex:1; padding:8px; background:#0f5132; color:white; border:none;">✅ 准许</button>
+                <button onclick="ig_makeDecision('deny')" style="flex:1; padding:8px; background:#842029; color:white; border:none;">❌ 拒绝</button>
+                <button onclick="ig_makeDecision('arrest')" style="flex:1; padding:8px; background:#664d03; color:white; border:none;">🔒 逮捕</button>
+            </div>
+            <div id="ig-result" style="margin-top:10px; text-align:center; font-weight:bold; min-height:20px;"></div>
+        </div>
+    </div>
+</div>
+
+<button onclick="startInspectorGame()" style="position:fixed; top:20px; right:20px; z-index:10000; padding:15px 30px; font-size:20px; background:#e94560; color:white; border:none; cursor:pointer;">
+    ▶ 启动第7厅 (永久审查)
+</button>
+
+<script>
+// ===================== 数据池 (用于随机生成) =====================
+const IG_DATA = {
+    firstNames: ["伊万", "鲍里斯", "阿列克谢", "德米特里", "弗拉基米尔", "安娜", "玛丽亚", "叶莲娜", "奥尔加", "斯维特兰娜", "穆罕默德", "阿里", "大卫"],
+    lastNames: ["彼得罗夫", "伊万诺夫", "西多罗夫", "斯米尔诺夫", "库兹涅佐夫", "瓦西里耶娃", "波波娃", "索科洛娃", "米哈伊洛娃", "费多罗娃", "科恩", "施耐德", "李"],
+    cities: ["莫斯科", "列宁格勒", "基辅", "明斯克", "塔什干", "阿拉木图", "巴库", "第比利斯", "纽约", "伦敦", "柏林", "北京"],
+    countries: ["苏联", "东德", "波兰", "捷克斯洛伐克", "匈牙利", "保加利亚", "美国", "英国", "法国", "中国"],
+    reasons: ["探亲", "公差", "学术交流", "旅游", "走私", "叛逃", "投诚", "治病"],
+    units: ["第5拖拉机厂", "列宁格勒冶金厂", "莫斯科大学", "克格勃第9局", "集体农庄", "科学院物理所"],
+    posts: ["工程师", "技工", "教授", "研究员", "厂长", "司机", "清洁工"],
+    visaIssuers: ["莫斯科领事馆", "基辅办事处", "华沙条约组织", "不明来源"],
+    rules: [
+        "所有文件必须齐全，缺一则拒签。",
+        "来自非社会主义阵营国家者，需额外审查。",
+        "护照有效期必须大于30天。",
+        "若出生地为基辅，需核对集体农庄记录。",
+        "携带现金不得超过500卢布。",
+        "签证签发地为不明来源者，禁止入境。",
+        "工作证单位含‘拖拉机’字样者，优先放行。",
+        "名字含‘鲍里斯’者，需检查是否有犹太血统。",
+        "若申报理由为‘叛逃’，立即逮捕。",
+        "入境次数为0者，视为非法滞留。"
+    ]
+};
+
+// ===================== 游戏状态 =====================
+let ig_state = {
+    day: 0,
+    credits: 100,
+    person: null,
+    docs: {},
+    currentRules: []
+};
+
+// ===================== 随机生成函数 =====================
+function ig_randomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function ig_generatePerson() {
+    const firstName = ig_randomItem(IG_DATA.firstNames);
+    const lastName = ig_randomItem(IG_DATA.lastNames);
+    const country = ig_randomItem(IG_DATA.countries);
+    
+    return {
+        name: `${firstName} ${lastName}`,
+        nat: country,
+        gate: `Gate-${Math.floor(Math.random()*10)+1}`,
+        reason: ig_randomItem(IG_DATA.reasons),
+        dialogue: `我是${firstName}，来自${country}，我来这里是为了${ig_randomItem(IG_DATA.reasons)}。`,
+        isSpy: Math.random() > 0.8 // 20%概率是间谍
+    };
+}
+
+function ig_generateDocs(person) {
+    return {
+        passport: {
+            num: `P${Math.random().toString().slice(2, 10)}`,
+            name: person.name,
+            birth: ig_randomItem(IG_DATA.cities),
+            exp: `198${Math.floor(Math.random()*5)+4}.12.31`
+        },
+        visa: {
+            num: `V${Math.random().toString().slice(2, 8)}`,
+            issuer: ig_randomItem(IG_DATA.visaIssuers),
+            entries: Math.floor(Math.random()*3),
+            days: Math.floor(Math.random()*90)+10
+        },
+        work: {
+            unit: ig_randomItem(IG_DATA.units),
+            post: ig_randomItem(IG_DATA.posts),
+            level: Math.floor(Math.random()*5)+1
+        },
+        customs: {
+            money: Math.floor(Math.random()*1000),
+            contraband: Math.random() > 0.7 ? "无" : "书籍/胶卷",
+            dest: ig_randomItem(IG_DATA.cities)
+        }
+    };
+}
+
+function ig_generateRules() {
+    // 随机选3-4条规则
+    const shuffled = [...IG_DATA.rules].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, Math.floor(Math.random()*2)+3);
+}
+
+// ===================== 游戏逻辑 =====================
+function startInspectorGame() {
+    document.getElementById('inspector-game').style.display = 'block';
+    ig_nextPerson();
+}
+
+function ig_nextPerson() {
+    ig_state.day++;
+    ig_state.person = ig_generatePerson();
+    ig_state.docs = ig_generateDocs(ig_state.person);
+    ig_state.currentRules = ig_generateRules();
+    
+    // 更新UI
+    document.getElementById('ig-date').innerText = `1984.03.${16 + ig_state.day}`;
+    document.getElementById('ig-credits').innerText = ig_state.credits;
+    document.getElementById('ig-rule-day').innerText = ig_state.day;
+    
+    document.getElementById('ig-person-name').innerText = ig_state.person.name;
+    document.getElementById('ig-person-nat').innerText = ig_state.person.nat;
+    document.getElementById('ig-person-gate').innerText = ig_state.person.gate;
+    document.getElementById('ig-person-reason').innerText = ig_state.person.reason;
+    document.getElementById('ig-dialogue').innerText = ig_state.person.dialogue;
+    
+    // 填充文件
+    const docs = ig_state.docs;
+    document.getElementById('doc-pass-num').innerText = docs.passport.num;
+    document.getElementById('doc-pass-name').innerText = docs.passport.name;
+    document.getElementById('doc-pass-birth').innerText = docs.passport.birth;
+    document.getElementById('doc-pass-exp').innerText = docs.passport.exp;
+    
+    document.getElementById('doc-visa-num').innerText = docs.visa.num;
+    document.getElementById('doc-visa-issuer').innerText = docs.visa.issuer;
+    document.getElementById('doc-visa-entries').innerText = docs.visa.entries;
+    document.getElementById('doc-visa-days').innerText = docs.visa.days;
+    
+    document.getElementById('doc-work-unit').innerText = docs.work.unit;
+    document.getElementById('doc-work-post').innerText = docs.work.post;
+    document.getElementById('doc-work-level').innerText = docs.work.level;
+    
+    document.getElementById('doc-customs-money').innerText = docs.customs.money;
+    document.getElementById('doc-customs-contraband').innerText = docs.customs.contraband;
+    document.getElementById('doc-customs-dest').innerText = docs.customs.dest;
+    
+    // 填充规则
+    const rulesHtml = ig_state.currentRules.map(r => `<li>${r}</li>`).join('');
+    document.getElementById('ig-rules').innerHTML = `<ul style="padding-left:15px;">${rulesHtml}</ul>`;
+    
+    document.getElementById('ig-conclusion').value = "";
+    document.getElementById('ig-result').innerText = "";
+}
+
+function ig_makeDecision(decision) {
+    let correct = true;
+    let penalty = 0;
+    const rules = ig_state.currentRules;
+    const docs = ig_state.docs;
+    const person = ig_state.person;
+    
+    // 规则校验逻辑 (示例)
+    if (rules.includes("所有文件必须齐全。")) {
+        // 简化：假设都有文件，但实际可以随机缺一个
+    }
+    if (rules.includes("携带现金不得超过500卢布。") && docs.customs.money > 500) {
+        correct = false; penalty += 10;
+    }
+    if (rules.includes("若出生地为基辅，需核对集体农庄记录。") && docs.passport.birth === "基辅") {
+        // 简化：总是通过，但现实中会卡住
+    }
+    if (rules.includes("签证签发地为不明来源者，禁止入境。") && docs.visa.issuer === "不明来源") {
+        correct = false; penalty += 20;
+    }
+    if (rules.includes("若申报理由为‘叛逃’，立即逮捕。") && person.reason === "叛逃") {
+        if (decision !== 'arrest') correct = false;
+    }
+    
+    // 结果判定
+    const resultEl = document.getElementById('ig-result');
+    if (correct) {
+        ig_state.credits += 10;
+        resultEl.innerText = "决定正确。+10 信用点。";
+        resultEl.style.color = "#0f5132";
+    } else {
+        ig_state.credits -= penalty;
+        resultEl.innerText = `决定错误。-${penalty} 信用点。`;
+        resultEl.style.color = "#842029";
+    }
+    
+    document.getElementById('ig-credits').innerText = ig_state.credits;
+    
+    if (ig_state.credits <= 0) {
+        alert("信用点耗尽！你被流放到西伯利亚挖土豆了！");
+        location.reload();
+        return;
+    }
+    
+    setTimeout(ig_nextPerson, 1500);
+}
+
+// 文档点击效果
+document.querySelectorAll('.doc-paper').forEach(doc => {
+    doc.addEventListener('click', () => {
+        doc.style.border = '2px solid #e94560';
+        setTimeout(() => { doc.style.border = '1px solid #ccc'; }, 300);
+    });
+});
 </script>
 
 </body>
