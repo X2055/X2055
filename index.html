@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>苏维埃社会主义共和国联盟</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 引入 Google 字体，模拟苏联海报的字体风格 -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- 顶部通栏 -->
+    <div class="top-bar">
+        <span>Союз Советских Социалистических Республик</span>
+    </div>
+
+    <!-- 头部：国徽和标题 -->
+    <header class="header">
+        <div class="emblem">
+            <!-- 简易版 SVG 镰刀锤子 -->
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" fill="#FFD700"/>
+                <polygon points="50,20 55,45 80,35 60,55 75,80 50,65 25,80 40,55 20,35 45,45" fill="#CC0000"/>
+                <rect x="45" y="30" width="10" height="40" transform="rotate(45 50 50)" fill="#FFF"/>
+                <polygon points="50,40 60,55 50,70 40,55" fill="#FFF"/>
+            </svg>
+        </div>
+        <h1>苏维埃社会主义共和国联盟</h1>
+        <p>Союз Советских Социалистических Республик</p>
+    </header>
+
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <a href="#">首页</a>
+        <a href="#">宪法</a>
+        <a href="#">五年计划</a>
+        <a href="#">红军</a>
+        <a href="#">外交政策</a>
+    </nav>
+
+    <!-- 主要内容区 -->
+    <main class="container">
+        <!-- 国歌播放器模块 -->
+        <section class="card anthem-card">
+            <h2>🎵 苏联国歌</h2>
+            <p>《牢不可破的联盟》</p>
+            <audio controls>
+                <!-- 这里使用的是一个公开可用的苏联国歌音频直链 -->
+                <!-- 如果这个链接失效，你需要自己去网上找一个 .mp3 链接替换 src 里的内容 -->
+                <source src="https://archive.org/download/SovietAnthem_1024/Soviet_Anthem.mp3" type="audio/mpeg">
+                您的浏览器不支持音频播放。
+            </audio>
+        </section>
+
+        <!-- 新闻模块 -->
+        <section class="card">
+            <h2>今日新闻</h2>
+            <ul>
+                <li><strong>1957年：</strong>世界上第一颗人造卫星“斯普特尼克1号”发射成功，人类迈向太空时代！</li>
+                <li><strong>经济建设：</strong>第聂伯河水电站提前三个月完成季度发电目标。</li>
+                <li><strong>农业丰收：</strong>乌克兰集体农庄传来捷报，小麦产量创历史新高。</li>
+            </ul>
+        </section>
+
+        <!-- 领导人语录 -->
+        <section class="card quote-card">
+            <blockquote>
+                “全世界无产者，联合起来！”
+            </blockquote>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>© 1922 - 1991 USSR. All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>
