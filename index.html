@@ -48,6 +48,127 @@
                 您的浏览器不支持音频播放。
             </audio>
         </section>
+<!-- ================================================== -->
+<!-- 官网压轴：旋转的领袖 (国内自建图源终极版)          -->
+<!-- 注：请将图片和此网页放在同一文件夹下              -->
+<!-- ================================================== -->
+<section style="display:flex; justify-content:center; align-items:center; min-height:300px; background:#1a1a1a; padding:20px; border-top:5px solid #8b0000; margin-top:50px; perspective: 1000px; font-family: 'Georgia', serif;">
+
+    <!-- 3D 容器：控制整体旋转 -->
+    <div id="stalin-3d-container" style="
+        width: 200px; 
+        height: 250px; 
+        position: relative; 
+        transform-style: preserve-3d; 
+        transition: transform 0.5s ease-out; 
+        animation: autoRotate 15s linear infinite;
+        cursor: grab;
+    ">
+        
+        <!-- 正面：你的本地图片 -->
+        <div style="
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            backface-visibility: hidden; 
+            border: 3px solid #ffd700; 
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #2a2a2a;
+        ">
+            <!-- 重点：把下面的 src 属性换成你自己的图片文件名 -->
+            <img src="你的图片文件名.jpg" alt="Stalin" style="width:90%; height:auto; border-radius:5px;"
+            onerror="this.onerror=null; this.src='https://via.placeholder.com/200x250/2a2a2a/ffd700?text=Comrade+Stalin';">
+            <p style="color:#ffd700; font-size:12px; margin-top:10px; letter-spacing:1px;">ЙОСИФ СТАЛИН</p>
+        </div>
+
+        <!-- 背面：经典语录 -->
+        <div style="
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            backface-visibility: hidden; 
+            transform: rotateY(180deg); 
+            background: #8b0000; 
+            color: #fff; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 15px; 
+            text-align: center; 
+            border: 3px solid #ffd700;
+            box-sizing: border-box;
+        ">
+            <p style="font-size: 14px; line-height: 1.6; font-style: italic; margin: 0;">
+                "使我们的党永远不变质、我们的红色江山永远不变色。"
+            </p>
+            <span style="font-size: 12px; margin-top: 15px; opacity: 0.8;">—— 习近平</span>
+        </div>
+    </div>
+
+    <!-- 底部提示文字 -->
+    <div style="position:absolute; bottom:20px; color:#555; font-size:10px;">
+        中国共产党万岁
+    </div>
+</section>
+
+<style>
+    /* 自动旋转动画 */
+    @keyframes autoRotate {
+        from { transform: rotateY(0deg); }
+        to { transform: rotateY(360deg); }
+    }
+</style>
+
+<script>
+    // 简单的JS实现鼠标/手指拖拽交互
+    const container = document.getElementById('stalin-3d-container');
+    let isDragging = false;
+    let previousX = 0;
+    let rotationY = 0;
+
+    // 鼠标/触摸按下
+    container.addEventListener('mousedown', startDrag);
+    container.addEventListener('touchstart', startDrag);
+
+    // 鼠标/触摸移动
+    window.addEventListener('mousemove', drag);
+    window.addEventListener('touchmove', drag);
+
+    // 鼠标/触摸松开
+    window.addEventListener('mouseup', stopDrag);
+    window.addEventListener('touchend', stopDrag);
+
+    function startDrag(e) {
+        isDragging = true;
+        previousX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+        container.style.animationPlayState = 'paused'; // 暂停自动旋转
+        container.style.cursor = 'grabbing';
+    }
+
+    function drag(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+        const deltaX = currentX - previousX;
+        
+        // 根据鼠标移动距离计算旋转角度
+        rotationY += deltaX * 0.5; 
+        container.style.transform = `rotateY(${rotationY}deg)`;
+        
+        previousX = currentX;
+    }
+
+    function stopDrag() {
+        isDragging = false;
+        container.style.animationPlayState = 'running'; // 恢复自动旋转
+        container.style.cursor = 'grab';
+    }
+</script>
 
         <!-- 新闻模块 -->
         <section class="card">
