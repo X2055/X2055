@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第二十个五年计划 | 苏维埃社会主义共和国联盟 2050</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red-velvet: #4A0000;      /* 暗红丝绒 */
+            --red-brick: #8B0000;      /* 砖红 */
+            --red-flag: #CC0000;       /* 旗帜红 */
+            --gold: #FFD700;           /* 勋章金 */
+            --gold-dull: #B8860B;      /* 暗金 */
+            --cream: #FFFDD0;          /* 奶油色，用于文字 */
+            --border-heavy: 4px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto Condensed', 'Noto Serif SC', sans-serif;
+            background-color: var(--red-velvet);
+            /* 丝绒纹理 */
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(139, 0, 0, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(90, 0, 0, 0.4) 0%, transparent 50%),
+                linear-gradient(45deg, transparent 49%, rgba(0,0,0,0.1) 50%, transparent 51%),
+                linear-gradient(-45deg, transparent 49%, rgba(0,0,0,0.1) 50%, transparent 51%);
+            background-size: 100% 100%, 100% 100%, 50px 50px, 50px 50px;
+            color: var(--cream);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 顶部导航 */
+        .soviet-header {
+            background: linear-gradient(180deg, rgba(74, 0, 0, 0.95) 0%, rgba(74, 0, 0, 0.8) 100%);
+            padding: 15px 40px;
+            border-bottom: var(--border-heavy) double var(--gold-dull);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .emblem {
+            width: 50px;
+            height: 50px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--red-velvet);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .logo-text {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 2px solid var(--gold-dull);
+            color: var(--cream);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 1rem;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .nav-btn:hover {
+            background: var(--gold);
+            color: var(--red-velvet);
+            border-color: var(--gold);
+        }
+
+        /* 主标题区 */
+        .hero-section {
+            text-align: center;
+            padding: 60px 20px;
+            border-bottom: 2px solid rgba(184, 134, 11, 0.3);
+        }
+
+        .plan-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            color: var(--gold);
+            text-shadow: 3px 3px 0 #000, 0 0 20px rgba(255, 215, 0, 0.3);
+            letter-spacing: 8px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .plan-subtitle {
+            font-size: 1.5rem;
+            color: var(--cream);
+            letter-spacing: 5px;
+            opacity: 0.9;
+        }
+
+        /* 仪表盘网格 */
+        .dashboard {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        /* 可点击面板 */
+        .plan-card {
+            background: rgba(139, 0, 0, 0.3);
+            border: var(--border-heavy) solid var(--red-brick);
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            background: rgba(139, 0, 0, 0.5);
+        }
+
+        .plan-card::before {
+            content: '☭';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            color: rgba(255, 215, 0, 0.3);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--gold);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--gold);
+            margin-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .card-desc {
+            font-size: 1rem;
+            color: #ddd;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .card-status {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(255, 215, 0, 0.3);
+            font-size: 0.9rem;
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(20, 0, 0, 0.95);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            background: var(--red-velvet);
+            border: 5px solid var(--gold-dull);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: var(--red-brick);
+            padding: 20px 30px;
+            border-bottom: 3px solid var(--gold-dull);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .modal-header h2 {
+            font-family: 'Noto Serif SC', serif;
+            color: var(--gold);
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: 2px solid var(--gold-dull);
+            color: var(--gold);
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: var(--gold);
+            color: var(--red-velvet);
+        }
+
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .modal-body h3 {
+            color: var(--gold);
+            font-size: 1.4rem;
+            margin: 20px 0 10px;
+            border-left: 4px solid var(--gold-dull);
+            padding-left: 15px;
+        }
+
+        .modal-body p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .modal-body ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .modal-body li {
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .header-inner {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <header class="soviet-header">
+            <div class="header-inner">
+                <div class="logo">
+                    <div class="emblem">☭</div>
+                    <span class="logo-text">Госплан СССР 2050</span>
+                </div>
+                <div class="nav-controls">
+                    <button class="nav-btn" @click="goBack">返回主站</button>
+                    <button class="nav-btn" @click="goToConstitution">宪法库</button>
+                </div>
+            </div>
+        </header>
+
+        <section class="hero-section">
+            <h1 class="plan-title">第二十个五年计划</h1>
+            <p class="plan-subtitle">2051 - 2055 | 迈向共产主义光辉未来</p>
+        </section>
+
+        <main class="dashboard">
+            <div 
+                class="plan-card" 
+                v-for="plan in plans" 
+                :key="plan.id"
+                @click="openModal(plan)"
+            >
+                <div class="card-icon">{{ plan.icon }}</div>
+                <div class="card-title">{{ plan.title }}</div>
+                <div class="card-desc">{{ plan.desc }}</div>
+                <div class="card-status">状态: {{ plan.status }}</div>
+            </div>
+        </main>
+
+        <!-- 模态框 -->
+        <div class="modal-overlay" v-if="selectedPlan" @click.self="closeModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>{{ selectedPlan.title }}</h2>
+                    <button class="close-btn" @click="closeModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <h3>计划概述</h3>
+                    <p>{{ selectedPlan.detail.overview }}</p>
+                    
+                    <h3>核心指标</h3>
+                    <ul>
+                        <li v-for="(item, index) in selectedPlan.detail.metrics" :key="index">
+                            <span class="highlight">{{ item.name }}:</span> {{ item.value }}
+                        </li>
+                    </ul>
+                    
+                    <h3>战略意义</h3>
+                    <p>{{ selectedPlan.detail.significance }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue;
+
+        createApp({
+            setup() {
+                const selectedPlan = ref(null);
+
+                const plans = ref([
+                    {
+                        id: 1,
+                        icon: '🚀',
+                        title: '星际殖民计划',
+                        desc: '建立火星永久定居点，开发小行星带资源，确保苏维埃文明在银河系延续。',
+                        status: '进行中 (78%)',
+                        detail: {
+                            overview: '利用反物质推进技术，建立通往火星的定期航运航线。在火星乌托邦平原建立第一座自给自足的城市——“红色黎明”。',
+                            metrics: [
+                                { name: '火星城市人口', value: '50,000 公民' },
+                                { name: '小行星采矿量', value: '年产铂族金属 500吨' },
+                                { name: '星际舰队规模', value: '12 艘亚光速殖民舰' }
+                            ],
+                            significance: '打破资本主义对地球的封锁，将苏维埃的红旗插遍太阳系。'
+                        }
+                    },
+                    {
+                        id: 2,
+                        icon: '🧠',
+                        title: '全民赛博改造',
+                        desc: '普及脑机接口与人工器官，消除疾病与衰老，实现生理层面的共产主义。',
+                        status: '第一阶段完成',
+                        detail: {
+                            overview: '通过植入式神经芯片，所有公民可直接接入国家计算网络（OGAS 2.0），实现知识的瞬间共享与脑力劳动的极大解放。',
+                            metrics: [
+                                { name: '植入率', value: '92% 适龄公民' },
+                                { name: '平均寿命', value: '150 岁 (生物年龄)' },
+                                { name: '算力配额', value: '每人 1 PFLOPS' }
+                            ],
+                            significance: '消灭脑力与体力劳动的差别，为进入共产主义社会奠定生物学基础。'
+                        }
+                    },
+                    {
+                        id: 3,
+                        icon: '🌾',
+                        title: '分子农业工程',
+                        desc: '利用纳米合成技术直接生成食物与材料，彻底解决物质匮乏问题。',
+                        status: '试点运行',
+                        detail: {
+                            overview: '在全国建立分子组装工厂，利用太阳能和二氧化碳直接合成高蛋白食物、稀有材料和药品。传统农业成为历史。',
+                            metrics: [
+                                { name: '合成食品占比', value: '65% 全国供应' },
+                                { name: '材料生产成本', value: '下降 90%' },
+                                { name: '耕地还林面积', value: '2 亿公顷' }
+                            ],
+                            significance: '按需分配物质的终极手段，彻底告别匮乏时代。'
+                        }
+                    },
+                    {
+                        id: 4,
+                        icon: '🛰️',
+                        title: '轨道防御环',
+                        desc: '在近地轨道部署死光炮阵列，确保苏维埃领空不受任何帝国主义侵犯。',
+                        status: '绝密',
+                        detail: {
+                            overview: '代号“天空之盾”。由108颗武装卫星组成的防御网，搭载定向能武器，可在0.3秒内拦截全球任何角落的导弹袭击。',
+                            metrics: [
+                                { name: '卫星数量', value: '108 颗' },
+                                { name: '拦截成功率', value: '99.99%' },
+                                { name: '能源来源', value: '氦-3 聚变反应堆' }
+                            ],
+                            significance: '确保苏维埃在2050年代的绝对战略优势，粉碎北约的挑衅阴谋。'
+                        }
+                    },
+                    {
+                        id: 5,
+                        icon: '🏭',
+                        title: '全自动共产工厂',
+                        desc: 'AI管理的无人化生产体系，机器人负责所有繁重劳动，人类专注于创造。',
+                        status: '全面铺开',
+                        detail: {
+                            overview: '全国工厂实现全自动化，由中央超级计算机统一调度。工人转变为工程师、艺术家和管理员。',
+                            metrics: [
+                                { name: '自动化率', value: '98%' },
+                                { name: '每周工时', value: '15 小时' },
+                                { name: '产品种类', value: '无限定制' }
+                            ],
+                            significance: '劳动成为生活的第一需要，而非谋生的手段。'
+                        }
+                    }
+                ]);
+
+                const openModal = (plan) => {
+                    selectedPlan.value = plan;
+                    document.body.style.overflow = 'hidden';
+                };
+
+                const closeModal = () => {
+                    selectedPlan.value = null;
+                    document.body.style.overflow = 'auto';
+                };
+
+                const goBack = () => {
+                    // 根据你的主站文件名修改
+                    window.location.href = 'index.html'; 
+                };
+
+                const goToConstitution = () => {
+                    // 根据你的宪法页面文件名修改
+                    window.location.href = 'Rules.html'; 
+                };
+
+                return {
+                    plans,
+                    selectedPlan,
+                    openModal,
+                    closeModal,
+                    goBack,
+                    goToConstitution
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
