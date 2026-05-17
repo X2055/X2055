@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>真理报 | 苏维埃社会主义共和国联盟</title>
+    <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* 样式保持不变，和你的原代码一样 */
         :root {
             --blood-red: #5a0000;
             --brick-red: #8b0000;
@@ -23,8 +23,20 @@
             font-family: 'Times New Roman', 'SimSun', serif;
             background-color: var(--blood-red);
             background-image: 
-                repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px),
-                repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px);
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0.15) 0px,
+                    rgba(0, 0, 0, 0.15) 1px,
+                    transparent 1px,
+                    transparent 20px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(0, 0, 0, 0.15) 0px,
+                    rgba(0, 0, 0, 0.15) 1px,
+                    transparent 1px,
+                    transparent 20px
+                );
             color: var(--paper-yellow);
             padding: 20px;
             line-height: 1.6;
@@ -36,9 +48,10 @@
             border: var(--border-thick) double var(--gold-faded);
             background: rgba(90, 0, 0, 0.95);
             padding: 30px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
         }
 
+        /* 页眉 */
         .header {
             text-align: center;
             border-bottom: 3px solid var(--gold-faded);
@@ -60,6 +73,7 @@
             font-style: italic;
         }
 
+        /* 新闻编辑器 */
         .editor-section {
             background: var(--ink-black);
             border: 2px dashed var(--gold-faded);
@@ -128,6 +142,7 @@
             font-weight: bold;
         }
 
+        /* 新闻列表 */
         .news-feed {
             border-top: 3px solid var(--rust-red);
             padding-top: 30px;
@@ -162,6 +177,7 @@
             text-align: justify;
         }
 
+        /* 加载状态 */
         .loading {
             text-align: center;
             padding: 40px;
@@ -179,6 +195,7 @@
         .success { color: #4CAF50; }
         .error { color: #f44336; }
 
+        /* 滚动条 */
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -201,12 +218,13 @@
             <p class="subtitle">Правда | 第108特别方面军官方喉舌</p>
         </header>
 
+        <!-- 新闻编辑器 -->
         <section class="editor-section">
             <h2>✍️ 撰写新闻稿件</h2>
             <form id="newsForm">
                 <div class="form-group">
                     <label for="title">新闻标题</label>
-                    <input type="text" id="title" placeholder="例如：第108方面军攻克柏林" required>
+                    <input type="text" id="title" placeholder="例如：第108方面军攻克抽象概念高地" required>
                 </div>
                 <div class="form-group">
                     <label for="author">记者姓名</label>
@@ -221,18 +239,20 @@
             </form>
         </section>
 
+        <!-- 新闻列表 -->
         <section class="news-feed" id="newsFeed">
             <h2 style="color: var(--gold-faded); margin-bottom: 20px; text-align: center;">📰 最新消息</h2>
-            <div class="loading" id="loadingIndicator">正在从苏联加载新闻...</div>
+            <div class="loading" id="loadingIndicator">正在从云端加载新闻...</div>
         </section>
     </div>
 
     <script>
         // ==========================================================
         // 配置你的 Supabase 凭证
+        // 去 Supabase 官网注册，创建项目，然后在这里填入你的 URL 和 KEY
         // ==========================================================
-        const SUPABASE_URL = 'https://aiqsqbbvexvmuptrtvkn.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_SM2np8Ui4_wGTtNdjf7Q6A_RyXJtfhp';
+        const SUPABASE_URL = 'https://aiqsqbbvexvmuptrtvkn.supabase.co'; // 替换为你的 Project URL
+        const SUPABASE_KEY = 'sb_publishable_SM2np8Ui4_wGTtNdjf7Q6A_RyXJtfhp'; // 替换为你的 Anon Key
 
         // 初始化 Supabase 客户端
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -288,7 +308,7 @@
             });
         }
 
-        // 2. 发布新闻
+        // 2. 发布新闻（核心修复：不再手动传 ID）
         newsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -307,21 +327,26 @@
                 return;
             }
 
-            const { error } = await supabase
-                .from('news')
-                .insert([{ title, author, content }]);
+            try {
+                // 关键修复：只传 title, author, content，让数据库自动生成 id 和 created_at
+                const { data, error } = await supabase
+                    .from('news')
+                    .insert([{ title, author, content }]);
 
-            if (error) {
-                showStatus('发布失败：' + error.message, 'error');
-                console.error('发布失败:', error);
-            } else {
+                if (error) {
+                    throw error; // 抛出错误，让 catch 捕获
+                }
+
                 showStatus('发布成功！', 'success');
                 newsForm.reset();
                 loadNews(); // 重新加载新闻列表
+            } catch (error) {
+                console.error('发布失败:', error);
+                showStatus(`发布失败：${error.message}`, 'error');
+            } finally {
+                submitBtn.textContent = '发布到云端';
+                submitBtn.disabled = false;
             }
-
-            submitBtn.textContent = '发布到云端';
-            submitBtn.disabled = false;
         });
 
         // 3. 显示状态消息
