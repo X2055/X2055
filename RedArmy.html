@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>苏维埃红军 | 第108方面军 </title>
+    <style>
+        :root {
+            --blood-red: #5a0000;
+            --brick-red: #8b0000;
+            --rust-red: #a52a2a;
+            --gold-faded: #b8860b;
+            --paper-yellow: #f5f5dc;
+            --ink-black: #1a1a1a;
+            --border-thick: 5px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', 'SimSun', serif;
+            background-color: var(--blood-red);
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0.15) 0px,
+                    rgba(0, 0, 0, 0.15) 1px,
+                    transparent 1px,
+                    transparent 20px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(0, 0, 0, 0.15) 0px,
+                    rgba(0, 0, 0, 0.15) 1px,
+                    transparent 1px,
+                    transparent 20px
+                );
+            color: var(--paper-yellow);
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            border: var(--border-thick) double var(--gold-faded);
+            background: rgba(90, 0, 0, 0.9);
+            padding: 30px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+        }
+
+        /* 页眉 */
+        .header {
+            text-align: center;
+            border-bottom: 3px solid var(--gold-faded);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            color: var(--paper-yellow);
+            text-shadow: 3px 3px 0 var(--ink-black);
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: var(--gold-faded);
+            font-style: italic;
+        }
+
+        /* 战报栏 */
+        .war-report {
+            background: var(--ink-black);
+            border: 2px dashed var(--gold-faded);
+            padding: 15px;
+            margin-bottom: 40px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            height: 150px;
+            overflow-y: auto;
+        }
+
+        .report-line {
+            margin-bottom: 8px;
+            color: #0f0; /* 黑客绿 */
+        }
+
+        .timestamp {
+            color: var(--gold-faded);
+        }
+
+        /* 主要内容区 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section {
+            border: 2px solid var(--rust-red);
+            padding: 20px;
+            background: rgba(139, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--gold-faded);
+            border-bottom: 2px solid var(--rust-red);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* 编制表 */
+        .roster-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .roster-table th, .roster-table td {
+            border: 1px solid var(--gold-faded);
+            padding: 10px;
+            text-align: left;
+        }
+
+        .roster-table th {
+            background: var(--ink-black);
+            color: var(--gold-faded);
+            font-weight: bold;
+        }
+
+        .roster-table tr:nth-child(even) {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        /* 装备列表 */
+        .equipment-list {
+            list-style: none;
+        }
+
+        .equipment-list li {
+            padding: 15px 0;
+            border-bottom: 1px dashed var(--rust-red);
+        }
+
+        .equipment-list li:last-child {
+            border-bottom: none;
+        }
+
+        .eq-name {
+            font-weight: bold;
+            color: var(--paper-yellow);
+            font-size: 1.1rem;
+        }
+
+        .eq-desc {
+            font-style: italic;
+            color: #ccc;
+            margin-top: 5px;
+        }
+
+        /* 政委语录 */
+        .quotes {
+            font-style: italic;
+            color: var(--gold-faded);
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 2px solid var(--rust-red);
+            border-bottom: 2px solid var(--rust-red);
+        }
+
+        /* 底部印章 */
+        .stamp {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 3px double var(--gold-faded);
+        }
+
+        .stamp img {
+            width: 150px;
+            opacity: 0.8;
+        }
+
+        .stamp-text {
+            font-size: 0.9rem;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--ink-black);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gold-faded);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <h1>第108特别方面军</h1>
+            <p class="subtitle">“为了那个并不存在的明天，前进！” —— 最高统帅部第404号命令</p>
+        </header>
+
+        <div class="war-report" id="warReport">
+            <!-- 战报由JS生成 -->
+        </div>
+
+        <div class="main-content">
+            <!-- 左栏：编制与机构 -->
+            <div class="section">
+                <h2 class="section-title">荒诞编制表 (2050年修订版)</h2>
+                <table class="roster-table">
+                    <thead>
+                        <tr>
+                            <th>单位名称</th>
+                            <th>人数</th>
+                            <th>主要职责</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>意识形态整容连</td>
+                            <td>500</td>
+                            <td>负责把士兵的表情修正为“坚定而喜悦”</td>
+                        </tr>
+                        <tr>
+                            <td>后勤虚无补给营</td>
+                            <td>1200</td>
+                            <td>管理并不存在的仓库，发放空气罐头</td>
+                        </tr>
+                        <tr>
+                            <td>真理部直属宣传旅</td>
+                            <td>3000</td>
+                            <td>确保战场硝烟呈现标准的苏维埃红色</td>
+                        </tr>
+                        <tr>
+                            <td>第250反投降师</td>
+                            <td>800</td>
+                            <td>专门监督其他部队，防止他们产生投降念头</td>
+                        </tr>
+                        <tr>
+                            <td>数学化冲锋团</td>
+                            <td>150</td>
+                            <td>用微积分公式计算冲锋路线，误差不超过0.5米</td>
+                        </tr>
+                        <tr>
+                            <td>政委直属队</td>
+                            <td>5000</td>
+                            <td>确保上述所有单位都在“正确”地工作</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 右栏：装备与物资 -->
+            <div class="section">
+                <h2 class="section-title">最新装备</h2>
+                <ul class="equipment-list">
+                    <li>
+                        <div class="eq-name">T-108 “自我批评” 重型坦克</div>
+                        <div class="eq-desc">装甲厚度：理论无限。火力：每小时发射3吨意识形态炮弹。缺点：经常因为反思过重而陷入泥潭。</div>
+                    </li>
+                    <li>
+                        <div class="eq-name">AK-208 “辩证唯物主义” 突击步枪</div>
+                        <div class="eq-desc">口径：矛盾。射速：根据当前主要矛盾自动调节。弹药：否定之否定弹链。故障率：0%（因为不允许故障）。</div>
+                    </li>
+                    <li>
+                        <div class="eq-name">“集体农庄” 单兵外骨骼</div>
+                        <div class="eq-desc">动力源：全连队的平均劳动热情。功能：让士兵搬运比自身重100倍的官僚主义文件。副作用：膝盖积液。</div>
+                    </li>
+                    <li>
+                        <div class="eq-name">MiG-50 “超越时空” 截击机</div>
+                        <div class="eq-desc">速度：超过光速，以便及时赶到并不存在的战场。武器：携带大量空头支票。飞行员：由AI政委担任。</div>
+                    </li>
+                    <li>
+                        <div class="eq-name">“五年计划” 战略核手提箱</div>
+                        <div class="eq-desc">内容物：一份长达500页的计划书，详细说明了如何在爆炸后重建经济。密码：12345。</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="quotes">
+            <p>“我们不需要地图，因为祖国无处不在。”</p>
+            <p>“子弹不够了可以用牙齿，牙齿不够了可以用意识形态。”</p>
+            <p>“撤退是不存在的，只有向另一个方向的进攻。”</p>
+            <p>“把太阳涂成红色，这就是我们的防空系统。”</p>
+        </div>
+
+        <div class="stamp">
+            <div style="font-size: 4rem; color: var(--gold-faded);">☭</div>
+            <p class="stamp-text">本文件经第108次全体会议批准，如有异议，请向虚空申诉。</p>
+            <p class="stamp-text">档案号：СССР-2050-ABS-URD</p>
+        </div>
+    </div>
+
+    <script>
+        // 动态战报生成
+        const reportContainer = document.getElementById('warReport');
+        const reports = [
+            "【战报】第108方面军在虚拟战场取得重大胜利，成功占领了0.5平方米的抽象概念。",
+            "【战报】后勤部报告：虚无补给营再次未能送达物资，理由是‘因为不需要’。",
+            "【战报】政委第42分队成功纠正了3名士兵的走路姿势，使其更符合集体主义审美。",
+            "【战报】T-108坦克因过度自我批评，目前正陷在逻辑陷阱中无法自拔，救援队（由更多坦克组成）已出发。",
+            "【战报】MiG-50截击机在试图超越时间时撞上了历史唯物主义，现已返回修整。",
+            "【战报】第250反投降师抓获了一名企图向自己投降的士兵，该士兵已被送往意识形态整容连。",
+            "【战报】数学化冲锋团计算出最佳冲锋角度为42度，但士兵们表示更愿意45度角仰望星空。",
+            "【战报】警报：发现敌方单位“资本主义的诱惑”，所有单位请立即背诵《资本论》第一章进行防御。"
+        ];
+
+        let reportIndex = 0;
+        function addReport() {
+            const line = document.createElement('div');
+            line.className = 'report-line';
+            const time = new Date().toLocaleTimeString();
+            line.innerHTML = `<span class="timestamp">[${time}]</span> ${reports[reportIndex]}`;
+            reportContainer.appendChild(line);
+            reportContainer.scrollTop = reportContainer.scrollHeight;
+            reportIndex = (reportIndex + 1) % reports.length;
+        }
+
+        // 初始加载几条
+        for(let i = 0; i < 3; i++) {
+            setTimeout(addReport, i * 500);
+        }
+
+        // 定时添加新战报
+        setInterval(addReport, 3000);
+    </script>
+</body>
+</html>
