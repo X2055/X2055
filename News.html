@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>真理报 | 苏维埃社会主义共和国联盟</title>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --blood-red: #5a0000;
+            --brick-red: #8b0000;
+            --rust-red: #a52a2a;
+            --gold-faded: #b8860b;
+            --paper-yellow: #f5f5dc;
+            --ink-black: #1a1a1a;
+            --border-thick: 4px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Times New Roman', 'SimSun', serif;
+            background-color: var(--blood-red);
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0.15) 0px,
+                    rgba(0, 0, 0, 0.15) 1px,
+                    transparent 1px,
+                    transparent 20px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(0, 0, 0, 0.15) 0px,
+                    rgba(0, 0, 0, 0.15) 1px,
+                    transparent 1px,
+                    transparent 20px
+                );
+            color: var(--paper-yellow);
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            border: var(--border-thick) double var(--gold-faded);
+            background: rgba(90, 0, 0, 0.95);
+            padding: 30px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+        }
+
+        /* 页眉 */
+        .header {
+            text-align: center;
+            border-bottom: 3px solid var(--gold-faded);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            color: var(--paper-yellow);
+            text-shadow: 3px 3px 0 var(--ink-black);
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: var(--gold-faded);
+            font-style: italic;
+        }
+
+        /* 新闻编辑器 */
+        .editor-section {
+            background: var(--ink-black);
+            border: 2px dashed var(--gold-faded);
+            padding: 25px;
+            margin-bottom: 40px;
+        }
+
+        .editor-section h2 {
+            color: var(--gold-faded);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: #333;
+            border: 1px solid var(--gold-faded);
+            color: #fff;
+            font-family: 'Times New Roman', serif;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--paper-yellow);
+        }
+
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: var(--brick-red);
+            color: var(--paper-yellow);
+            border: 2px solid var(--gold-faded);
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            margin: 0 auto;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .submit-btn:hover {
+            background: var(--gold-faded);
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* 新闻列表 */
+        .news-feed {
+            border-top: 3px solid var(--rust-red);
+            padding-top: 30px;
+        }
+
+        .news-item {
+            background: rgba(139, 0, 0, 0.3);
+            border-left: 5px solid var(--gold-faded);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 5px 5px 0 rgba(0,0,0,0.3);
+        }
+
+        .news-title {
+            font-size: 1.6rem;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .news-meta {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #444;
+            padding-bottom: 10px;
+        }
+
+        .news-content {
+            font-size: 1.1rem;
+            color: var(--paper-yellow);
+            text-align: justify;
+        }
+
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: var(--gold-faded);
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--ink-black);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gold-faded);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <h1>真理报</h1>
+            <p class="subtitle">Правда | 第108特别方面军官方喉舌</p>
+        </header>
+
+        <!-- 新闻编辑器 -->
+        <section class="editor-section">
+            <h2>✍️ 撰写新闻稿件</h2>
+            <form id="newsForm">
+                <div class="form-group">
+                    <label for="title">新闻标题</label>
+                    <input type="text" id="title" placeholder="例如：第108方面军攻克抽象概念高地" required>
+                </div>
+                <div class="form-group">
+                    <label for="author">记者姓名</label>
+                    <input type="text" id="author" placeholder="例如：伊万诺夫·伊万" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">新闻正文</label>
+                    <textarea id="content" placeholder="在这里写下英勇的事迹..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">发布到云端</button>
+            </form>
+        </section>
+
+        <!-- 新闻列表 -->
+        <section class="news-feed" id="newsFeed">
+            <h2 style="color: var(--gold-faded); margin-bottom: 20px; text-align: center;">📰 最新消息</h2>
+            <div class="loading" id="loadingIndicator">正在从苏联加载新闻...</div>
+        </section>
+    </div>
+
+    <script>
+        // ==========================================================
+        // 配置你的 Supabase 凭证
+        // 去 Supabase 官网注册，创建项目，然后在这里填入你的 URL 和 KEY
+        // ==========================================================
+        const SUPABASE_URL = 'https://X2055.supabase.co'; // 替换为你的 Project URL
+        const SUPABASE_KEY = 'sb_publishable_SM2np8Ui4_wGTtNdjf7Q6A_RyXJtfhp'; // 替换为你的 Anon Key
+
+        // 初始化 Supabase 客户端
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const newsFeed = document.getElementById('newsFeed');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const newsForm = document.getElementById('newsForm');
+
+        // 1. 加载新闻
+        async function loadNews() {
+            loadingIndicator.style.display = 'block';
+            
+            const { data, error } = await supabase
+                .from('news')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('加载新闻失败:', error);
+                newsFeed.innerHTML = '<p style="color: red; text-align: center;">加载新闻失败，请检查网络连接或 Supabase 配置。</p>';
+                return;
+            }
+
+            loadingIndicator.style.display = 'none';
+            newsFeed.innerHTML = '<h2 style="color: var(--gold-faded); margin-bottom: 20px; text-align: center;">📰 最新消息</h2>';
+
+            if (data.length === 0) {
+                newsFeed.innerHTML += '<p style="text-align: center; color: #aaa;">暂无新闻，快来发布第一条吧！</p>';
+                return;
+            }
+
+            data.forEach(item => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item';
+                
+                const date = new Date(item.created_at).toLocaleString('zh-CN');
+                
+                newsItem.innerHTML = `
+                    <div class="news-title">${escapeHtml(item.title)}</div>
+                    <div class="news-meta">记者：${escapeHtml(item.author)} | 发布时间：${date}</div>
+                    <div class="news-content">${escapeHtml(item.content).replace(/\n/g, '<br>')}</div>
+                `;
+                newsFeed.appendChild(newsItem);
+            });
+        }
+
+        // 2. 发布新闻
+        newsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = newsForm.querySelector('.submit-btn');
+            submitBtn.textContent = '发布中...';
+            submitBtn.disabled = true;
+
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+            const content = document.getElementById('content').value;
+
+            const { error } = await supabase
+                .from('news')
+                .insert([{ title, author, content }]);
+
+            if (error) {
+                alert('发布失败：' + error.message);
+                console.error('发布失败:', error);
+            } else {
+                alert('发布成功！');
+                newsForm.reset();
+                loadNews(); // 重新加载新闻列表
+            }
+
+            submitBtn.textContent = '发布到云端';
+            submitBtn.disabled = false;
+        });
+
+        // 3. 防止 XSS 攻击的简单转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 页面加载时执行
+        document.addEventListener('DOMContentLoaded', loadNews);
+    </script>
+</body>
+</html>
