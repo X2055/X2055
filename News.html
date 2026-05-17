@@ -79,7 +79,7 @@
                     <label for="content">新闻正文</label>
                     <textarea id="content" placeholder="在这里写下英勇的事迹..." required></textarea>
                 </div>
-                <button type="button" onclick="publishNews()">发布到云端</button>
+                <button type="button" id="submitBtn" class="submit-btn">发布到云端</button>
                 <div id="statusMsg" class="status-msg"></div>
             </form>
         </section>
@@ -88,25 +88,77 @@
             <div class="loading" id="loadingIndicator">正在从云端加载新闻...</div>
         </section>
     </div>
+
     <script>
         // ==========================================================
         // 配置你的 Supabase 凭证
         // ==========================================================
-        const SUPABASE_URL = 'https://aiqsqbbvexvmuptrtvkn.supabase.co'; // 你的项目 URL
-        const SUPABASE_KEY = 'sb_secret_oiQ-Siqq8Kt15TPRDXNkpA_k9DEBNuu'; // 你的 Service Role Key
+        const SUPABASE_URL = 'https://aiqsqbbvexvmuptrtvkn.supabase.co'; 
+        const SUPABASE_KEY = 'sb_secret_oiQ-Siqq8Kt15TPRDXNkpA_k9DEBNuu'; 
 
         // 初始化 Supabase 客户端
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        const newsFeed = document.getElementById('newsFeed');
-        const loadingIndicator = document.getElementById('loadingIndicator');
+        
+        // 获取 DOM 元素
         const newsForm = document.getElementById('newsForm');
         const submitBtn = document.getElementById('submitBtn');
         const statusMsg = document.getElementById('statusMsg');
+        const newsFeed = document.getElementById('newsFeed');
+        const loadingIndicator = document.getElementById('loadingIndicator');
 
-        // 1. 加载新闻
+        // ==========================================================
+        // 核心修复：直接绑定按钮点击事件
+        // ==========================================================
+        submitBtn.addEventListener('click', async (event) => {
+            // 1. 强制阻止页面刷新
+            event.preventDefault();
+            
+            // 2. 获取输入框的值
+            const title = document.getElementById('title').value.trim();
+            const author = document.getElementById('author').value.trim();
+            const content = document.getElementById('content').value.trim();
+
+            // 3. 检查是否填完
+            if (!title || !author || !content) {
+                alert('❌ 请填完所有格子再发布！');
+                return;
+            }
+
+            // 4. 显示“发布中”
+            submitBtn.textContent = '发布中...';
+            submitBtn.disabled = true;
+            statusMsg.style.display = 'none';
+
+            try {
+                // 5. 发送到 Supabase（不传 ID，让数据库自动生成）
+                const { data, error } = await supabase
+                    .from('news')
+                    .insert([{ title, author, content }]);
+
+                // 6. 处理 Supabase 返回的结果
+                if (error) {
+                    throw error; // 抛出错误，让 catch 捕获
+                }
+
+                // 7. 成功
+                showStatus('✅ 发布成功！', 'success');
+                newsForm.reset(); // 清空输入框
+                loadNews(); // 重新加载新闻
+            } catch (error) {
+                console.error('发布失败:', error);
+                showStatus(`❌ 发布失败：${error.message}`, 'error');
+            } finally {
+                // 8. 恢复按钮状态
+                submitBtn.textContent = '发布到云端';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // ==========================================================
+        // 加载新闻
+        // ==========================================================
         async function loadNews() {
             loadingIndicator.style.display = 'block';
-            statusMsg.style.display = 'none';
             
             const { data, error } = await supabase
                 .from('news')
@@ -114,9 +166,8 @@
                 .order('created_at', { ascending: false });
 
             if (error) {
-                console.error('加载新闻失败:', error);
                 loadingIndicator.style.display = 'none';
-                newsFeed.innerHTML = `<p style="color: red; text-align: center;">加载新闻失败：${error.message}</p>`;
+                newsFeed.innerHTML = `<p style="color: red; text-align: center;">加载失败：${error.message}</p>`;
                 return;
             }
 
@@ -141,44 +192,7 @@
             });
         }
 
-        // 2. 发布新闻
-        newsForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            submitBtn.textContent = '发布中...';
-            submitBtn.disabled = true;
-            statusMsg.style.display = 'none';
-
-            const title = document.getElementById('title').value.trim();
-            const author = document.getElementById('author').value.trim();
-            const content = document.getElementById('content').value.trim();
-
-            if (!title || !author || !content) {
-                showStatus('请填写所有字段！', 'error');
-                submitBtn.textContent = '发布到云端';
-                submitBtn.disabled = false;
-                return;
-            }
-
-            try {
-                const { data, error } = await supabase
-                    .from('news')
-                    .insert([{ title, author, content }]);
-
-                if (error) throw error;
-
-                showStatus('发布成功！', 'success');
-                newsForm.reset();
-                loadNews();
-            } catch (error) {
-                console.error('发布失败:', error);
-                showStatus(`发布失败：${error.message}`, 'error');
-            } finally {
-                submitBtn.textContent = '发布到云端';
-                submitBtn.disabled = false;
-            }
-        });
-
-        // 3. 显示状态消息
+        // 显示状态消息
         function showStatus(message, type) {
             statusMsg.textContent = message;
             statusMsg.className = 'status-msg ' + type;
@@ -186,7 +200,7 @@
             setTimeout(() => statusMsg.style.display = 'none', 3000);
         }
 
-        // 4. 防止 XSS 攻击
+        // 防止 XSS 攻击
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
