@@ -4,101 +4,134 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>真理报 | 苏维埃社会主义共和国联盟</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* 你的原有样式（保持不变） */
-        :root { --blood-red: #5a0000; --brick-red: #8b0000; --rust-red: #a52a2a; --gold-faded: #b8860b; --paper-yellow: #f5f5dc; --ink-black: #1a1a1a; --border-thick: 4px; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Times New Roman', 'SimSun', serif; background-color: var(--blood-red); background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px), repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px); color: var(--paper-yellow); padding: 20px; line-height: 1.6; }
-        .container { max-width: 1000px; margin: 0 auto; border: var(--border-thick) double var(--gold-faded); background: rgba(90, 0, 0, 0.95); padding: 30px; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        .header { text-align: center; border-bottom: 3px solid var(--gold-faded); padding-bottom: 20px; margin-bottom: 40px; }
-        .header h1 { font-size: 3.5rem; color: var(--paper-yellow); text-shadow: 3px 3px 0 var(--ink-black); letter-spacing: 5px; margin-bottom: 10px; }
-        .header .subtitle { font-size: 1.2rem; color: var(--gold-faded); font-style: italic; }
-        .editor-section { background: var(--ink-black); border: 2px dashed var(--gold-faded); padding: 25px; margin-bottom: 40px; }
-        .editor-section h2 { color: var(--gold-faded); margin-bottom: 20px; text-align: center; font-size: 1.8rem; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #ccc; font-weight: bold; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px; background: #333; border: 1px solid var(--gold-faded); color: #fff; font-family: 'Times New Roman', serif; font-size: 1rem; }
-        .form-group textarea { height: 150px; resize: vertical; }
-        .submit-btn { background: var(--brick-red); color: var(--paper-yellow); border: 2px solid var(--gold-faded); padding: 12px 30px; font-size: 1.2rem; cursor: pointer; display: block; margin: 0 auto; text-transform: uppercase; }
-        .news-feed { border-top: 3px solid var(--rust-red); padding-top: 30px; }
-        .news-item { background: rgba(139, 0, 0, 0.3); border-left: 5px solid var(--gold-faded); padding: 25px; margin-bottom: 30px; }
-        .news-title { font-size: 1.6rem; color: #fff; margin-bottom: 10px; font-weight: bold; }
-        .news-meta { font-size: 0.9rem; color: #aaa; margin-bottom: 15px; border-bottom: 1px dashed #444; padding-bottom: 10px; }
-        .news-content { font-size: 1.1rem; color: var(--paper-yellow); }
-        .status-msg { text-align: center; padding: 10px; margin-top: 10px; display: none; }
+        body { font-family: 'SimSun', serif; background: #5a0000; color: #f5f5dc; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: rgba(90,0,0,0.9); padding: 30px; border: 4px double #b8860b; }
+        h1 { text-align: center; color: #f5f5dc; font-size: 3rem; text-shadow: 3px 3px 0 #000; }
+        .subtitle { text-align: center; color: #b8860b; margin-bottom: 30px; }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; background: #333; border: 1px solid #b8860b; color: #fff; font-size: 1rem; }
+        button { width: 100%; padding: 15px; background: #8b0000; color: #f5f5dc; border: 2px solid #b8860b; font-size: 1.2rem; cursor: pointer; }
+        button:hover { background: #a52a2a; }
+        .news-item { background: rgba(139,0,0,0.3); border-left: 5px solid #b8860b; padding: 15px; margin-top: 20px; }
+        .status { text-align: center; padding: 10px; margin-top: 10px; display: none; font-weight: bold; }
         .success { color: #4CAF50; }
         .error { color: #f44336; }
     </style>
 </head>
 <body>
     <div class="container">
-        <header class="header"><h1>真理报</h1><p class="subtitle">Правда | 第108特别方面军官方喉舌</p></header>
-        <section class="editor-section">
-            <h2>✍️ 撰写新闻稿件</h2>
-            <form id="newsForm">
-                <div class="form-group"><label>新闻标题</label><input type="text" id="title" required></div>
-                <div class="form-group"><label>记者姓名</label><input type="text" id="author" required></div>
-                <div class="form-group"><label>新闻正文</label><textarea id="content" required></textarea></div>
-                <button type="button" onclick="publishNews()" class="submit-btn">发布到云端</button>
-                <div id="statusMsg" class="status-msg"></div>
-            </form>
-        </section>
-        <section class="news-feed" id="newsFeed"><h2 style="color: var(--gold-faded); margin-bottom: 20px; text-align: center;">📰 最新消息</h2><div id="loadingIndicator">加载中...</div></section>
+        <h1>真理报</h1>
+        <p class="subtitle">Правда | 第108特别方面军官方喉舌</p>
+        
+        <div>
+            <input id="title" placeholder="新闻标题">
+            <input id="author" placeholder="记者姓名">
+            <textarea id="content" rows="5" placeholder="新闻正文"></textarea>
+            <button onclick="publish()">发布到云端</button>
+            <div id="status" class="status"></div>
+        </div>
+
+        <hr style="margin: 40px 0; border-color: #b8860b;">
+
+        <div id="newsList"></div>
     </div>
 
     <script>
-        // ==========================================================
-        // 配置你的 Supabase 凭证
-        // ==========================================================
+        // 配置
         const SUPABASE_URL = 'https://aiqsqbbvexvmuptrtvkn.supabase.co';
-        // ★★★ 把下面这串替换成你复制的 anon 密钥 ★★★
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpcXNxYmJ2ZXh2bXVwdHJ0dmtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTA4NTYsImV4cCI6MjA5NDU2Njg1Nn0.-zEw5w6RuFX7IalXvemL8lKlcVDWPphDrH_6pU30tjI'; 
-
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // 1. 加载新闻
-        async function loadNews() {
-            const { data, error } = await supabase.from('news').select('*').order('created_at', { ascending: false });
-            const feed = document.getElementById('newsFeed');
-            if (error) { feed.innerHTML = '<p style="color:red;">加载失败: ' + error.message + '</p>'; return; }
-            
-            feed.innerHTML = '<h2 style="color: var(--gold-faded); margin-bottom: 20px; text-align: center;">📰 最新消息</h2>';
-            if (data.length === 0) { feed.innerHTML += '<p style="text-align:center;">暂无新闻。</p>'; return; }
-            
-            data.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'news-item';
-                div.innerHTML = `<div class="news-title">${item.title}</div><div class="news-meta">记者：${item.author} | ${new Date(item.created_at).toLocaleString()}</div><div class="news-content">${item.content}</div>`;
-                feed.appendChild(div);
-            });
-        }
-
-        // 2. 发布新闻
-        window.publishNews = async function() {
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpcXNxYmJ2ZXh2bXVwdHJ0dmtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTA4NTYsImV4cCI6MjA5NDU2Njg1Nn0.-zEw5w6RuFX7IalXvemL8lKlcVDWPphDrH_6pU30tjI';
+        
+        // 发布新闻（使用原生 Fetch API）
+        async function publish() {
             const title = document.getElementById('title').value;
             const author = document.getElementById('author').value;
             const content = document.getElementById('content').value;
-            const msg = document.getElementById('statusMsg');
+            const status = document.getElementById('status');
 
-            if (!title || !author || !content) { msg.textContent = '请填完所有字段！'; msg.className='status-msg error'; msg.style.display='block'; return; }
-
-            const { error } = await supabase.from('news').insert([{ title, author, content }]);
-
-            if (error) {
-                msg.textContent = '发布失败: ' + error.message;
-                msg.className = 'status-msg error';
-            } else {
-                msg.textContent = '发布成功！';
-                msg.className = 'status-msg success';
-                document.getElementById('newsForm').reset();
-                loadNews();
+            if (!title || !author || !content) {
+                status.innerText = '请填写所有字段！';
+                status.className = 'status error';
+                status.style.display = 'block';
+                return;
             }
-            msg.style.display = 'block';
-            setTimeout(() => msg.style.display = 'none', 3000);
+
+            status.innerText = '正在发布...';
+            status.className = 'status';
+            status.style.display = 'block';
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/news`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal' // 不返回数据，减少出错可能
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        author: author,
+                        content: content
+                    })
+                });
+
+                if (response.ok) {
+                    status.innerText = '发布成功！';
+                    status.className = 'status success';
+                    document.getElementById('title').value = '';
+                    document.getElementById('author').value = '';
+                    document.getElementById('content').value = '';
+                    loadNews();
+                } else {
+                    const errorText = await response.text();
+                    status.innerText = `发布失败 (${response.status}): ${errorText}`;
+                    status.className = 'status error';
+                }
+            } catch (error) {
+                status.innerText = '网络错误：' + error.message;
+                status.className = 'status error';
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', loadNews);
+        // 加载新闻
+        async function loadNews() {
+            const list = document.getElementById('newsList');
+            list.innerHTML = '<p>加载中...</p>';
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/news?select=*&order=created_at.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    list.innerHTML = '<p style="color:red;">加载失败：' + response.statusText + '</p>';
+                    return;
+                }
+                
+                const data = await response.json();
+                list.innerHTML = '<h2 style="color:#b8860b;">📰 最新消息</h2>';
+                
+                if (data.length === 0) {
+                    list.innerHTML += '<p style="text-align:center;">暂无新闻。</p>';
+                    return;
+                }
+                
+                data.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'news-item';
+                    div.innerHTML = `<strong>${item.title}</strong><br><small>记者：${item.author} | ${new Date(item.created_at).toLocaleString()}</small><p>${item.content}</p>`;
+                    list.appendChild(div);
+                });
+            } catch (error) {
+                list.innerHTML = '<p style="color:red;">加载出错：' + error.message + '</p>';
+            }
+        }
+
+        // 页面加载时执行
+        loadNews();
     </script>
 </body>
 </html>
