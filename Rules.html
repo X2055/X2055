@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>苏联宪法全宗 | 苏维埃社会主义共和国联盟</title>
+    <style>
+        :root {
+            --red-dark: #5C0000;       /* 深暗红，像天鹅绒幕布 */
+            --red-blood: #8B0000;     /* 血红色，用于强调 */
+            --red-maroon: #800000;    /* 栗色，用于卡片 */
+            --gold: #FFD700;          /* 勋章金 */
+            --gold-dull: #DAA520;     /* 暗金，用于边框 */
+            --paper: #F5F5DC;         /* 羊皮纸色，用于正文 */
+            --text-dark: #1a1a1a;
+            --text-light: #f0f0f0;
+            --border-thick: 4px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Times New Roman', 'SimSun', serif; /* 复古衬线体 */
+            background-color: var(--red-dark);
+            /* 暗红丝绒纹理 */
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(139, 0, 0, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(90, 0, 0, 0.3) 0%, transparent 50%),
+                linear-gradient(to bottom, #2a0000, #5C0000, #2a0000);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 顶部导航 - 像政府大楼的横额 */
+        .soviet-header {
+            background: linear-gradient(180deg, rgba(40, 0, 0, 0.95) 0%, rgba(92, 0, 0, 0.8) 100%);
+            padding: 20px 40px;
+            border-bottom: var(--border-thick) double var(--gold-dull);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .hammer-sickle {
+            font-size: 2.8rem;
+            color: var(--gold);
+            text-shadow: 2px 2px 0 #000;
+            transform: rotate(-15deg);
+        }
+
+        .logo-text {
+            font-family: 'Georgia', 'SimHei', serif;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-link, .lang-btn {
+            background: transparent;
+            border: 2px solid var(--gold-dull);
+            color: var(--text-light);
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Times New Roman', serif;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-link:hover, .lang-btn:hover {
+            background: var(--gold);
+            color: var(--red-dark);
+            border-color: var(--gold);
+        }
+
+        .lang-btn.active {
+            background: var(--gold);
+            color: var(--red-dark);
+            font-weight: bold;
+        }
+
+        /* 主标题区 - 宣传画风格 */
+        .hero-section {
+            text-align: center;
+            padding: 80px 20px;
+            border-bottom: 2px solid rgba(218, 165, 32, 0.3);
+            position: relative;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(139, 0, 0, 0.4) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .main-title {
+            font-family: 'Georgia', 'SimHei', serif;
+            font-size: clamp(3.5rem, 10vw, 7rem);
+            color: var(--gold);
+            text-shadow: 4px 4px 0 #000, 0 0 20px rgba(255, 215, 0, 0.3);
+            letter-spacing: 15px;
+            margin-bottom: 20px;
+            font-weight: 900;
+        }
+
+        .sub-title {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            letter-spacing: 8px;
+            opacity: 0.9;
+        }
+
+        /* 音频控制 - 复古收音机风格 */
+        .audio-controls {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .control-btn {
+            background: var(--red-maroon);
+            border: 3px solid var(--gold-dull);
+            color: var(--gold);
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Times New Roman', serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 5px 5px 0 rgba(0,0,0,0.5);
+        }
+
+        .control-btn:hover {
+            background: var(--gold);
+            color: var(--red-dark);
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+            transform: translate(3px, 3px);
+        }
+
+        #volumeSlider {
+            width: 150px;
+            height: 8px;
+            -webkit-appearance: none;
+            background: var(--red-maroon);
+            border: 2px solid var(--gold-dull);
+            outline: none;
+        }
+
+        #volumeSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--gold);
+            border: 2px solid #000;
+            cursor: pointer;
+        }
+
+        /* 宪法卡片网格 - 像档案馆的文件柜 */
+        .main-container {
+            max-width: 1400px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .constitution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 40px;
+        }
+
+        .const-card {
+            background: var(--red-maroon);
+            border: var(--border-thick) solid var(--gold-dull);
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.5);
+        }
+
+        .const-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--gold);
+            box-shadow: 12px 12px 0 rgba(0,0,0,0.7);
+        }
+
+        .const-card::before {
+            content: '☭';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            color: rgba(255, 215, 0, 0.3);
+        }
+
+        .card-year {
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            color: var(--red-dark);
+            -webkit-text-stroke: 2px var(--gold-dull);
+            text-stroke: 2px var(--gold-dull);
+            line-height: 1;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+        }
+
+        .card-title {
+            font-size: 1.6rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+            font-weight: bold;
+            border-bottom: 2px solid var(--gold-dull);
+            padding-bottom: 10px;
+            min-height: 60px;
+        }
+
+        .card-desc {
+            font-size: 1rem;
+            color: #ddd;
+            line-height: 1.6;
+        }
+
+        /* 模态框 - 像翻开的法律卷宗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(20, 0, 0, 0.95);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            background: var(--paper);
+            color: var(--text-dark);
+            border: 5px solid var(--gold-dull);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            display: flex;
+            overflow: hidden;
+        }
+
+        .modal-toc {
+            width: 300px;
+            border-right: 3px solid var(--gold-dull);
+            padding: 30px;
+            overflow-y: auto;
+            background: rgba(139, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+
+        .modal-toc h3 {
+            color: var(--red-maroon);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--red-maroon);
+            font-family: 'Georgia', serif;
+        }
+
+        .modal-toc ul {
+            list-style: none;
+        }
+
+        .modal-toc li {
+            margin-bottom: 12px;
+        }
+
+        .modal-toc a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            padding: 5px 0;
+            display: block;
+            border-left: 3px solid transparent;
+            padding-left: 10px;
+        }
+
+        .modal-toc a:hover,
+        .modal-toc a.active {
+            color: var(--red-maroon);
+            border-left-color: var(--gold);
+            background: rgba(139, 0, 0, 0.05);
+            font-weight: bold;
+        }
+
+        .modal-body {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .modal-body h2 {
+            color: var(--red-maroon);
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            text-align: center;
+            border-bottom: 3px double var(--red-maroon);
+            padding-bottom: 15px;
+            font-family: 'Georgia', serif;
+        }
+
+        .chapter {
+            margin-bottom: 40px;
+        }
+
+        .chapter-title {
+            font-weight: bold;
+            color: var(--red-blood);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--gold-dull);
+            padding-left: 15px;
+            background: rgba(139, 0, 0, 0.03);
+            padding: 10px 15px;
+        }
+
+        .modal-body p {
+            margin-bottom: 15px;
+            text-align: justify;
+            text-indent: 2em;
+        }
+
+        .article-num {
+            font-weight: bold;
+            color: var(--red-maroon);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--red-maroon);
+            color: var(--gold);
+            border: 2px solid var(--gold-dull);
+            width: 50px;
+            height: 50px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .close-btn:hover {
+            background: var(--gold);
+            color: var(--red-dark);
+        }
+
+        /* 滚动条 - 复古风格 */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-left: 1px solid #ccc; }
+        ::-webkit-scrollbar-thumb { background: var(--red-maroon); border: 2px solid var(--paper); }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .modal-content { flex-direction: column; }
+            .modal-toc { width: 100%; height: 150px; border-right: none; border-bottom: 3px solid var(--gold-dull); }
+            .header-inner { flex-direction: column; gap: 15px; }
+            .nav-controls { flex-wrap: wrap; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="soviet-header">
+        <div class="header-inner">
+            <div class="logo">
+                <span class="hammer-sickle">☭</span>
+                <span class="logo-text">СССР 宪法数据库</span>
+            </div>
+            <div class="nav-controls">
+                <button class="nav-link" onclick="window.history.back()">返回主站</button>
+                <button class="lang-btn active" data-lang="zh">中文</button>
+                <button class="lang-btn" data-lang="ru">Русский</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero-section">
+        <h1 class="main-title">КОНСТИТУЦИЯ СССР</h1>
+        <p class="sub-title">1918 · 1924 · 1936 · 1977</p>
+        <div class="audio-controls">
+            <button class="control-btn" id="playPauseBtn" onclick="toggleAudio()">▶ 播放国歌</button>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" onchange="setVolume(this.value)">
+        </div>
+    </section>
+
+    <main class="main-container">
+        <div class="constitution-grid" id="constitutionGrid">
+            <!-- 卡片由JS生成 -->
+        </div>
+    </main>
+
+    <!-- 音频元素 -->
+    <audio id="bgAudio" loop preload="auto">
+        <source src="anthem.mp3" type="audio/mpeg">
+        <!-- 备用源 -->
+        <source src="assets/audio/anthem.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 模态框 -->
+    <div id="modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeModal(event)">&times;</button>
+            <aside class="modal-toc">
+                <h3 id="tocTitle">目录</h3>
+                <ul id="tocList"></ul>
+            </aside>
+            <article class="modal-body" id="constitutionText">
+                <!-- 宪法全文在这里 -->
+            </article>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 宪法数据（完整版）====================
+        const constitutionDB = {
+            "1918": {
+                title: { zh: "1918年 俄罗斯苏维埃联邦社会主义共和国宪法", ru: "Конституция РСФСР 1918 г." },
+                year: 1918,
+                toc: [
+                    { id: "preamble", title: { zh: "被剥削劳动人民权利宣言", ru: "Декларация прав трудящегося" } },
+                    { id: "ch1", title: { zh: "第一章 俄罗斯共和国的宪法总纲", ru: "Глава I. Конституция РСФСР" } },
+                    { id: "ch4", title: { zh: "第四章 选举权与被选举权", ru: "Глава IV. Избирательное право" } },
+                    { id: "ch11", title: { zh: "第十一章 人民委员部", ru: "Глава XI. Наркоматы" } }
+                ],
+                content: {
+                    preamble: [
+                        "<span class='article-num'>第一条.</span> 俄国宣布为工兵农代表苏维埃共和国。中央和地方全部政权均归苏维埃掌握。",
+                        "<span class='article-num'>第二条.</span> 苏维埃共和国俄罗斯以各自由民族之自由联盟为基础，而成为各民族苏维埃共和国联邦。",
+                        "<span class='article-num'>第三条.</span> 第三次全俄苏维埃代表大会的基本任务是消灭任何人对人的剥削，完全消除社会之划分为各阶级的现象，无情镇压剥削者的反抗，建立社会主义的社会组织。"
+                    ],
+                    ch1: [
+                        "<span class='article-num'>第九条.</span> 俄罗斯社会主义联邦苏维埃共和国承认全体劳动人民均为享有权利者，不分性别、宗教信仰、种族及民族，凡在选举日前年满十八岁者，均有选举权及被选举权。",
+                        "<span class='article-num'>第十条.</span> 下列人员不得享有选举权及被选举权：(一) 以营利为目的而雇佣他人劳动者；(二) 依靠资本之利息、企业之收入、财产之收入以为生活者；(三) 私商、贸易及商业中间人；(四) 僧侣及宗教祭司；(五) 旧警察、宪兵及特务；(六) 精神病患者及受监护者；(七) 被判剥夺选举权之罪犯。"
+                    ],
+                    ch4: [
+                        "<span class='article-num'>第六十四条.</span> 苏维埃政权的基础是城乡劳动者代表苏维埃。苏维埃不仅是一种民主形式，而且是新型的国家机构，它保证了无产阶级能够领导广大劳动群众，镇压剥削者的反抗，并粉碎他们的反抗。",
+                        "<span class='article-num'>第六十五条.</span> 凡是年满十八岁的苏联公民，不分种族和民族，不分性别，不分信仰，不分教育程度，不论居住期限，不问社会出身、财产状况以及过去的活动如何，都有权参加苏联最高苏维埃代表的选举。"
+                    ],
+                    ch11: [
+                        "<span class='article-num'>第四十二条.</span> 为实施苏俄宪法及全俄苏维埃代表大会和全俄中央执行委员会所委决之法令，特设立下列各人民委员部：(一) 外交人民委员部；(二) 军事人民委员部；(三) 内务人民委员部；(四) 司法人民委员部；(五) 劳动人民委员部；(六) 社会保障人民委员部；(七) 教育人民委员部；(八) 邮电人民委员部；(九) 民族事务人民委员部；(十) 财政人民委员部；(十一) 交通人民委员部；(十二) 农业人民委员部；(十三) 工商业人民委员部；(十四) 粮食人民委员部。"
+                    ]
+                }
+            },
+            "1924": {
+                title: { zh: "1924年 苏维埃社会主义共和国联盟宪法", ru: "Конституция СССР 1924 г." },
+                year: 1924,
+                toc: [
+                    { id: "declaration", title: { zh: "联盟成立宣言", ru: "Декларация об образовании" } },
+                    { id: "treaty", title: { zh: "联盟成立条约", ru: "Договор об образовании" } },
+                    { id: "ch2", title: { zh: "第二章 苏维埃代表大会", ru: "Глава II. Съезд Советов" } }
+                ],
+                content: {
+                    declaration: [
+                        "<span class='article-num'>第一条.</span> 自苏维埃政权成立以来，世界各国已分裂为两个阵营：社会主义阵营和资本主义阵营。",
+                        "<span class='article-num'>第二条.</span> 资本主义阵营的特点是：民族仇视、不平等、殖民地的奴役和沙文主义、民族的压迫和蹂躏、帝国主义的暴行、战争的不可避免性。",
+                        "<span class='article-num'>第三条.</span> 社会主义阵营的特点是：相互信任、和平、民族平等、和睦相处、各族人民兄弟般的合作。"
+                    ],
+                    treaty: [
+                        "<span class='article-num'>第一条.</span> 俄罗斯苏维埃联邦社会主义共和国、乌克兰苏维埃社会主义共和国、白俄罗斯苏维埃社会主义共和国和南高加索苏维埃联邦社会主义共和国（包括阿塞拜疆、格鲁吉亚和亚美尼亚）联合为一个联盟国家——苏维埃社会主义共和国联盟。",
+                        "<span class='article-num'>第二条.</span> 苏维埃社会主义共和国联盟的权力属于城乡劳动者，由苏维埃代表大会及其执行机关——苏维埃社会主义共和国联盟中央执行委员会行使之。"
+                    ],
+                    ch2: [
+                        "<span class='article-num'>第八条.</span> 苏维埃社会主义共和国联盟苏维埃代表大会为苏联最高权力机关。",
+                        "<span class='article-num'>第九条.</span> 苏维埃社会主义共和国联盟苏维埃代表大会由联盟苏维埃和民族苏维埃组成。"
+                    ]
+                }
+            },
+            "1936": {
+                title: { zh: "1936年 苏维埃社会主义共和国联盟宪法（斯大林宪法）", ru: "Конституция СССР 1936 г. (Сталинская)" },
+                year: 1936,
+                toc: [
+                    { id: "preamble", title: { zh: "序言", ru: "Преамбула" } },
+                    { id: "ch1", title: { zh: "第一章 社会结构", ru: "Глава I. Общественное устройство" } },
+                    { id: "ch10", title: { zh: "第十章 公民基本权利和义务", ru: "Глава X. Основные права" } }
+                ],
+                content: {
+                    preamble: [
+                        "苏维埃社会主义共和国联盟，自其成立以来，在国际形势极度紧张的环境中，顺利地捍卫了国家的独立。",
+                        "在资本主义包围的条件下，苏联建成了社会主义社会。人剥削人的现象已经消灭。生产资料社会主义所有制已经确立。",
+                        "伟大的十月社会主义革命所建立的苏维埃政权，已经保证了社会主义在苏联的胜利。"
+                    ],
+                    ch1: [
+                        "<span class='article-num'>第一条.</span> 苏维埃社会主义共和国联盟为工农社会主义国家。",
+                        "<span class='article-num'>第二条.</span> 苏联的政治基础，是由于推翻地主资本家政权并争取无产阶级专政的胜利而成长和巩固起来的劳动者代表苏维埃。",
+                        "<span class='article-num'>第三条.</span> 苏联的经济基础，是由于消灭资本主义经济体系、废除生产工具与生产资料私有制和消灭人对人的剥削而确立的社会主义经济体系和生产工具的社会主义所有制。"
+                    ],
+                    ch10: [
+                        "<span class='article-num'>第一百一十八条.</span> 苏联公民有劳动的权利，即获得有保障的工作并按劳动数量和质量领取报酬的权利。劳动权的保证是：社会主义国民经济之组织，苏维埃社会生产力之不断增长，经济危机可能性之铲除，失业现象之消灭。",
+                        "<span class='article-num'>第一百一十九条.</span> 苏联公民有休息的权利。休息权的保证是：工人及职员工作时间规定为八小时，从事劳动条件困难之职业的工作时间及未成年者工作时间予以缩短，并规定每年保留原薪之休假，广泛设立疗养所、休养所及俱乐部供劳动者享用。",
+                        "<span class='article-num'>第一百二十条.</span> 苏联公民年老、患病及丧失劳动能力时，有享受物质保证的权利。此项权利的保证是：国家出资为工人及职员举办社会保险事业，对劳动者实行免费医疗，广泛设备疗养院。",
+                        "<span class='article-num'>第一百二十一条.</span> 苏联公民有受教育的权利。此项权利的保证是：普及初级义务教育，七年免费教育，高级学校优等生由国家发给奖学金。"
+                    ]
+                }
+            },
+            "1977": {
+                title: { zh: "1977年 苏维埃社会主义共和国联盟宪法（勃列日涅夫宪法）", ru: "Конституция СССР 1977 г. (Брежневская)" },
+                year: 1977,
+                toc: [
+                    { id: "preamble", title: { zh: "序言", ru: "Преамбула" } },
+                    { id: "ch1", title: { zh: "第一章 政治制度", ru: "Глава 1. Политическая система" } },
+                    { id: "ch2", title: { zh: "第二章 经济制度", ru: "Глава 2. Экономическая система" } }
+                ],
+                content: {
+                    preamble: [
+                        "苏联共产党是社会主义国家的领导核心。党规定社会发展的总前景，指导苏联人民争取共产主义胜利的斗争。",
+                        "苏维埃国家已完成无产阶级专政的任务，它已成为全民的国家。",
+                        "苏联宪法是苏联社会已经走过的道路的法律总结，也是未来发展的法律基础。"
+                    ],
+                    ch1: [
+                        "<span class='article-num'>第一条.</span> 苏维埃社会主义共和国联盟是社会主义全民国家，代表工人、农民、知识分子以及国内各大小民族的意志和利益。",
+                        "<span class='article-num'>第二条.</span> 苏联的一切权力属于人民。",
+                        "<span class='article-num'>第三条.</span> 苏维埃是社会主义国家的形式。",
+                        "<span class='article-num'>第六条.</span> 苏联共产党是苏联社会的领导力量和指导力量，是政治制度以及国家和社会组织的核心。"
+                    ],
+                    ch2: [
+                        "<span class='article-num'>第十条.</span> 苏联的经济制度的基础是生产资料社会主义所有制。社会主义所有制的形式包括：国家（全民）所有制和集体农庄合作社所有制。",
+                        "<span class='article-num'>第十一条.</span> 国家所有制是全体苏联人民的共同财产，是社会主义所有制的主导形式。",
+                        "<span class='article-num'>第十二条.</span> 集体农庄合作社所有制是各个集体农庄和合作社的财产。"
+                    ]
+                }
+            }
+        };
+
+        // ==================== 全局变量 ====================
+        let currentLang = 'zh';
+        let currentConstitution = null;
+        const audio = document.getElementById('bgAudio');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+
+        // ==================== 初始化 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCards();
+            tryAutoPlayAudio();
+        });
+
+        // ==================== 音频逻辑 ====================
+        function tryAutoPlayAudio() {
+            audio.volume = 0.5;
+            audio.play().then(() => {
+                playPauseBtn.textContent = '❚❚ 暂停国歌';
+            }).catch(e => {
+                console.log('Autoplay prevented. Click to play.');
+                playPauseBtn.textContent = '▶ 点击播放国歌';
+            });
+        }
+
+        function toggleAudio() {
+            if (audio.paused) {
+                audio.play();
+                playPauseBtn.textContent = '❚❚ 暂停国歌';
+            } else {
+                audio.pause();
+                playPauseBtn.textContent = '▶ 播放国歌';
+            }
+        }
+
+        function setVolume(volume) {
+            audio.volume = volume;
+        }
+
+        // ==================== 渲染卡片 ====================
+        function renderCards() {
+            const grid = document.getElementById('constitutionGrid');
+            grid.innerHTML = '';
+            Object.keys(constitutionDB).forEach(key => {
+                const item = constitutionDB[key];
+                const card = document.createElement('div');
+                card.className = 'const-card';
+                card.onclick = () => openModal(key);
+                card.innerHTML = `
+                    <div class="card-year">${item.year}</div>
+                    <div class="card-title">${item.title[currentLang]}</div>
+                    <div class="card-desc">${item.toc[0].title[currentLang]} ...</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ==================== 模态框逻辑 ====================
+        function openModal(year) {
+            currentConstitution = constitutionDB[year];
+            const modal = document.getElementById('modal');
+            const tocList = document.getElementById('tocList');
+            const textContainer = document.getElementById('constitutionText');
+
+            // 更新标题
+            document.getElementById('tocTitle').textContent = currentLang === 'zh' ? '目录' : 'Содержание';
+            
+            // 渲染目录
+            tocList.innerHTML = '';
+            currentConstitution.toc.forEach(section => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = `#${section.id}`;
+                a.textContent = section.title[currentLang];
+                a.onclick = (e) => {
+                    e.preventDefault();
+                    scrollToSection(section.id);
+                };
+                li.appendChild(a);
+                tocList.appendChild(li);
+            });
+
+            // 渲染正文
+            textContainer.innerHTML = `<h2>${currentConstitution.title[currentLang]} (${year})</h2>`;
+            currentConstitution.toc.forEach(section => {
+                const div = document.createElement('div');
+                div.className = 'chapter';
+                div.id = section.id;
+                div.innerHTML = `
+                    <h3 class="chapter-title">${section.title[currentLang]}</h3>
+                    ${currentConstitution.content[section.id].map(p => `<p>${p}</p>`).join('')}
+                `;
+                textContainer.appendChild(div);
+            });
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(event) {
+            if (event.type === 'click' && event.target !== event.currentTarget) return;
+            document.getElementById('modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // ==================== 语言切换 ====================
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLang = btn.dataset.lang;
+                renderCards();
+                if (currentConstitution) {
+                    openModal(currentConstitution.year.toString());
+                }
+            });
+        });
+    </script>
+</body>
+</html>
