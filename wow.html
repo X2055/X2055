@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>苏维埃社会主义共和国联盟Gator</title>
+    <title>СССР Archive</title>
     <style>
+        :root {
+            --dark-red-bg: #8B0000;   /* 深暗国旗红 */
+            --gold: #FFD700;         /* 金色 */
+            --text-color: #FFFFFF;   /* 白色文字 */
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,157 +18,143 @@
         }
 
         body {
-            background-color: #8B0000; /* 苏维埃红 */
-            background-image: radial-gradient(circle at 20% 80%, rgba(255, 0, 0, 0.2) 0%, transparent 50%);
+            background-color: var(--dark-red-bg);
+            font-family: 'Arial', sans-serif;
+            color: var(--text-color);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            padding: 40px 20px;
-            font-family: 'Arial', 'Helvetica Neue', sans-serif;
+            justify-content: center;
+            padding: 20px;
         }
 
-        .soviet-container {
+        /* 顶部大标题样式 */
+        .main-header {
             width: 100%;
-            max-width: 960px;
-            background: rgba(120, 0, 0, 0.7);
-            border: 3px solid #FFD700;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 0, 0, 0.4);
-            padding: 30px;
-        }
-
-        .header {
             text-align: center;
-            margin-bottom: 25px;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
-            padding-bottom: 15px;
+            padding: 20px 0;
+            position: relative;
+            z-index: 10;
         }
 
-        .header h1 {
-            font-size: 38px;
-            color: #FFFFFF;
+        .main-header h1 {
+            font-size: 2.8rem;
+            letter-spacing: 5px;
+            color: var(--text-color);
             text-transform: uppercase;
-            letter-spacing: 6px;
-            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.8);
+            text-shadow: 
+                4px 4px 0px rgba(0, 0, 0, 0.5),
+                6px 6px 0px rgba(0, 0, 0, 0.2);
+            font-weight: 900;
+            margin-bottom: 5px;
         }
 
-        .header p {
-            color: #FFD700;
-            font-size: 14px;
-            margin-top: 8px;
+        .sub-line {
+            font-size: 0.9rem;
             letter-spacing: 2px;
+            opacity: 0.8;
+            text-transform: uppercase;
         }
 
-        /* 电视机框架 */
-        .tv-frame {
-            background: #1a1a1a;
-            padding: 12px;
-            border-radius: 15px;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.9), 0 5px 15px rgba(0,0,0,0.5);
-            border: 4px solid #333;
+        /* 容器样式 */
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            background: rgba(0, 0, 0, 0.15);
+            border: 2px solid var(--gold);
+            box-shadow: 
+                0 0 25px rgba(0, 0, 0, 0.5),
+                inset 0 0 15px rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            margin-bottom: 40px;
             position: relative;
         }
 
-        /* 视频播放器 */
-        .screen {
+        /* 视频包装器 */
+        .video-wrapper {
             position: relative;
             width: 100%;
-            background: #000;
-            border-radius: 8px;
+            aspect-ratio: 16 / 9; 
+            background-color: #000;
             overflow: hidden;
+            border: 1px solid rgba(255, 215, 0, 0.3);
         }
 
-        /* 核心改动：使用原生 Video 标签 */
-        .screen video {
-            width: 100%;
-            height: auto;
-            display: block;
-            z-index: 1;
-        }
-
-        /* 战争质感滤镜 */
-        .war-filter {
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* 视频元素本身 */
+        video {
             width: 100%;
             height: 100%;
-            z-index: 2;
-            pointer-events: none;
-            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.9);
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.2) 0px,
-                rgba(0, 0, 0, 0.2) 1px,
-                transparent 1px,
-                transparent 3px
-            );
-            animation: flicker 5s infinite;
+            object-fit: contain;
+            display: block;
+            filter: sepia(0.4) contrast(1.1);
         }
 
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.95; }
-        }
-
-        /* 底部署名与状态栏 */
+        /* 底部信息栏 */
         .status-bar {
-            margin-top: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px 15px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
-            font-family: 'Courier New', monospace;
+            align-items: center;
             font-size: 12px;
-            color: #FFD700;
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            color: #FFF;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .status-bar .author {
-            color: #FFFFFF;
             font-weight: bold;
+            font-size: 14px;
+            color: var(--gold);
         }
 
+        .status-bar .signal {
+            color: #FFF;
+        }
+
+        /* 响应式调整 */
         @media (max-width: 768px) {
-            body { padding: 10px; }
-            .soviet-container { padding: 15px; }
-            .header h1 { font-size: 22px; letter-spacing: 2px; }
-            .status-bar { flex-direction: column; gap: 5px; text-align: center; }
+            .main-header h1 {
+                font-size: 1.8rem;
+                letter-spacing: 2px;
+                text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+            }
+            .container {
+                width: 95%;
+                padding: 15px;
+            }
+            .status-bar {
+                flex-direction: column;
+                gap: 5px;
+                font-size: 10px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="soviet-container">
-        <div class="header">
-            <h1>Союз Советских Социалистических Республик</h1>
-            <p>RED ARMY ARCHIVES // CLASSIFIED FOOTAGE</p>
-        </div>
+    <!-- 顶部大标题 -->
+    <div class="main-header">
+        <h1>苏维埃社会主义共和国联盟</h1>
+        <p class="sub-line">RED ARMY ARCHIVES // CLASSIFIED FOOTAGE</p>
+    </div>
 
-        <div class="tv-frame">
-            <div class="screen">
-                <!-- ⚠️ 重点：将 src 指向你仓库中的视频文件路径 -->
-                <!-- 例如：src="assets/videos/cod5_intro.mp4" -->
-                <video 
-                    controls 
-                    autoplay 
-                    muted 
-                    loop
-                    poster="https://via.placeholder.com/960x540/8B0000/FFFFFF?text=LOADING...">
-                    <source src="Video_1779114308250_433.mp4" type="Video_1779114308250_433.mp4">
-                    <!-- 建议同时提供 WebM 格式以获得更好的兼容性 -->
-                    <!-- <source src="videos/your-video.webm" type="video/webm"> -->
-                    您的浏览器不支持播放此视频。
-                </video>
-                
-                <div class="war-filter"></div>
-            </div>
+    <div class="container">
+        <div class="video-wrapper">
+            <!-- 请确保您的视频文件与此HTML文件在同一目录，或修正路径 -->
+            <video controls autoplay muted loop playsinline>
+                <source src="Video_1779114308250_433.mp4" type="video/mp4">
+                您的浏览器不支持播放此视频。
+            </video>
         </div>
 
         <div class="status-bar">
-            <span>STATUS: <strong>ARCHIVED</strong></span>
-            <!-- 署名：苏维埃社会主义共和国联盟 -->
-            <span class="author">Союз Советских Социалистических Республик </span>
+            <span class="author">Union of Soviet Socialist Republics</span>
+            <span class="signal">STATUS: NORMAL TRANSMISSION</span>
             <span>DATE: 1945.05.09</span>
         </div>
     </div>
