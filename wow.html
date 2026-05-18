@@ -6,16 +6,12 @@
     <title>СССР Archive</title>
     <style>
         :root {
-            --dark-red-bg: #8B0000;   /* 深暗国旗红 */
-            --gold: #FFD700;         /* 金色 */
-            --text-color: #FFFFFF;   /* 白色文字 */
+            --dark-red-bg: #8B0000;
+            --gold: #FFD700;
+            --text-color: #FFFFFF;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background-color: var(--dark-red-bg);
@@ -29,12 +25,11 @@
             padding: 20px;
         }
 
-        /* 顶部大标题样式 */
+        /* 顶部大标题 */
         .main-header {
             width: 100%;
             text-align: center;
             padding: 20px 0;
-            position: relative;
             z-index: 10;
         }
 
@@ -43,45 +38,39 @@
             letter-spacing: 5px;
             color: var(--text-color);
             text-transform: uppercase;
-            text-shadow: 
-                4px 4px 0px rgba(0, 0, 0, 0.5),
-                6px 6px 0px rgba(0, 0, 0, 0.2);
+            text-shadow: 4px 4px 0px rgba(0,0,0,0.5), 6px 6px 0px rgba(0,0,0,0.2);
             font-weight: 900;
-            margin-bottom: 5px;
         }
 
         .sub-line {
             font-size: 0.9rem;
             letter-spacing: 2px;
             opacity: 0.8;
-            text-transform: uppercase;
+            margin-top: 5px;
         }
 
-        /* 容器样式 */
+        /* 容器 */
         .container {
             width: 90%;
             max-width: 1000px;
-            background: rgba(0, 0, 0, 0.15);
+            background: rgba(0,0,0,0.15);
             border: 2px solid var(--gold);
-            box-shadow: 
-                0 0 25px rgba(0, 0, 0, 0.5),
-                inset 0 0 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 25px rgba(0,0,0,0.5);
             padding: 25px;
-            margin-bottom: 40px;
-            position: relative;
+            margin-top: 20px;
         }
 
-        /* 视频包装器 */
+        /* 视频区域 */
         .video-wrapper {
             position: relative;
             width: 100%;
-            aspect-ratio: 16 / 9; 
+            aspect-ratio: 16 / 9;
             background-color: #000;
             overflow: hidden;
-            border: 1px solid rgba(255, 215, 0, 0.3);
+            border: 1px solid rgba(255,215,0,0.3);
         }
 
-        /* 视频元素本身 */
+        /* 视频本身 */
         video {
             width: 100%;
             height: 100%;
@@ -90,54 +79,85 @@
             filter: sepia(0.4) contrast(1.1);
         }
 
-        /* 底部信息栏 */
+        /* ============================= */
+        /* 预加载界面 (新增)              */
+        /* ============================= */
+        #preloader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #050505;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #preloader.hidden {
+            opacity: 0;
+            pointer-events: none; /* 加载完后禁止交互 */
+        }
+
+        .loader-text {
+            font-size: 14px;
+            letter-spacing: 2px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar-container {
+            width: 60%;
+            max-width: 400px;
+            height: 4px;
+            background-color: #333;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: var(--gold);
+            transition: width 0.3s ease-out;
+        }
+
+        .loading-percent {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 底部状态栏 */
         .status-bar {
             width: 100%;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0,0,0,0.4);
             padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 12px;
             color: #FFF;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255,255,255,0.1);
             margin-top: 20px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        .status-bar .author {
-            font-weight: bold;
-            font-size: 14px;
-            color: var(--gold);
-        }
-
-        .status-bar .signal {
-            color: #FFF;
-        }
-
-        /* 响应式调整 */
+        .status-bar .author { font-weight: bold; font-size: 14px; color: var(--gold); }
+        
+        /* 响应式 */
         @media (max-width: 768px) {
-            .main-header h1 {
-                font-size: 1.8rem;
-                letter-spacing: 2px;
-                text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
-            }
-            .container {
-                width: 95%;
-                padding: 15px;
-            }
-            .status-bar {
-                flex-direction: column;
-                gap: 5px;
-                font-size: 10px;
-            }
+            .main-header h1 { font-size: 1.8rem; letter-spacing: 2px; }
+            .container { width: 95%; padding: 15px; }
+            .status-bar { flex-direction: column; gap: 5px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 顶部大标题 -->
     <div class="main-header">
         <h1>苏维埃社会主义共和国联盟</h1>
         <p class="sub-line">RED ARMY ARCHIVES // CLASSIFIED FOOTAGE</p>
@@ -145,8 +165,23 @@
 
     <div class="container">
         <div class="video-wrapper">
-            <!-- 请确保您的视频文件与此HTML文件在同一目录，或修正路径 -->
-            <video controls autoplay muted loop playsinline>
+            <!-- 预加载界面 -->
+            <div id="preloader">
+                <div class="loader-text">INITIALIZING CONNECTION...</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="loading-percent" id="loadingPercent">0%</div>
+            </div>
+
+            <!-- 视频播放器 -->
+            <video 
+                id="videoPlayer"
+                controls 
+                muted 
+                loop 
+                playsinline
+                preload="auto">
                 <source src="Video_1779114308250_433.mp4" type="video/mp4">
                 您的浏览器不支持播放此视频。
             </video>
@@ -154,10 +189,51 @@
 
         <div class="status-bar">
             <span class="author">Union of Soviet Socialist Republics</span>
-            <span class="signal">STATUS: NORMAL TRANSMISSION</span>
+            <span>STATUS: <span id="statusText">BUFFERING...</span></span>
             <span>DATE: 1945.05.09</span>
         </div>
     </div>
+
+    <script>
+        const video = document.getElementById('videoPlayer');
+        const preloader = document.getElementById('preloader');
+        const progressBar = document.getElementById('progressBar');
+        const loadingPercent = document.getElementById('loadingPercent');
+        const statusText = document.getElementById('statusText');
+
+        // 监听视频加载进度
+        video.addEventListener('progress', function() {
+            if (video.buffered.length > 0) {
+                // 计算已缓冲的时间占总时间的比例
+                let bufferedEnd = video.buffered.end(video.buffered.length - 1);
+                let duration = video.duration;
+                if (duration > 0) {
+                    let percent = Math.round((bufferedEnd / duration) * 100);
+                    progressBar.style.width = percent + '%';
+                    loadingPercent.textContent = percent + '%';
+
+                    // 当缓冲达到 15% 或更多时，隐藏预加载界面并开始播放
+                    if (percent >= 15 && !preloader.classList.contains('hidden')) {
+                        preloader.classList.add('hidden');
+                        statusText.textContent = 'ON AIR';
+                        // 尝试播放（由于浏览器策略，可能需要用户交互，但这里静音状态下通常可以）
+                        video.play().catch(e => console.log("Autoplay prevented: ", e));
+                    }
+                }
+            }
+        });
+
+        // 监听视频下载元数据（获取总时长）
+        video.addEventListener('loadedmetadata', function() {
+            statusText.textContent = 'METADATA LOADED';
+        });
+
+        // 如果视频加载失败或卡住，显示错误
+        video.addEventListener('error', function() {
+            document.querySelector('.loader-text').textContent = "CONNECTION FAILED";
+            statusText.textContent = "ERROR";
+        });
+    </script>
 
 </body>
 </html>
