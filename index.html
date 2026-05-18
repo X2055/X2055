@@ -803,6 +803,153 @@ function checkEntry(action) {
 // ================= 页面加载即开始 =================
 window.onload = initGame;
 </script>
+<!-- 预加载插件 - 独立模块 -->
+<script>
+/**
+ * 苏维埃视频预加载插件
+ * 功能：在后台自动预加载视频，不影响主页面
+ * 使用方法：将此脚本添加到您的页面底部
+ */
+(function() {
+    'use strict';
+    
+    // 配置
+    const config = {
+        videoSrc: 'Video_1779114308250_433.mp4', // 您的视频文件
+        preloadPercent: 25, // 预加载百分比（当达到此百分比时停止预加载）
+        checkInterval: 3000, // 检查间隔（毫秒）
+        debug: false // 是否显示调试信息
+    };
+    
+    // 创建隐藏的预加载视频元素
+    const preloadVideo = document.createElement('video');
+    preloadVideo.style.display = 'none';
+    preloadVideo.preload = 'auto';
+    preloadVideo.muted = true;
+    preloadVideo.playsInline = true;
+    
+    // 添加视频源
+    const source = document.createElement('source');
+    source.src = config.videoSrc;
+    source.type = 'video/mp4';
+    preloadVideo.appendChild(source);
+    
+    // 将预加载视频添加到页面
+    document.body.appendChild(preloadVideo);
+    
+    // 预加载状态
+    let isPreloading = true;
+    let preloadedBytes = 0;
+    let totalBytes = 0;
+    
+    // 日志函数
+    function log(message) {
+        if (config.debug) {
+            console.log('[预加载插件] ' + message);
+        }
+    }
+    
+    // 开始预加载
+    function startPreload() {
+        log('开始预加载视频...');
+        
+        // 强制开始加载
+        preloadVideo.load();
+        
+        // 定期检查加载进度
+        const checkProgress = setInterval(function() {
+            if (!isPreloading) {
+                clearInterval(checkProgress);
+                return;
+            }
+            
+            // 检查缓冲进度
+            if (preloadVideo.buffered.length > 0) {
+                const bufferedEnd = preloadVideo.buffered.end(preloadVideo.buffered.length - 1);
+                const duration = preloadVideo.duration;
+                
+                if (duration > 0) {
+                    const percent = Math.round((bufferedEnd / duration) * 100);
+                    log('预加载进度: ' + percent + '%');
+                    
+                    // 达到目标百分比后暂停预加载
+                    if (percent >= config.preloadPercent) {
+                        log('预加载完成，暂停加载以节省带宽');
+                        preloadVideo.pause();
+                        isPreloading = false;
+                        clearInterval(checkProgress);
+                    }
+                }
+            }
+            
+            // 检查网络状态
+            if (navigator.connection) {
+                const connection = navigator.connection;
+                log('网络类型: ' + connection.effectiveType + ', 下行速度: ' + connection.downlink + 'Mbps');
+            }
+        }, config.checkInterval);
+        
+        // 监听页面可见性变化
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // 页面隐藏时，降低加载优先级
+                log('页面隐藏，降低加载优先级');
+                preloadVideo.pause();
+            } else {
+                // 页面显示时，恢复加载
+                if (isPreloading) {
+                    log('页面显示，恢复加载');
+                    preloadVideo.load();
+                }
+            }
+        });
+        
+        // 监听加载错误
+        preloadVideo.addEventListener('error', function() {
+            log('预加载出错，停止预加载');
+            isPreloading = false;
+        });
+    }
+    
+    // 页面加载完成后开始预加载
+    if (document.readyState === 'complete') {
+        startPreload();
+    } else {
+        window.addEventListener('load', startPreload);
+    }
+    
+    // 暴露API供主页面使用
+    window.SovietPreloader = {
+        getPreloadStatus: function() {
+            if (preloadVideo.buffered.length > 0) {
+                const bufferedEnd = preloadVideo.buffered.end(preloadVideo.buffered.length - 1);
+                const duration = preloadVideo.duration;
+                return {
+                    percent: duration > 0 ? Math.round((bufferedEnd / duration) * 100) : 0,
+                    bytesLoaded: preloadedBytes,
+                    bytesTotal: totalBytes,
+                    isComplete: !isPreloading
+                };
+            }
+            return { percent: 0, isComplete: false };
+        },
+        
+        pausePreload: function() {
+            preloadVideo.pause();
+            isPreloading = false;
+            log('手动暂停预加载');
+        },
+        
+        resumePreload: function() {
+            if (!isPreloading) {
+                preloadVideo.load();
+                isPreloading = true;
+                log('手动恢复预加载');
+            }
+        }
+    };
+})();
+</script>
 
 </body>
 </html>
