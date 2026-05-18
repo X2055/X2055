@@ -1,0 +1,427 @@
+<!-- QQ空间分享插件 - 独立模块 -->
+<div id="qq-share-plugin" class="qq-share-plugin">
+    <button id="qq-share-btn" class="qq-share-btn">
+        <span class="qq-icon">🐧</span>
+        <span class="qq-text">分享到QQ空间</span>
+    </button>
+    
+    <!-- 分享对话框（默认隐藏） -->
+    <div id="qq-share-dialog" class="qq-share-dialog" style="display: none;">
+        <div class="qq-share-header">
+            <h3>分享到QQ空间</h3>
+            <button id="close-share-dialog" class="close-btn">&times;</button>
+        </div>
+        <div class="qq-share-content">
+            <div class="share-preview">
+                <img id="share-preview-img" src="" alt="预览图" style="display: none;">
+                <div class="share-info">
+                    <h4 id="share-title">苏维埃社会主义共和国联盟</h4>
+                    <p id="share-desc">RED ARMY ARCHIVES // CLASSIFIED FOOTAGE</p>
+                    <p class="share-url" id="share-url">正在获取当前页面URL...</p>
+                </div>
+            </div>
+            <div class="share-options">
+                <label for="custom-title">自定义标题：</label>
+                <input type="text" id="custom-title" placeholder="请输入分享标题">
+                
+                <label for="custom-desc">自定义描述：</label>
+                <textarea id="custom-desc" placeholder="请输入分享描述"></textarea>
+                
+                <label for="custom-img">自定义图片URL：</label>
+                <input type="text" id="custom-img" placeholder="请输入图片URL（可选）">
+            </div>
+            <div class="share-actions">
+                <button id="confirm-share" class="confirm-btn">确认分享</button>
+                <button id="cancel-share" class="cancel-btn">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* QQ空间分享插件样式 */
+.qq-share-plugin {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    font-family: 'Arial', sans-serif;
+}
+
+.qq-share-btn {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #8B0000;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.qq-share-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, #FFA500, #FF8C00);
+}
+
+.qq-icon {
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+/* 分享对话框样式 */
+.qq-share-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    background: #FFF;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    overflow: hidden;
+    border: 3px solid #8B0000;
+}
+
+.qq-share-header {
+    background: #8B0000;
+    color: #FFF;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.qq-share-header h3 {
+    margin: 0;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #FFF;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.qq-share-content {
+    padding: 20px;
+}
+
+.share-preview {
+    display: flex;
+    background: #F9F9F9;
+    border: 1px solid #DDD;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.share-preview img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-right: 15px;
+    border: 2px solid #8B0000;
+}
+
+.share-info h4 {
+    margin: 0 0 8px 0;
+    color: #8B0000;
+    font-size: 16px;
+}
+
+.share-info p {
+    margin: 5px 0;
+    color: #555;
+    font-size: 13px;
+}
+
+.share-url {
+    color: #888;
+    font-size: 12px;
+    word-break: break-all;
+}
+
+.share-options {
+    margin-bottom: 20px;
+}
+
+.share-options label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.share-options input,
+.share-options textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #CCC;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.share-options textarea {
+    height: 80px;
+    resize: vertical;
+}
+
+.share-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.confirm-btn, .cancel-btn {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.confirm-btn {
+    background: #8B0000;
+    color: #FFF;
+}
+
+.confirm-btn:hover {
+    background: #A50000;
+}
+
+.cancel-btn {
+    background: #EEE;
+    color: #333;
+}
+
+.cancel-btn:hover {
+    background: #DDD;
+}
+
+/* 遮罩层 */
+.qq-share-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    display: none;
+}
+
+/* 响应式调整 */
+@media (max-width: 600px) {
+    .qq-share-plugin {
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .qq-share-btn {
+        padding: 10px 15px;
+        font-size: 12px;
+    }
+    
+    .qq-share-dialog {
+        width: 95%;
+    }
+    
+    .share-preview {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .share-preview img {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+}
+</style>
+
+<script>
+/**
+ * QQ空间分享插件
+ * 功能：提供分享到QQ空间的功能
+ * 使用方法：将此代码添加到您的页面底部
+ */
+(function() {
+    'use strict';
+    
+    // 插件配置
+    const config = {
+        defaultTitle: '苏维埃社会主义共和国联盟',
+        defaultDesc: 'RED ARMY ARCHIVES // CLASSIFIED FOOTAGE',
+        defaultImg: '' // 留空将使用页面中的第一张图片
+    };
+    
+    // DOM元素
+    const plugin = document.getElementById('qq-share-plugin');
+    const shareBtn = document.getElementById('qq-share-btn');
+    const shareDialog = document.getElementById('qq-share-dialog');
+    const closeBtn = document.getElementById('close-share-dialog');
+    const confirmBtn = document.getElementById('confirm-share');
+    const cancelBtn = document.getElementById('cancel-share');
+    const overlay = document.createElement('div');
+    
+    // 初始化
+    function init() {
+        // 创建遮罩层
+        overlay.className = 'qq-share-overlay';
+        document.body.appendChild(overlay);
+        
+        // 绑定事件
+        shareBtn.addEventListener('click', openShareDialog);
+        closeBtn.addEventListener('click', closeShareDialog);
+        cancelBtn.addEventListener('click', closeShareDialog);
+        confirmBtn.addEventListener('click', handleShare);
+        overlay.addEventListener('click', closeShareDialog);
+        
+        // 设置默认分享信息
+        updateShareInfo();
+        
+        console.log('[QQ空间分享插件] 初始化完成');
+    }
+    
+    // 打开分享对话框
+    function openShareDialog() {
+        updateShareInfo();
+        shareDialog.style.display = 'block';
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // 关闭分享对话框
+    function closeShareDialog() {
+        shareDialog.style.display = 'none';
+        overlay.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+    
+    // 更新分享信息
+    function updateShareInfo() {
+        const currentUrl = encodeURIComponent(window.location.href);
+        const title = document.getElementById('custom-title').value || config.defaultTitle;
+        const desc = document.getElementById('custom-desc').value || config.defaultDesc;
+        
+        // 获取页面中的第一张图片作为预览图
+        let previewImg = config.defaultImg;
+        if (!previewImg) {
+            const firstImg = document.querySelector('img');
+            if (firstImg) {
+                previewImg = firstImg.src;
+            }
+        }
+        
+        // 更新预览
+        document.getElementById('share-title').textContent = title;
+        document.getElementById('share-desc').textContent = desc;
+        document.getElementById('share-url').textContent = decodeURIComponent(currentUrl);
+        
+        // 更新预览图片
+        const previewImgElement = document.getElementById('share-preview-img');
+        if (previewImg) {
+            previewImgElement.src = previewImg;
+            previewImgElement.style.display = 'block';
+        } else {
+            previewImgElement.style.display = 'none';
+        }
+    }
+    
+    // 处理分享
+    function handleShare() {
+        const customTitle = document.getElementById('custom-title').value || config.defaultTitle;
+        const customDesc = document.getElementById('custom-desc').value || config.defaultDesc;
+        const customImg = document.getElementById('custom-img').value || '';
+        
+        // 获取预览图片
+        let shareImg = customImg;
+        if (!shareImg) {
+            const previewImg = document.getElementById('share-preview-img');
+            shareImg = previewImg.src || '';
+        }
+        
+        // 构建分享URL
+        const shareUrl = buildShareUrl({
+            url: window.location.href,
+            title: customTitle,
+            desc: customDesc,
+            image: shareImg
+        });
+        
+        // 打开分享窗口
+        window.open(shareUrl, '_blank', 'width=700,height=500');
+        
+        // 关闭对话框
+        closeShareDialog();
+    }
+    
+    // 构建QQ空间分享URL
+    function buildShareUrl(options) {
+        const baseUrl = 'https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey';
+        const params = new URLSearchParams();
+        
+        params.append('url', options.url);
+        params.append('title', options.title);
+        params.append('desc', options.desc);
+        params.append('summary', options.desc);
+        
+        if (options.image) {
+            params.append('pics', options.image);
+        }
+        
+        // 添加站点名称
+        params.append('site', config.defaultTitle);
+        
+        return `${baseUrl}?${params.toString()}`;
+    }
+    
+    // 页面加载完成后初始化
+    if (document.readyState === 'complete') {
+        init();
+    } else {
+        window.addEventListener('load', init);
+    }
+    
+    // 暴露API供外部调用
+    window.QQSharePlugin = {
+        open: openShareDialog,
+        close: closeShareDialog,
+        updateConfig: function(newConfig) {
+            Object.assign(config, newConfig);
+            updateShareInfo();
+        }
+    };
+})();
+</script>
