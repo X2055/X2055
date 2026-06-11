@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>崇祯模拟器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        royal: '#1a1a2e',
+                        gold: '#d4af37',
+                        darkred: '#922b21',
+                        paper: '#f8f4e9',
+                    },
+                    fontFamily: {
+                        song: ['"Noto Serif SC"', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+            }
+            .border-gold {
+                border: 2px solid #d4af37;
+            }
+            .btn-hover {
+                transition: all 0.3s ease;
+            }
+            .btn-hover:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+            }
+        }
+    </style>
+</head>
+<body class="bg-royal text-paper min-h-screen font-song">
+    <!-- 标题栏 -->
+    <header class="py-6 border-b border-gold/30">
+        <h1 class="text-4xl md:text-5xl font-bold text-center text-gold text-shadow">崇祯模拟器</h1>
+        <p class="text-center text-paper/70 mt-2">公元1627年，你登基为帝，大明风雨飘摇...</p>
+    </header>
+
+    <!-- 主内容 -->
+    <main class="max-w-4xl mx-auto p-4 md:p-6">
+        <!-- 状态面板 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-darkred/20 border border-darkred/40 rounded-lg p-3 text-center">
+                <p class="text-gold/80 text-sm">民心</p>
+                <p class="text-2xl font-bold" id="minxin">50</p>
+            </div>
+            <div class="bg-darkred/20 border border-darkred/40 rounded-lg p-3 text-center">
+                <p class="text-gold/80 text-sm">国库</p>
+                <p class="text-2xl font-bold" id="guoku">30</p>
+            </div>
+            <div class="bg-darkred/20 border border-darkred/40 rounded-lg p-3 text-center">
+                <p class="text-gold/80 text-sm">军力</p>
+                <p class="text-2xl font-bold" id="junli">40</p>
+            </div>
+            <div class="bg-darkred/20 border border-darkred/40 rounded-lg p-3 text-center">
+                <p class="text-gold/80 text-sm">声望</p>
+                <p class="text-2xl font-bold" id="shengwang">60</p>
+            </div>
+        </div>
+
+        <!-- 时间与提示 -->
+        <div class="mb-4 text-center text-gold/70">
+            第 <span id="year">1</span> 年 · 崇祯 <span id="czYear">元</span> 年
+        </div>
+
+        <!-- 剧情区域 -->
+        <div class="bg-paper/5 border border-gold/20 rounded-lg p-6 mb-6 min-h-[200px]">
+            <div id="storyText" class="text-lg leading-relaxed mb-6">
+                你坐在乾清宫的龙椅上，面前是一份份加急文书：陕西大旱、流民四起；辽东后金虎视眈眈；朝堂之上党争不断，国库空虚。
+                <br><br>你作为刚即位的皇帝，第一步该如何抉择？
+            </div>
+            
+            <!-- 选项按钮 -->
+            <div id="choicesArea" class="flex flex-col gap-4">
+                <button class="choice-btn bg-darkred/30 hover:bg-darkred/50 border border-gold/30 rounded-lg p-4 text-left btn-hover" data-choice="1">
+                    <i class="fa fa-users mr-2"></i> 减免灾区赋税，安抚流民
+                </button>
+                <button class="choice-btn bg-darkred/30 hover:bg-darkred/50 border border-gold/30 rounded-lg p-4 text-left btn-hover" data-choice="2">
+                    <i class="fa fa-shield mr-2"></i> 加征辽饷，优先充实军备
+                </button>
+                <button class="choice-btn bg-darkred/30 hover:bg-darkred/50 border border-gold/30 rounded-lg p-4 text-left btn-hover" data-choice="3">
+                    <i class="fa fa-gavel mr-2"></i> 整顿吏治，严查贪腐
+                </button>
+                <button class="choice-btn bg-darkred/30 hover:bg-darkred/50 border border-gold/30 rounded-lg p-4 text-left btn-hover" data-choice="4">
+                    <i class="fa fa-handshake-o mr-2"></i> 尝试与后金议和，争取喘息
+                </button>
+            </div>
+        </div>
+
+        <!-- 重置按钮 -->
+        <div class="text-center">
+            <button id="restartBtn" class="bg-gold/20 hover:bg-gold/40 text-gold border border-gold/50 rounded-lg px-8 py-2 btn-hover">
+                <i class="fa fa-refresh mr-2"></i> 重新开局
+            </button>
+        </div>
+    </main>
+
+    <footer class="mt-12 py-4 border-t border-gold/20 text-center text-paper/50 text-sm">
+        © Gator|2026 崇祯模拟器 | 历史架空，仅供娱乐
+    </footer>
+
+    <script>
+        // 游戏状态
+        let gameState = {
+            minxin: 50,
+            guoku: 30,
+            junli: 40,
+            shengwang: 60,
+            year: 1,
+            gameOver: false
+        };
+
+        // 随机事件库
+        const randomEvents = [
+            {
+                text: "陕西流民首领李自成聚众千人，攻城掠地，地方求援文书如雪片般飞来。",
+                choices: [
+                    { text: "派兵围剿", effect: { junli: -5, guoku: -10, minxin: -8 } },
+                    { text: "招抚安置", effect: { minxin: +10, guoku: -15, shengwang: +5 } }
+                ]
+            },
+            {
+                text: "辽东皇太极率军入侵，直逼山海关，边关告急！",
+                choices: [
+                    { text: "全力支援", effect: { junli: +10, guoku: -20, shengwang: +8 } },
+                    { text: "固守待援", effect: { junli: -5, minxin: -3, shengwang: -10 } }
+                ]
+            },
+            {
+                text: "江南大商愿捐资助饷，但要求减免部分关税。",
+                choices: [
+                    { text: "接受捐助", effect: { guoku: +15, shengwang: -5, minxin: -3 } },
+                    { text: "严词拒绝", effect: { guoku: -5, shengwang: +5 } }
+                ]
+            },
+            {
+                text: "朝中大臣弹劾魏忠贤余党，请求彻底清算。",
+                choices: [
+                    { text: "彻底清算", effect: { shengwang: +10, junli: -5 } },
+                    { text: "适度打压", effect: { shengwang: +3, minxin: +2 } }
+                ]
+            }
+        ];
+
+        // 初始剧情
+        const initialStory = {
+            text: "你坐在乾清宫的龙椅上，面前是一份份加急文书：陕西大旱、流民四起；辽东后金虎视眈眈；朝堂之上党争不断，国库空虚。你作为刚即位的皇帝，第一步该如何抉择？",
+            choices: [
+                { text: "减免灾区赋税，安抚流民", effect: { minxin: +15, guoku: -10, shengwang: +5 } },
+                { text: "加征辽饷，优先充实军备", effect: { junli: +12, guoku: -5, minxin: -12 } },
+                { text: "整顿吏治，严查贪腐", effect: { shengwang: +12, guoku: +8, minxin: +5 } },
+                { text: "尝试与后金议和，争取喘息", effect: { guoku: +10, junli: -5, shengwang: -15 } }
+            ]
+        };
+
+        // 更新界面
+        function updateUI() {
+            document.getElementById('minxin').textContent = gameState.minxin;
+            document.getElementById('guoku').textContent = gameState.guoku;
+            document.getElementById('junli').textContent = gameState.junli;
+            document.getElementById('shengwang').textContent = gameState.shengwang;
+            document.getElementById('year').textContent = gameState.year;
+            
+            const czYearText = gameState.year === 1 ? "元" : gameState.year;
+            document.getElementById('czYear').textContent = czYearText;
+
+            // 检查游戏结束条件
+            checkGameOver();
+        }
+
+        // 检查结局
+        function checkGameOver() {
+            if (gameState.gameOver) return;
+
+            if (gameState.minxin <= 0) {
+                endGame("民心尽失，天下大乱，流民攻破北京，你自缢于煤山...\n结局：煤山孤魂");
+            } else if (gameState.guoku <= 0) {
+                endGame("国库彻底空虚，军饷无着，军队哗变，大明崩溃...\n结局：国破家亡");
+            } else if (gameState.junli <= 0) {
+                endGame("军力耗尽，后金与流民南北夹击，京师失守...\n结局：社稷倾覆");
+            } else if (gameState.shengwang <= 0) {
+                endGame("众叛亲离，大臣离心离德，政令不出紫禁城...\n结局：孤家寡人");
+            } else if (gameState.year >= 15) {
+                if (gameState.minxin > 70 && gameState.junli > 70 && gameState.guoku > 50) {
+                    endGame("你励精图治十五年，整顿朝纲、安抚百姓、击退外敌，大明迎来中兴！\n结局：大明中兴");
+                } else if (gameState.minxin > 50 && gameState.junli > 50) {
+                    endGame("你虽未能彻底扭转颓势，但稳固了江山，为后世留下喘息之机...\n结局：勉力维持");
+                } else {
+                    endGame("内忧外患积重难返，你虽尽力，仍未能阻止大明走向衰亡...\n结局：无力回天");
+                }
+            }
+        }
+
+        // 结束游戏
+        function endGame(text) {
+            gameState.gameOver = true;
+            document.getElementById('storyText').innerHTML = 
+                `<div class="text-center text-xl text-gold my-8">${text.replace(/\n/g, '<br>')}</div>`;
+            document.getElementById('choicesArea').innerHTML = 
+                `<p class="text-center text-paper/70 mt-4">游戏结束，点击下方重新开始</p>`;
+        }
+
+        // 应用选择效果
+        function applyEffect(effect) {
+            for (let stat in effect) {
+                if (gameState.hasOwnProperty(stat)) {
+                    gameState[stat] = Math.max(0, Math.min(100, gameState[stat] + effect[stat]));
+                }
+            }
+            gameState.year++;
+            updateUI();
+        }
+
+        // 显示随机事件
+        function showRandomEvent() {
+            const event = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+            document.getElementById('storyText').textContent = event.text;
+            
+            const choicesArea = document.getElementById('choicesArea');
+            choicesArea.innerHTML = '';
+            
+            event.choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn bg-darkred/30 hover:bg-darkred/50 border border-gold/30 rounded-lg p-4 text-left btn-hover';
+                btn.innerHTML = `<i class="fa fa-circle-o mr-2"></i> ${choice.text}`;
+                btn.onclick = () => {
+                    applyEffect(choice.effect);
+                    if (!gameState.gameOver) setTimeout(showRandomEvent, 500);
+                };
+                choicesArea.appendChild(btn);
+            });
+        }
+
+        // 开始初始剧情
+        function startInitialStory() {
+            gameState = {
+                minxin: 50, guoku: 30, junli: 40, shengwang: 60, year: 1, gameOver: false
+            };
+            updateUI();
+            
+            document.getElementById('storyText').textContent = initialStory.text;
+            const choicesArea = document.getElementById('choicesArea');
+            choicesArea.innerHTML = '';
+            
+            initialStory.choices.forEach((choice) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn bg-darkred/30 hover:bg-darkred/50 border border-gold/30 rounded-lg p-4 text-left btn-hover';
+                btn.innerHTML = `<i class="fa fa-circle-o mr-2"></i> ${choice.text}`;
+                btn.onclick = () => {
+                    applyEffect(choice.effect);
+                    if (!gameState.gameOver) setTimeout(showRandomEvent, 500);
+                };
+                choicesArea.appendChild(btn);
+            });
+        }
+
+        // 绑定重置按钮
+        document.getElementById('restartBtn').addEventListener('click', startInitialStory);
+
+        // 页面加载完成后开始游戏
+        window.onload = startInitialStory;
+    </script>
+</body>
+</html>
