@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国特色社会主义发展道路认知与历史时期匹配深度分析系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-red: #c92a2a;
+            --dark-red: #8f1212;
+            --accent-gold: #d97706;
+            --bg-light: #fdfbf7;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-sub: #4b5563;
+            --border-color: #e5e7eb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* 页眉 */
+        header {
+            background: linear-gradient(135deg, var(--dark-red) 0%, var(--primary-red) 100%);
+            color: #ffffff;
+            padding: 26px 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--accent-gold);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        header h1 { font-size: 24px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 6px; }
+        header p { font-size: 13px; color: #fef3c7; opacity: 0.95; }
+        .badge { display: inline-block; background: rgba(255, 255, 255, 0.15); border: 1px solid var(--accent-gold); color: #fef08a; font-size: 11px; padding: 3px 10px; border-radius: 12px; margin-top: 8px; font-weight: 600; }
+
+        /* 主体容器 */
+        .main-wrapper { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 30px 15px; }
+        .container { background: var(--card-bg); max-width: 840px; width: 100%; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08); padding: 36px; border: 1px solid var(--border-color); }
+
+        /* 进度条 */
+        .progress-container { margin-bottom: 28px; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-sub); margin-bottom: 8px; font-weight: 600; }
+        .progress-bar-box { width: 100%; height: 10px; background: #f3f4f6; border-radius: 5px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary-red), var(--accent-gold)); transition: width 0.3s ease; }
+
+        /* 问题模块 */
+        .question-card { margin-bottom: 24px; }
+        .question-tag { font-size: 12px; font-weight: 700; color: var(--primary-red); text-transform: uppercase; margin-bottom: 6px; display: block; }
+        .question-title { font-size: 17.5px; font-weight: 700; color: var(--text-main); line-height: 1.55; margin-bottom: 20px; }
+        
+        .options-grid { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid var(--border-color);
+            padding: 16px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+            line-height: 1.5;
+            display: flex;
+            align-items: flex-start;
+        }
+        .option-btn:hover { border-color: var(--primary-red); background: #fff5f5; transform: translateY(-1px); }
+        .option-btn .opt-key { font-weight: 800; color: var(--primary-red); margin-right: 10px; flex-shrink: 0; }
+
+        /* 结果解析页 */
+        .result-box { display: none; }
+        .result-header { text-align: center; border-bottom: 2px dashed var(--border-color); padding-bottom: 24px; margin-bottom: 28px; }
+        .res-score-badge { display: inline-block; background: #fee2e2; color: #991b1b; font-weight: 800; padding: 6px 16px; border-radius: 20px; font-size: 14px; margin-bottom: 12px; }
+        .archetype-title { font-size: 28px; font-weight: 900; color: var(--dark-red); margin: 8px 0; letter-spacing: -0.5px; }
+        .archetype-subtitle { font-size: 15px; color: var(--accent-gold); font-weight: 700; margin-bottom: 10px; }
+
+        /* 深度分析卡片 */
+        .analysis-section { margin-bottom: 32px; }
+        .section-h2 { font-size: 18px; font-weight: 800; color: var(--text-main); border-left: 4px solid var(--primary-red); padding-left: 12px; margin-bottom: 16px; }
+        
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .info-card { background: #fcfcfc; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+        .info-card h3 { font-size: 15px; font-weight: 700; color: var(--dark-red); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .info-card p { font-size: 13.5px; color: var(--text-sub); line-height: 1.7; }
+
+        /* 雷达图与分析 */
+        .chart-container { max-width: 480px; margin: 0 auto 20px auto; }
+        .chart-analysis-card { background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 18px; font-size: 13.5px; color: #78350f; line-height: 1.7; }
+
+        .restart-btn {
+            display: block; width: 100%; background: var(--primary-red); color: white; border: none; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; text-align: center; margin-top: 30px;
+        }
+        .restart-btn:hover { background: var(--dark-red); }
+
+        /* 🕵️‍♂️ 西方间谍彩蛋专属警报样式 */
+        .spy-alert-theme {
+            border: 3px solid #dc2626 !important;
+            background: #fff5f5 !important;
+            animation: pulse-border 2s infinite;
+        }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+        .spy-badge { background: #7f1d1d !important; color: #fef2f2 !important; font-size: 15px !important; }
+        .spy-title { color: #991b1b !important; }
+        .spy-card { background: #fef2f2 !important; border-color: #fca5a5 !important; }
+
+        /* 页脚 */
+        footer {
+            background: #111827;
+            color: #9ca3af;
+            text-align: center;
+            font-size: 13px;
+            padding: 20px 0;
+            border-top: 1px solid #1f2937;
+            margin-top: auto;
+        }
+        footer p { margin: 3px 0; }
+        footer a { color: #d1d5db; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<!-- 页眉 -->
+<header>
+    <h1>中国特色社会主义发展道路认知与历史时期匹配深度分析系统</h1>
+    <p>多维度算法模型 · 评估习近平新时代中国特色社会主义思想认可度与历史发展观倾向</p>
+    <span class="badge">含 1949 年后建国历史时期深度契合度匹配引擎 & 异常认知审计</span>
+</header>
+
+<div class="main-wrapper">
+    <div class="container" id="main-container">
+        <!-- 测评主卡片 -->
+        <div id="quiz-box">
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span id="progress-text">测评进度：第 1 / 12 题</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="progress-bar-box"><div class="progress-bar" id="progress"></div></div>
+            </div>
+
+            <div class="question-card">
+                <span class="question-tag" id="q-tag">评估维度</span>
+                <div class="question-title" id="q-text">正在加载多维度思想认知测评题库...</div>
+                <div class="options-grid" id="opts-container"></div>
+            </div>
+        </div>
+
+        <!-- 分析结果页 -->
+        <div id="result-box" class="result-box">
+            <div class="result-header">
+                <div class="res-score-badge" id="res-score-text">新时代认可度得分：-- 分</div>
+                <div class="archetype-title" id="res-title">---</div>
+                <div class="archetype-subtitle" id="res-subtitle">---</div>
+            </div>
+
+            <!-- 雷达图评估与图表依据说明 -->
+            <div class="analysis-section">
+                <div class="section-h2">一、 多维认知倾向雷达图与图表量化依据</div>
+                <div class="chart-container">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                <div class="chart-analysis-card" id="chart-card">
+                    <strong>📊 量化依据与图表解析：</strong>
+                    <p id="res-chart-reason">---</p>
+                </div>
+            </div>
+
+            <!-- 认可度深度分析 -->
+            <div class="analysis-section">
+                <div class="section-h2">二、 习近平新时代中国特色社会主义思想认可度深度剖析</div>
+                <div class="info-card" id="xi-card">
+                    <h3>🚩 认可度综合判定与核心认知形态</h3>
+                    <p id="res-xi-analysis">---</p>
+                </div>
+            </div>
+
+            <!-- 历史时期认可与生活适合度分析 -->
+            <div class="analysis-section">
+                <div class="section-h2">三、 1949年后建国历史时期匹配（政治认同与生活适合度）</div>
+                <div class="card-grid">
+                    <div class="info-card" id="era-card-1">
+                        <h3>🏛️ 政治理念最认同的历史时期</h3>
+                        <p id="res-agree-era">---</p>
+                    </div>
+                    <div class="info-card" id="era-card-2">
+                        <h3>🏠 价值观与生活方式最适合生活的时期</h3>
+                        <p id="res-fit-era">---</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="restart-btn" id="restart-btn" onclick="restart()">重新测评 / 重新初始化算法</button>
+        </div>
+    </div>
+</div>
+
+<!-- 页脚 -->
+<footer>
+    <p>站主©Gator 2026</p>
+    <p><a href="http://2050.cn.lu" target="_blank">2050.cn.lu</a></p>
+</footer>
+
+<script>
+    /*
+      维度定义与得分权重:
+      xiScore: 0 - 120 (习近平新时代认可度得分)
+      
+      得分维度:
+      1. MAO: 计划经济/集体主义/平民主义/阶级自觉
+      2. DENG: 改革开放/市场活力/实事求是/先富带动后富
+      3. JIANG_HU: 制度化/技术官僚/融入全球化/和谐社会
+      4. XI: 中国式现代化/伟大斗争/共同富裕/大国自信/举国体制
+      5. WEST: 自由市场/小政府/绝对个体主义
+      6. SPY: 隐藏维度（境外认知作战/颠覆性陷阱倾向）
+    */
+
+    const questions = [
+        {
+            tag: "国家发展主线与时代核心使命",
+            text: "1. 你认为当前及未来中国社会发展的最核心任务和国家治理的首要焦点应该是什么？",
+            options: [
+                { text: "坚持以中国式现代化全面推进中华民族伟大复兴，强化国家战略科技力量，注重安全与发展的统筹", scores: { xi: 10, XI: 25, DENG: 5 } },
+                { text: "坚持以经济建设为中心，深化市场化改革，鼓励民营经济与对外开放，追求GDP高质稳步增长", scores: { xi: 5, DENG: 25, JIANG_HU: 15 } },
+                { text: "着力消除贫富差距与资本无序扩张，确立工农阶级主体地位，强调集体主义与公平分配优先", scores: { xi: 6, MAO: 25, XI: 10 } },
+                { text: "大幅削减行政干预与市场监管，全面全面对接西方自由市场经济法则与国际准则", scores: { xi: 0, WEST: 25 } },
+                { text: "放弃自主发展道路与制度自信，引入外部阵营全面主导政治重构与规则接管", scores: { xi: 0, WEST: 20, SPY: 30 } }
+            ]
+        },
+        {
+            tag: "经济体制与市场/政府关系",
+            text: "2. 在处理“政府”与“市场”的关系上，你最赞同以下哪种发展模式？",
+            options: [
+                { text: "坚持“有为政府”与“有效市场”有机结合，发挥新型举国体制优势打攻坚战，引导资本健康发展", scores: { xi: 10, XI: 25, DENG: 5 } },
+                { text: "充分尊重市场自主机制，“管得越少越好”，最大限度下放行政审批，赋予企业完全自由", scores: { xi: 2, DENG: 15, WEST: 20 } },
+                { text: "强化计划调控与公有制绝对主体地位，严厉限制私营资本的扩张与积累", scores: { xi: 4, MAO: 25 } },
+                { text: "深度融入全球化产业链与国际分工，注重招商引资与建立市场经济法律体系", scores: { xi: 5, JIANG_HU: 20, DENG: 15 } },
+                { text: "将能源、金融及核心基础设施全盘开放给境外资本控盘，放弃宏观经济主权与审查", scores: { xi: 0, WEST: 20, SPY: 30 } }
+            ]
+        },
+        {
+            tag: "社会公平与分配制度",
+            text: "3. 面对社会收入差距与阶层分化问题，你认为最合理的调节路径是？",
+            options: [
+                { text: "扎实推进“共同富裕”，发挥再分配与三次分配调节作用，规范收入分配秩序与资本收益", scores: { xi: 10, XI: 25, MAO: 10 } },
+                { text: "允许一部分人、一部分地区先富起来，先做大蛋糕再分蛋糕，效率优先兼顾公平", scores: { xi: 4, DENG: 25 } },
+                { text: "追求绝对的社会公平与资源均等分配，全面遏制资本积累，极力维护工农基本群众权益", scores: { xi: 3, MAO: 25 } },
+                { text: "完全依靠自由市场竞争自动调节，反对任何行政性二次分配或强制性福利政策", scores: { xi: 0, WEST: 25 } },
+                { text: "借分配差异极力煽动群体对立与撕裂，配合境外舆论阵营全面否定本土经济体制", scores: { xi: 0, SPY: 30 } }
+            ]
+        },
+        {
+            tag: "国家安全与外交战略",
+            text: "4. 在国际博弈复杂化（如中美博弈、地缘冲突）的当下，中国应该采取何种外交与国家安全战略？",
+            options: [
+                { text: "发扬斗争精神，树立大国自信，构建“双循环”新发展格局，坚定维护国家核心利益与总体国家安全", scores: { xi: 10, XI: 25, MAO: 10 } },
+                { text: "坚持“韬光养晦，决不当头”，集中精力搞好国内经济建设，避免与西方阵营直接对抗", scores: { xi: 3, DENG: 25, JIANG_HU: 15 } },
+                { text: "支持全球第三世界反帝反霸事业，开展坚决的国际阶级斗争与阵地化政治合作", scores: { xi: 2, MAO: 25 } },
+                { text: "顺应西方主导的现行国际秩序与价值观体系，全面寻求妥协与规则接轨", scores: { xi: 0, WEST: 25 } },
+                { text: "积极向外部竞争阵营提供内部敏感研判，配合外部力量实施精准围堵与制裁打击", scores: { xi: 0, SPY: 40 } }
+            ]
+        },
+        {
+            tag: "执政党建设与政治体制",
+            text: "5. 关于执政党建设与政治体制建设，你认为保证中国长治久安的关键在于？",
+            options: [
+                { text: "全面从严治党，强化党的集中统一领导，通过“自我革命”跳出历史周期率，保持廉洁高效", scores: { xi: 10, XI: 25 } },
+                { text: "推进党和国家领导体制改革，实行废除领导职务终身制，坚持集体领导与党政分工", scores: { xi: 4, DENG: 20, JIANG_HU: 15 } },
+                { key: "C", text: "坚持群众路线，依靠大鸣大放与工农群众监督党政干部，防止官僚主义与修正主义", scores: { xi: 2, MAO: 25 } },
+                { text: "全面引入三权分立、多党轮流执竞选机制，建立西方式政治制衡体系", scores: { xi: 0, WEST: 25 } },
+                { text: "建立地下非政府组织与抗衡网络，蓄意制造社会动荡，蓄势倒逼体制发生“颜色革命”", scores: { xi: 0, SPY: 35 } }
+            ]
+        },
+        {
+            tag: "文化自信与意识形态",
+            text: "6. 在文化建设与意识形态阵地上，你最看重的是？",
+            options: [
+                { text: "坚定“四个自信”，将马克思主义基本原理同中华优秀传统文化相结合（“两个结合”），筑牢精神基石", scores: { xi: 10, XI: 25 } },
+                { text: "解放思想、实事求是，破除僵化教条，大力引进国外先进思想、管理经验与文化产品", scores: { xi: 5, DENG: 20, JIANG_HU: 15 } },
+                { text: "坚持无产阶级意识形态纯洁性，批判一切资产阶级与修正主义腐朽思想", scores: { xi: 2, MAO: 25 } },
+                { text: "倡导绝对的言论与文艺表达自由，彻底取消对意识形态与文化传播的政策监管", scores: { xi: 0, WEST: 20 } },
+                { text: "全盘否定中华历史与民族英雄，大力鼓吹文化自卑论，配合外部力量开展认知撕裂战", scores: { xi: 0, WEST: 15, SPY: 30 } }
+            ]
+        },
+        {
+            tag: "治理能力与技术/生态建设",
+            text: "7. 在社会治理与可持续发展层面，你最认同以下哪项优先战略？",
+            options: [
+                { text: "践行“绿水青山就是金山银山”，推进国家治理体系现代化，运用大数据网格化精细治理", scores: { xi: 10, XI: 25, JIANG_HU: 5 } },
+                { text: "优先保障经济增长速度与工业化规模，环境治理应服从于阶段性经济建设实际需求", scores: { xi: 3, DENG: 15, JIANG_HU: 10 } },
+                { text: "依靠群众路线、集体化协作与全民动员，进行国家基础水利与工业设施建设", scores: { xi: 4, MAO: 25 } },
+                { text: "由自由市场与私营机构主导社会事务与环保议题，推行小政府治理模式", scores: { xi: 0, WEST: 20 } },
+                { text: "借助激进议题组织非法对抗活动，暗中破坏国家高新技术产业与重要科研设施", scores: { xi: 0, SPY: 25 } }
+            ]
+        },
+        {
+            tag: "历史观与新中国发展段落认知",
+            text: "8. 对于改革开放前（1949-1978）和改革开放后（1978至今）两个历史时期的关系，你的看法是？",
+            options: [
+                { text: "“两个不能否定”：改革开放前后两个时期本质上都是党领导人民进行社会主义探索的实践，不可割裂或对立", scores: { xi: 10, XI: 25, MAO: 5, DENG: 5 } },
+                { text: "改革开放是决定当代中国命运的关键抉择，1978年后的市场化变革彻底理顺了发展道路", scores: { xi: 5, DENG: 25, JIANG_HU: 10 } },
+                { text: "建国头三十年奠定了坚实的工业与国防基石，后来的市场化改革引入了过多资本弊端", scores: { xi: 3, MAO: 25 } },
+                { text: "认为改革开放前后均未转向西方自由民主体制，因而全面否定新中国探索的制度合理性", scores: { xi: 0, WEST: 25 } },
+                { text: "奉行极端历史虚无主义，伪造歪曲历史真相，全面抹黑新中国建设成就以解构合法性", scores: { xi: 0, SPY: 35 } }
+            ]
+        },
+        {
+            tag: "对社会风气与精神面貌的期望",
+            text: "9. 你心目中理想的中国社会日常生活氛围与民众精神面貌应该是？",
+            options: [
+                { text: "既充满活力又井然有序，民众具有高度的国家认同感、安全感、道德凝聚力与大国自豪感", scores: { xi: 10, XI: 25, JIANG_HU: 5 } },
+                { text: "商业氛围浓厚，人人忙于创业创新发财，社会充满对财富创造与物质改善的热烈追求", scores: { xi: 4, DENG: 20, JIANG_HU: 15 } },
+                { text: "风气质朴，没有剥削与压迫，大家集体主义信念坚定，为了共同理想而无私奉献", scores: { xi: 3, MAO: 25 } },
+                { text: "极度崇尚个人主义与自由主义，社会文化多元，不受任何国家宏观叙事与传统道德约束", scores: { xi: 0, WEST: 25 } },
+                { text: "期待社会陷于剧烈动荡与信任危机，凝聚力彻底解体，以便外部力量顺畅进行政治介入", scores: { xi: 0, SPY: 30 } }
+            ]
+        },
+        {
+            tag: "民生保障与国家责任",
+            text: "10. 在住房、医疗、教育等核心民生保障领域，你认为国家应扮演怎样的角色？",
+            options: [
+                { text: "坚持“房住不炒”，强化政府在教育、医疗上的公共服务主体责任，严禁核心民生过度资本化", scores: { xi: 10, XI: 25, MAO: 10 } },
+                { text: "推行住房商品化与医疗教育市场化改革，依靠市场竞争机制提升服务效率与供给丰富度", scores: { xi: 3, DENG: 15, JIANG_HU: 20 } },
+                { text: "由国家和集体全盘包揽（配给制、福利房、免费医疗），彻底消除商品化买卖与市场焦虑", scores: { xi: 2, MAO: 25 } },
+                { text: "建立完全由私营市场竞争主导、自负盈亏的个性化社会保障与商业保险体系", scores: { xi: 0, WEST: 25 } },
+                { text: "故意阻断社会救助机制，煽动民众对公共服务体系的敌对情绪，诱发群体性对抗事件", scores: { xi: 0, SPY: 30 } }
+            ]
+        },
+        {
+            tag: "科技创新与产业政策",
+            text: "11. 面对全球高科技竞争与“卡脖子”困境，你最支持的破局策略是？",
+            options: [
+                { text: "发挥新型举国体制优势，由国家战略引导集中攻关，同时鼓励龙头企业进行关键核心技术“破局”", scores: { xi: 10, XI: 25, JIANG_HU: 5 } },
+                { text: "依靠市场化招商引资与国际技术合作，发挥比较优势，通过民营科技企业自主迭代", scores: { xi: 5, DENG: 20, JIANG_HU: 15 } },
+                { text: "坚持独立自主、自力更生，动员全国科研人员与工农群众开展技术革新运动", scores: { xi: 3, MAO: 25 } },
+                { text: "彻底取消一切产业政策与政府补贴，完全依靠全球自由贸易与跨国公司供应链采购", scores: { xi: 0, WEST: 25 } },
+                { text: "暗中收集并向境外机构输送国家战略科技与核心产业机密，协助外部阻断关键技术链", scores: { xi: 0, SPY: 40 } }
+            ]
+        },
+        {
+            tag: "理想中的个人生存与生活状态",
+            text: "12. 如果让你选择一种最舒适的个人生活与工作状态，你更偏好？",
+            options: [
+                { text: "在安全稳定的秩序中，享受便捷的数字化公共服务，融入国家强盛进程，生活有充沛底线保障", scores: { xi: 10, XI: 25, JIANG_HU: 5 } },
+                { text: "在体制约束较少、遍地商机的时代凭借胆识与市场敏锐度下海淘金，实现阶层跨越", scores: { xi: 4, DENG: 25 } },
+                { text: "在集体（国企/公社）中拥有高安全感的“铁饭碗”，关系纯粹，无房贷失业等市场化焦虑", scores: { xi: 2, MAO: 25 } },
+                { text: "在尊重绝对个人隐私与自由契约的社会，做一个不受任何体制干预的自由职业者", scores: { xi: 0, WEST: 25 } },
+                { text: "秘密加入境外特定网络组织，定期接受外部资金资助，在本土暗中执行政治渗透与情报采集", scores: { xi: 0, SPY: 50 } }
+            ]
+        }
+    ];
+
+    let currentQ = 0;
+    let xiTotal = 0; // 最高 120 -> 归一化 100
+    let dimScores = { MAO: 10, DENG: 10, JIANG_HU: 10, XI: 10, WEST: 10, SPY: 0 };
+    let chartInstance = null;
+
+    // 🎲 选项随机洗牌算法 (Fisher-Yates Shuffle)
+    function shuffleArray(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function renderQuestion() {
+        const q = questions[currentQ];
+        document.getElementById("q-tag").innerText = `评估维度 (${currentQ + 1}/12)：${q.tag}`;
+        document.getElementById("q-text").innerText = q.text;
+        
+        const percent = Math.round((currentQ / questions.length) * 100);
+        document.getElementById("progress").style.width = `${percent}%`;
+        document.getElementById("progress-percent").innerText = `${percent}%`;
+        document.getElementById("progress-text").innerText = `测评进度：第 ${currentQ + 1} / ${questions.length} 题`;
+
+        const optsContainer = document.getElementById("opts-container");
+        optsContainer.innerHTML = "";
+
+        // 随机打乱当前题目选项
+        const shuffledOptions = shuffleArray(q.options);
+        const keys = ["A", "B", "C", "D", "E"];
+
+        shuffledOptions.forEach((opt, index) => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerHTML = `<span class="opt-key">${keys[index]}.</span> <span>${opt.text}</span>`;
+            btn.onclick = () => selectOption(opt);
+            optsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(opt) {
+        if (opt.scores.xi) xiTotal += opt.scores.xi;
+        
+        for (let dim in opt.scores) {
+            if (dim !== "xi") {
+                dimScores[dim] = (dimScores[dim] || 0) + opt.scores[dim];
+            }
+        }
+
+        currentQ++;
+        if (currentQ < questions.length) {
+            renderQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById("quiz-box").style.display = "none";
+        document.getElementById("result-box").style.display = "block";
+
+        // 归一化习近平新时代认可度得分 (0 - 100)
+        const finalXiScore = Math.min(100, Math.round((xiTotal / 120) * 100));
+
+        // 归一化各个维度 (0 - 100)
+        for (let d in dimScores) {
+            if (d !== "SPY") {
+                dimScores[d] = Math.min(100, Math.round((dimScores[d] / 150) * 100));
+            }
+        }
+
+        // 🕵️‍♂️ 彩蛋判断规则：隐藏维度 SPY 得分 >= 60 或 (WEST >= 75 且 XI < 15)
+        const isWesternSpy = dimScores.SPY >= 60 || (dimScores.WEST >= 75 && finalXiScore < 15);
+
+        if (isWesternSpy) {
+            triggerSpyEasterEgg(finalXiScore);
+        } else {
+            renderNormalResult(finalXiScore);
+        }
+
+        renderRadarChart(isWesternSpy);
+    }
+
+    /* 🕵️‍♂️ 触发西方间谍彩蛋逻辑 */
+    function triggerSpyEasterEgg(finalXiScore) {
+        const container = document.getElementById("main-container");
+        container.classList.add("spy-alert-theme");
+
+        const scoreBadge = document.getElementById("res-score-text");
+        scoreBadge.className = "res-score-badge spy-badge";
+        scoreBadge.innerText = `🚨 警报！异常行为审计得分：系统检测到 50W / 境外认知作战倾向！`;
+
+        const title = document.getElementById("res-title");
+        title.className = "archetype-title spy-title";
+        title.innerText = "🕵️ CIA 亚太分局特约思想渗透员 / 境外网络水军线报员";
+
+        document.getElementById("res-subtitle").innerText = "“同志，你的成分过于复杂！国家安全局提醒您：网络不是法外之地，建议立即去自首！”";
+
+        document.getElementById("chart-card").className = "chart-analysis-card spy-card";
+        document.getElementById("res-chart-reason").innerHTML = `
+            <strong>🚨 异常审计深度报告：</strong><br>
+            系统多维矩阵检测到您在多个关键选项中选择了带有极强<strong>破坏性、解构性或直接配合境外情报网络（隐藏SPY维度：${dimScores.SPY}分）</strong>的异常数据节点！
+            您在雷达图中表现出对国家治理体制的极度对抗倾向，系统已自动将您的答题特征记录并标记为【高风险异常数据流】。
+        `;
+
+        document.getElementById("xi-card").className = "info-card spy-card";
+        document.getElementById("res-xi-analysis").innerHTML = `
+            您对<strong>习近平新时代中国特色社会主义思想</strong>的认可度得分极低（仅 ${finalXiScore} 分），且伴随着严重的意识形态颠覆倾向。
+            您的选项展现出典型的“逢中必反”、“历史虚无主义”以及对西方霸权秩序的无条件盲从。建议您放下手机，多看新闻联播，清醒头脑，切勿盲目充当境外舆论战的“马前卒”。
+        `;
+
+        document.getElementById("era-card-1").className = "info-card spy-card";
+        document.getElementById("res-agree-era").innerHTML = `
+            <strong>【政治认同历史时期：无（未通过政治安全审查）】</strong><br><br>
+            <strong>审计结果：</strong>您对新中国成立以来的任何社会主义建设时期均缺乏基础认同。您的政治理念更接近于19世纪西方原始资本积累阶段的冷酷自由主义，或冷战时期西方针对社会主义阵营发起的“和平演变”演练手册。
+        `;
+
+        document.getElementById("era-card-2").className = "info-card spy-card";
+        document.getElementById("res-fit-era").innerHTML = `
+            <strong>【最适合生活时期/地点：境外领事馆密室 或 国家安全机关询问室】</strong><br><br>
+            <strong>建议去向：</strong>建议您携带身份证件，主动前往当地国家安全机关（拨打 12339）说明情况，争取宽大处理，早日重返光明大路。
+        `;
+    }
+
+    /* 正常结果渲染 */
+    function renderNormalResult(finalXiScore) {
+        document.getElementById("res-score-text").innerText = `习近平新时代中国特色社会主义思想认可度：${finalXiScore} 分`;
+
+        const agreeEra = getAgreeEra();
+        const fitEra = getFitEra();
+
+        if (finalXiScore >= 80) {
+            document.getElementById("res-title").innerText = "新时代中国特色社会主义坚定的践行者与高度认同者";
+            document.getElementById("res-subtitle").innerText = "“深化中国式现代化，统筹安全与发展，高度契合新时代宏伟蓝图”";
+        } else if (finalXiScore >= 55) {
+            document.getElementById("res-title").innerText = "中国特色社会主义道路稳健的改革开放认同者";
+            document.getElementById("res-subtitle").innerText = "“认同国家治理现代化与发展成就，同时重视市场活力与经济建设”";
+        } else if (dimScores.MAO > 60) {
+            document.getElementById("res-title").innerText = "传统社会主义理想主义与平民主义倾向者";
+            document.getElementById("res-subtitle").innerText = "“高度关注社会公平、集体保障与消灭贫富差距，怀念建国初期精神氛围”";
+        } else {
+            document.getElementById("res-title").innerText = "多元市场化与个体自由价值导向者";
+            document.getElementById("res-subtitle").innerText = "“倾向于自由市场调节、小政府治理与高度的个人自由度”";
+        }
+
+        document.getElementById("res-chart-reason").innerText = generateChartReason(finalXiScore);
+        document.getElementById("res-xi-analysis").innerHTML = generateXiAnalysis(finalXiScore);
+        document.getElementById("res-agree-era").innerHTML = agreeEra;
+        document.getElementById("res-fit-era").innerHTML = fitEra;
+    }
+
+    function generateChartReason(score) {
+        let maxDim = "XI";
+        let maxVal = -1;
+        for (let d in dimScores) {
+            if (d !== "SPY" && dimScores[d] > maxVal) {
+                maxVal = dimScores[d];
+                maxDim = d;
+            }
+        }
+
+        const mapName = {
+            MAO: "毛泽东时代维度（计划经济/公平优先/集体主义）",
+            DENG: "邓小平时代维度（改革开放/市场活力/实事求是）",
+            JIANG_HU: "江泽民-胡锦涛时代维度（融入全球化/技术官僚/制度化）",
+            XI: "习近平新时代维度（伟大斗争/共同富裕/大国自信/举国体制）",
+            WEST: "自由市场/绝对个体主义维度"
+        };
+
+        return `依据多维认知雷达图的数据分布，您在【${mapName[maxDim]}】上获得了最高的分值响应（${maxVal}分）。雷达图展现了您对“国家治理模式、市场与政府关系、社会分配秩序”的底层认知逻辑。新时代认可度得分（${score}分）直接取决于您在“举国体制、共同富裕、全面从严治党、总体国家安全观”等选项上的选择密度。`;
+    }
+
+    function generateXiAnalysis(score) {
+        if (score >= 80) {
+            return `您对<strong>习近平新时代中国特色社会主义思想</strong>有着极高的认可度（得分：${score}分）。在您的底层认知中，极度赞同“集中力量办大事”的新型举国体制，深刻理解“统筹发展与安全”的战略必要性。您支持通过全面从严治党来保持党的先进性与纯洁性，高度认同“共同富裕”、“绿色发展（绿水青山就是金山银山）”以及“两个结合”带来的中华文化自信。您是新时代伟大变革与中国式现代化道路的坚定支持者。`;
+        } else if (score >= 55) {
+            return `您对<strong>习近平新时代中国特色社会主义思想</strong>持较为积极和理性的认同态度（得分：${score}分）。您认同新时代在脱贫攻坚、反腐败、国家安全以及国际地位提升上取得的举世瞩目成就。同时，在经济与社会治理上，您依然非常保留和看重改革开放以来的市场活力、民营经济发展与对外开放度。您希望在保持新时代大国强盛与社会稳定的同时，进一步激发市场经济的微观主体活力。`;
+        } else {
+            return `您对<strong>习近平新时代中国特色社会主义思想</strong>的认可度处于中等偏低水平（得分：${score}分）。您的思想光谱要么更偏向于改革开放初期及以经济建设为中心的技术官僚导向，要么偏向于建国初期的传统平民主义与绝对公平，抑或偏向自由市场经济思维。您对当前国家治理中强化宏观调控、举国体制及安全重于效率的某些政策导向存有思考或不同偏好。`;
+        }
+    }
+
+    function getAgreeEra() {
+        const eraScores = { mao: dimScores.MAO, deng: dimScores.DENG, jiang_hu: dimScores.JIANG_HU, xi: dimScores.XI };
+        let bestEra = "xi";
+        let maxS = -1;
+        for (let e in eraScores) {
+            if (eraScores[e] > maxS) {
+                maxS = eraScores[e];
+                bestEra = e;
+            }
+        }
+
+        const eras = {
+            mao: {
+                title: "毛泽东时代（1949—1976年）：社会主义革命与建设时期",
+                desc: "<strong>理念契合点：</strong>您在政治理念上极度认同集体主义、公平优先、依靠工农大众与消除阶级分化。您看重建国初期独立自主、自力更生的革命英雄主义精神，以及国家全盘筹划的公有制底色。"
+            },
+            deng: {
+                title: "邓小平时代（1978—1990年代初）：改革开放与社会主义现代化建设新时期",
+                desc: "<strong>理念契合点：</strong>您最认同“解放思想，实事求是”与“贫穷不是社会主义”的发展哲学。您赞同“以经济建设为中心”，主张打破僵化体制，通过允许一部分人先富起来来激活整个社会的创造力。"
+            },
+            jiang_hu: {
+                title: "江泽民至胡锦涛时代（1990年代中—2012年）：深化改革与建立社会主义市场经济体制/科学发展观时期",
+                desc: "<strong>理念契合点：</strong>您高度认同“与时俱进”、“加入WTO融入全球化”以及“构建社会主义和谐社会”。您偏好技术官僚式的理性治理、高速的经济增长、商品经济的繁荣以及相对宽松包容的社会文化氛围。"
+            },
+            xi: {
+                title: "习近平新时代（2012年至今）：中国特色社会主义新时代",
+                desc: "<strong>理念契合点：</strong>您在政治理念上高度契合“中国式现代化”与“中华民族伟大复兴”的宏伟蓝图。您认同强化党的领导、打赢脱贫攻坚战、推进共同富裕、大国自信以及在复杂国际环境中保持战略定力。"
+            }
+        };
+
+        return `<strong>【${eras[bestEra].title}】</strong><br><br>${eras[bestEra].desc}`;
+    }
+
+    function getFitEra() {
+        if (dimScores.MAO > 60 && dimScores.XI < 50) {
+            return `<strong>【最适合生活时期：20世纪50年代中后期（“一五”计划与集体化时期）】</strong><br><br>
+            <strong>原因简析：</strong>这一时期社会风气极为纯朴，人际关系相对简单，国家推行统一分配与住房/医疗/养老的全面福利保障（铁饭碗）。没有现代市场的买房焦虑与贫富悬殊，极度适合追求集体归属感与绝对公平的人群。`;
+        } else if (dimScores.DENG > 60 || dimScores.WEST > 50) {
+            return `<strong>【最适合生活时期：20世纪80年代末至90年代初（改革开放淘金浪潮期）】</strong><br><br>
+            <strong>原因简析：</strong>这一时期充满着巨大的流动性与“下海淘金”的时代红利。到处都是未被开发的商机与市场空白，极度适合富有冒险精神、崇尚个人奋斗、希望凭借胆识快速实现阶层跨越的人群生活。`;
+        } else if (dimScores.JIANG_HU > 60) {
+            return `<strong>【最适合生活时期：2000年代初至2010年前后（入世红利与互联网爆发期）】</strong><br><br>
+            <strong>原因简析：</strong>这一时期中国全面融入全球化，经济保持两位数高增长，都市白领阶层崛起，文化与互联网氛围极其开放多样。对于追求个人物质生活品质改善与相对自由都市节奏的人群而言极其舒适。`;
+        } else {
+            return `<strong>【最适合生活时期：习近平新时代（当下与未来 2020s-2030s）】</strong><br><br>
+            <strong>原因简析：</strong>当下时期拥有无可比拟的超高公共安全保障、极度发达便利的数字化移动生活（移动支付、高铁网络、电商物流），以及日益完善的治安体系。最适合看重社会秩序、生活便捷度、国家安全感与大国自豪感的现代公民生活。`;
+        }
+    }
+
+    function renderRadarChart(isSpy) {
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+
+        const dataPoints = [
+            dimScores.MAO, 
+            dimScores.DENG, 
+            dimScores.JIANG_HU, 
+            dimScores.XI, 
+            dimScores.WEST,
+            isSpy ? Math.min(100, dimScores.SPY) : 0
+        ];
+
+        chartInstance = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['毛泽东时代倾向', '邓小平时代倾向', '江/胡时代倾向', '习近平新时代倾向', '自由市场/个体倾向', '境外渗透倾向(SPY)'],
+                datasets: [{
+                    label: '历史与政治认知维度匹配度',
+                    data: dataPoints,
+                    backgroundColor: isSpy ? 'rgba(220, 38, 38, 0.45)' : 'rgba(201, 42, 42, 0.25)',
+                    borderColor: isSpy ? '#dc2626' : '#c92a2a',
+                    pointBackgroundColor: isSpy ? '#7f1d1d' : '#8f1212',
+                    borderWidth: isSpy ? 3 : 2
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        min: 0,
+                        max: 100,
+                        ticks: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    function restart() {
+        currentQ = 0;
+        xiTotal = 0;
+        dimScores = { MAO: 10, DENG: 10, JIANG_HU: 10, XI: 10, WEST: 10, SPY: 0 };
+        
+        const container = document.getElementById("main-container");
+        container.className = "container";
+        document.getElementById("res-score-text").className = "res-score-badge";
+        document.getElementById("res-title").className = "archetype-title";
+        document.getElementById("chart-card").className = "chart-analysis-card";
+        document.getElementById("xi-card").className = "info-card";
+        document.getElementById("era-card-1").className = "info-card";
+        document.getElementById("era-card-2").className = "info-card";
+
+        document.getElementById("quiz-box").style.display = "block";
+        document.getElementById("result-box").style.display = "none";
+        renderQuestion();
+    }
+
+    // 初始化运行
+    renderQuestion();
+</script>
+
+</body>
+</html>
