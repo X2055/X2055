@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>习近平正看着你呢！</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+        body { background-color: var(--bg); color: var(--text-main); display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; padding: 20px; }
+        
+        .main-wrapper { display: flex; justify-content: center; align-items: center; flex: 1; }
+        .container { background: var(--card-bg); max-width: 760px; width: 100%; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08); padding: 32px; margin: 20px 0; }
+        
+        h1 { font-size: 24px; text-align: center; margin-bottom: 6px; }
+        .subtitle { text-align: center; color: var(--text-sub); font-size: 13px; margin-bottom: 24px; }
+
+        /* 进度条 */
+        .progress-box { width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; margin-bottom: 24px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: width 0.3s ease; }
+
+        /* 问题 */
+        .question-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; line-height: 1.5; min-height: 54px; }
+        .options-grid { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { background: #f8fafc; border: 1.5px solid var(--border); padding: 14px 18px; border-radius: 8px; font-size: 15px; text-align: left; cursor: pointer; transition: all 0.2s; color: var(--text-main); }
+        .option-btn:hover { border-color: var(--primary); background: #eff6ff; color: var(--primary-dark); }
+
+        /* 结果 */
+        .result-box { display: none; }
+        .result-header { text-align: center; margin-bottom: 20px; }
+        .tag { display: inline-block; background: #dbeafe; color: var(--primary); font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-bottom: 8px; }
+        .ideology-title { font-size: 28px; font-weight: 800; color: var(--primary); margin: 6px 0; }
+        .ideology-desc { font-size: 14px; color: var(--text-sub); line-height: 1.7; margin-bottom: 24px; background: #f8fafc; padding: 18px; border-radius: 12px; border: 1px solid var(--border); }
+
+        .radar-box { max-width: 480px; margin: 0 auto 24px auto; }
+        .restart-btn { display: block; width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .restart-btn:hover { background: var(--primary-dark); }
+
+        /* 页脚 */
+        footer { text-align: center; font-size: 13px; color: var(--text-sub); padding: 16px 0; border-top: 1px solid var(--border); margin-top: auto; }
+        footer p { margin: 2px 0; }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="container">
+        <!-- 测试界面 -->
+        <div id="quiz-box">
+            <h1>60+意识形态精细化测试</h1>
+            <p class="subtitle">五轴算法矩阵：精准判定法西斯、工团主义、无政府资本主义、加速主义等极细分流派</p>
+            
+            <div class="progress-box"><div class="progress-bar" id="progress"></div></div>
+
+            <div class="question-title" id="q-text">正在加载...</div>
+            <div class="options-grid" id="opts-container"></div>
+        </div>
+
+        <!-- 结果界面 -->
+        <div id="result-box" class="result-box">
+            <div class="result-header">
+                <span class="tag">测试匹配结果</span>
+                <div class="ideology-title" id="result-title">分析中...</div>
+            </div>
+            
+            <div class="ideology-desc" id="result-desc"></div>
+
+            <div class="radar-box">
+                <canvas id="radarChart"></canvas>
+            </div>
+
+            <button class="restart-btn" onclick="restart()">重新测试</button>
+        </div>
+    </div>
+</div>
+
+<!-- 底部版权 -->
+<footer>
+    <p>站主©Gator 2026</p>
+    <p>2050.cn.lu</p>
+</footer>
+
+<script>
+    /*
+      维轴标准化范围 [-10, 10]:
+      econ: 经济 (-10 极左计划/公有 <-> +10 极右自由市场)
+      auth: 国家 (-10 无政府/极弱 <-> +10 绝对极权/强国家)
+      nat : 外交 (-10 世界主义/国际 <-> +10 极端民族主义/排外)
+      soc : 文化 (-10 原教旨保守/传统 <-> +10 激进进步/多元)
+      tech: 科技/发展 (-10 原始主义/去工业 <-> +10 超级加速主义/超人类主义)
+    */
+
+    const questions = [
+        { text: "1. 生产资料（企业、工厂、土地）应当完全归工人集体或国家所有，彻底消灭私有制。", axis: "econ", dir: -2 },
+        { text: "2. 市场应当绝对自由，取消最低工资、劳动法和任何政府监管，完全依靠自愿契约。", axis: "econ", dir: 2 },
+        { text: "3. 医疗、教育、住房等一切生存物资必须由国家完全免费包办。", axis: "econ", dir: -2 },
+        { text: "4. 私有财产权神圣不可侵犯，即使出现严重的贫富差距，政府也不应通过征税再分配。", axis: "econ", dir: 2 },
+        { text: "5. 应当由工会直接接管企业和生产过程，摒弃官僚和资本家的双重统治。", axis: "econ", dir: -2, extra: { axis: "auth", dir: -1 } },
+        { text: "6. 为了国家和集体的最高利益，强权领袖与政府应当拥有不受限制的掌控力。", axis: "auth", dir: 2 },
+        { text: "7. 警察、军队和全面监控是维护内部秩序不可或缺的重武器。", axis: "auth", dir: 2 },
+        { text: "8. 任何形式的国家和政府本质上都是暴力机器，最终应当被彻底废除。", axis: "auth", dir: -2 },
+        { text: "9. 即使在国家紧急状态下，公民的言论、集会和隐私权也绝不能被剥夺。", axis: "auth", dir: -2 },
+        { text: "10. 社会应当由宗教领袖根据宗教圣训进行权威统治。", axis: "auth", dir: 2, extra: { axis: "soc", dir: -2 } },
+        { text: "11. 本民族文化天然优越，国家的终极目标是保证本民族血统与文化的至高纯洁。", axis: "nat", dir: 2 },
+        { text: "12. 全球化和移民正在毁灭本国本土文化，必须严格限制移民甚至驱逐外族人。", axis: "nat", dir: 2 },
+        { text: "13. 边界和国家概念是制造冲突的根源，全人类应当建立无国界的联合共同体。", axis: "nat", dir: -2 },
+        { text: "14. 面对国际争端，必须始终恪守国际法和人道主义，绝不盲目奉行“本国优先”。", axis: "nat", dir: -2 },
+        { text: "15. 国家应当通过战争和扩张来展现力量并巩固生存空间。", axis: "nat", dir: 2, extra: { axis: "auth", dir: 1 } },
+        { text: "16. 传统家庭价值、宗教信仰和古老礼教是社会立足之本，违背者应受法律惩罚。", axis: "soc", dir: -2 },
+        { text: "17. 每个人有完全自由选择自己的性别认同、生活方式与道德观，社会不应干涉。", axis: "soc", dir: 2 },
+        { text: "18. 政府有责任审查文化产品，禁止任何破坏传统公序良俗的内容传播。", axis: "soc", dir: -2 },
+        { text: "19. 艺术、思想表达和学术研究不应受到任何传统道德或风俗的限制。", axis: "soc", dir: 2 },
+        { text: "20. 种族或血统决定了一个人的能力与社会地位。", axis: "nat", dir: 2, extra: { axis: "soc", dir: -2 } },
+        { text: "21. 现代工业科技破坏了自然平衡与人类天性，我们应当回归原始或简朴的生活。", axis: "tech", dir: -2 },
+        { text: "22. 我们应当全力加速科技突破、基因工程与人工智能发展，哪怕这会导致社会结构解体。", axis: "tech", dir: 2 },
+        { text: "23. 科技进步应当完全服务于消灭阶级压迫和实现人类的全解放。", axis: "tech", dir: 1, extra: { axis: "econ", dir: -1 } },
+        { text: "24. 自动化和人工智能应当被用来彻底取代人类的人力劳动，建立无需工作的福利社会。", axis: "tech", dir: 2, extra: { axis: "econ", dir: -1 } },
+        { text: "25. 个人价值完全体现在其对国家和集体的无私牺牲上，“个人”必须服从“国家”。", axis: "auth", dir: 2, extra: { axis: "nat", dir: 1 } },
+        { text: "26. 必须通过激烈的武装革命彻底推翻现存的政权与资本主义体制。", axis: "econ", dir: -1, extra: { axis: "auth", dir: -1 } },
+        { text: "27. 国家可以干预经济（如支持战略工业），但前提是完全服务于本民族的强大。", axis: "econ", dir: -1, extra: { axis: "nat", dir: 2 } },
+        { text: "28. 应当允许私有企业存在，但必须在政府和国有工会的严格监控下运行。", axis: "econ", dir: -1, extra: { axis: "auth", dir: 1 } },
+        { text: "29. 环境保护比经济增长重要得多，即使关停大量工厂、限制消费也在所不惜。", axis: "tech", dir: -1, extra: { axis: "econ", dir: -1 } },
+        { text: "30. 只要能够带来自由市场的效率，哪怕出现极大的贫富分化也是完全正当的。", axis: "econ", dir: 2 }
+    ];
+
+    // 数据库：60+ 细分意识形态定义库
+    const DB_60 = [
+        // 极权与极端主义类 (1-10)
+        { name: "法西斯主义 (Fascism)", vec: { econ: -2, auth: 8, nat: 8, soc: -6, tech: 2 }, desc: "主张极端的国家集权、军国主义与极权秩序。认为个人完全服务于国家，经济实行国家统制与阶级协调。" },
+        { name: "国家社会主义 / 纳粹主义 (Nazism)", vec: { econ: -3, auth: 9, nat: 10, soc: -8, tech: 2 }, desc: "在极权国家主义与军国主义的基础上，将种族主义与极端反犹主义作为核心教义，追求本民族血统纯洁与生存空间。" },
+        { name: "极端民族主义 (Ultra-Nationalism)", vec: { econ: 1, auth: 6, nat: 9, soc: -5, tech: 0 }, desc: "极度强调本民族利益高于一切，对外强烈排外与反移民，对内主张强力治安与文化纯洁。" },
+        { name: "军国主义 (Militarism)", vec: { econ: 0, auth: 8, nat: 7, soc: -4, tech: 3 }, desc: "认为军队和军事力量是国家的立国之本，社会结构高度军事化，对外奉行侵略扩张政策。" },
+        { name: "神权极权主义 (Theocratic Totalitarianism)", vec: { econ: -2, auth: 9, nat: 4, soc: -10, tech: -3 }, desc: "将教义作为最高法律，由宗教领袖实行绝对权威统治，极度打压思想自由与世俗文化。" },
+        { name: "马克思列宁主义 (Marxism-Leninism)", vec: { econ: -8, auth: 7, nat: -3, soc: 2, tech: 4 }, desc: "主张通过先锋队政权实行无产阶级专政，建立高度集中的计划经济与公有制，最终过渡到共产主义。" },
+        { name: "斯大林主义 (Stalinism)", vec: { econ: -9, auth: 9, nat: 3, soc: -4, tech: 4 }, desc: "高度集权的先锋队党国体制，强调官僚指令计划、极权监控、一国建成社会主义与个人崇拜。" },
+        { name: "毛泽东主义 (Maoism)", vec: { econ: -9, auth: 8, nat: 1, soc: 0, tech: 0 }, desc: "强调农民阶级在革命中的作用、人民战争理论、不断革命与群众路线，反对官僚主义修正。" },
+        { name: "波尔布特主义 / 极左原始主义 (Pol Potism)", vec: { econ: -10, auth: 10, nat: 5, soc: -9, tech: -10 }, desc: "极端的农业共产主义，试图通过废除城市、货币、知识分子与工业科技来建立绝对平等的原始农村社会。" },
+        { name: "主体思想 (Juche)", vec: { econ: -8, auth: 10, nat: 8, soc: -6, tech: 1 }, desc: "强调政治独立、经济自给自足、国防自卫以及领袖绝对权威的极权社会主义变体。" },
+
+        // 无政府与极左类 (11-20)
+        { name: "无政府共产主义 (Anarcho-Communism)", vec: { econ: -9, auth: -9, nat: -8, soc: 7, tech: 2 }, desc: "主张废除国家、军队和私有制，建立由劳动者自由联合、按需分配的无阶级自由共产社会。" },
+        { name: "无政府工团主义 (Anarcho-Syndicalism)", vec: { econ: -8, auth: -8, nat: -6, soc: 5, tech: 2 }, desc: "以革命工会为核心，主张通过总罢工推翻资本主义与国家，由工会直接管理生产。" },
+        { name: "无政府原始主义 (Anarcho-Primitivism)", vec: { econ: -6, auth: -9, nat: -5, soc: 3, tech: -10 }, desc: "主张废除国家与工业科技，认为文明和技术是压迫的根源，提倡回归采集中集体的原始生活。" },
+        { name: "无政府个人主义 (Individualist Anarchism)", vec: { econ: 1, auth: -9, nat: -5, soc: 6, tech: 2 }, desc: "强调个人绝对主权与意志自由，反对任何形式的国家统治以及对个人的集体强制。" },
+        { name: "托洛茨基主义 (Trotskyism)", vec: { econ: -8, auth: 3, nat: -9, soc: 4, tech: 5 }, desc: "反对一国建成社会主义，主张不断革命与国际主义，支持工人民主，反对官僚极权僵化。" },
+        { name: "左翼加速主义 (Left-Accelerationism)", vec: { econ: -7, auth: -2, nat: -8, soc: 8, tech: 10 }, desc: "主张利用并加速自动化、人工智能与高科技发展，突破资本主义限制，实现全自动化奢华共产主义。" },
+        { name: "生态共产主义 (Eco-Communism)", vec: { econ: -8, auth: -1, nat: -7, soc: 6, tech: -4 }, desc: "将环保主义与共产主义结合，主张废除资本主义利润驱动，通过公有制与计划来拯救地球生态。" },
+        { name: "正统马克思主义 (Orthodox Marxism)", vec: { econ: -8, auth: 1, nat: -7, soc: 3, tech: 5 }, desc: "严格基于马克思原著，强调生产力发展是社会变革的前提，通过阶级斗争最终走向无阶级社会。" },
+        { name: "卢森堡主义 (Luxemburgism)", vec: { econ: -7, auth: -4, nat: -8, soc: 6, tech: 3 }, desc: "主张自发的工人革命与高度的民主自由，强烈批评先锋队官僚专制与集权主义。" },
+        { name: "评议会共产主义 (Council Communism)", vec: { econ: -8, auth: -6, nat: -7, soc: 5, tech: 3 }, desc: "反对政党和国家官僚，主张由工人直接选举产生的“工人评议会”来掌控生产与社会管理。" },
+
+        // 自由意志主义与极右经济类 (21-30)
+        { name: "无政府资本主义 (Anarcho-Capitalism)", vec: { econ: 9, auth: -9, nat: -3, soc: 3, tech: 5 }, desc: "主张完全废除国家，将警察、法律等所有公共服务彻底私有化，建立在绝对私有财产权上的自由市场。" },
+        { name: "右翼自由意志主义 (Right-Libertarianism)", vec: { econ: 7, auth: -5, nat: -1, soc: 3, tech: 5 }, desc: "主张“小政府”，政府仅保留基本的司法与国防职能。经济上追求绝对自由市场，反对税收与干预。" },
+        { name: "古自由意志主义 (Paleolibertarianism)", vec: { econ: 8, auth: -5, nat: 4, soc: -7, tech: 2 }, desc: "结合了右翼自由意志主义的极右市场经济与传统保守主义的文化道德观，反对干涉主义与多元进步。" },
+        { name: "科技自由意志主义 (Techno-Libertarianism)", vec: { econ: 8, auth: -6, nat: -4, soc: 6, tech: 9 }, desc: "硅谷式意识形态，认为加密货币、科技创新与网络自由可以彻底瓦解国家监管与传统金融控制。" },
+        { name: "古典自由主义 (Classical Liberalism)", vec: { econ: 5, auth: -3, nat: -2, soc: 1, tech: 3 }, desc: "强调个人自由、法治、言论自由与私有财产权，主张有限政府与自由放任的自由市场。" },
+        { name: "新自由主义 (Neoliberalism)", vec: { econ: 6, auth: 1, nat: -3, soc: 2, tech: 5 }, desc: "主张自由贸易、全球化、去监管化、国有企业私有化，在现存宪政框架内最大化市场效率。" },
+        { name: "民营资本主义 / 夜警国家 (Minarchism)", vec: { econ: 8, auth: -7, nat: 0, soc: 2, tech: 4 }, desc: "认为政府的唯一合法职能是作为“夜警”，保护公民不受暴力、盗窃和诈骗的侵害。" },
+        { name: "客体主义 (Objectivism)", vec: { econ: 8, auth: -4, nat: 0, soc: 1, tech: 6 }, desc: "基于阿兰·德理性利己主义哲学，主张放任资本主义，将理性、个人成就与自由视为最高价值。" },
+        { name: "右翼加速主义 (Right-Accelerationism)", vec: { econ: 9, auth: 2, nat: 0, soc: 2, tech: 10 }, desc: "主张无限制加速资本与人工智能的结合，认为技术与资本的自我演进将超越并瓦解人类传统政治结构。" },
+        { name: "金融自由主义 (Financial Liberalism)", vec: { econ: 7, auth: 0, nat: -4, soc: 2, tech: 6 }, desc: "强调金融资本的绝对流动性、资本市场去监管化与全球资产配置自由。" },
+
+        // 中间派与社会民主类 (31-40)
+        { name: "社会民主主义 (Social Democracy)", vec: { econ: -2, auth: -1, nat: -4, soc: 5, tech: 4 }, desc: "认可自由市场，但主张建立强有力的福利国家，通过累进税与公共服务实现社会公平与再分配。" },
+        { name: "民主社会主义 (Democratic Socialism)", vec: { econ: -5, auth: -2, nat: -5, soc: 6, tech: 4 }, desc: "主张在民主体制框架内逐步消除资本主义，实现生产资料公有制、高福利与全面社会平等。" },
+        { name: "社会自由主义 / 现代自由主义 (Social Liberalism)", vec: { econ: -1, auth: -2, nat: -4, soc: 5, tech: 4 }, desc: "强调个人自由的同时，主张政府应提供基础社会保障与平等机会，纠正市场机制的天然缺陷。" },
+        { name: "第三条道路 (Third Way)", vec: { econ: 2, auth: 1, nat: -3, soc: 3, tech: 5 }, desc: "试图融合右翼的市场效率与左翼的社会公平，强调竞争、中道妥协与全球化适应能力。" },
+        { name: "中间主义 (Centrism)", vec: { econ: 0, auth: 0, nat: -1, soc: 0, tech: 2 }, desc: "主张温和、务实与非教条主义，拒绝极左与极右的激进主张，在自由与秩序间寻求动态平衡。" },
+        { name: "激进中间主义 (Radical Centrism)", vec: { econ: 0, auth: -1, nat: -2, soc: 4, tech: 7 }, desc: "不局限于传统左右划分，主张运用高科技、制度创新与颠覆性思维来解决社会结构性难题。" },
+        { name: "北欧模式 / 瑞典范式 (Nordic Model)", vec: { econ: -3, auth: -1, nat: -3, soc: 5, tech: 5 }, desc: "自由市场资本主义与庞大福利国家结合的典范，强调强力工会三方协商与高度社会信任。" },
+        { name: "社会市场经济 (Social Market Economy)", vec: { econ: 2, auth: 0, nat: -1, soc: -1, tech: 3 }, desc: "德国式经济模式，在自由市场竞争框架内加入强有力的反垄断法规与社会保障底线。" },
+        { name: "左翼自由主义 (Left-Liberalism)", vec: { econ: -3, auth: -3, nat: -6, soc: 8, tech: 5 }, desc: "高度重视少数群体权利、社会正义、多元文化与环境保护，主张温和的经济干预与福利。" },
+        { name: "自由人道主义 (Liberal Humanism)", vec: { econ: -1, auth: -3, nat: -7, soc: 7, tech: 3 }, desc: "以人类尊严、理性与普世人权为核心，反对任何形式的强权政治与集体主义压迫。" },
+
+        // 保守主义与传统主义类 (41-50)
+        { name: "社会保守主义 (Social Conservatism)", vec: { econ: 2, auth: 3, nat: 3, soc: -7, tech: -1 }, desc: "主张维护传统家庭价值、宗教道德与公序良俗，对激进的社会文化变革持强烈怀疑态度。" },
+        { name: "国家保守主义 (National Conservatism)", vec: { econ: 0, auth: 4, nat: 7, soc: -6, tech: 0 }, desc: "强调国家主权、本土文化保护、严格限制移民与传统道德，对盲目的全球化持批判态度。" },
+        { name: "财政保守主义 (Fiscal Conservatism)", vec: { econ: 6, auth: 1, nat: 1, soc: -2, tech: 2 }, desc: "极度强调平衡预算、减少政府赤字、降低税收与削减公共支出，反对扩张性财政政策。" },
+        { name: "传统主义 (Traditionalism)", vec: { econ: -1, auth: 4, nat: 4, soc: -9, tech: -5 }, desc: "认为古老的传统、习惯与宗教教条蕴含着至高智慧，反对启蒙运动以来的现代主义与理性主义。" },
+        { name: "新保守主义 (Neoconservatism)", vec: { econ: 4, auth: 4, nat: 5, soc: -4, tech: 3 }, desc: "在内政上支持自由市场与传统价值，在外交上主张通过强硬的军事手段与干涉主义在海外推行民主。" },
+        { name: "家长式保守主义 (Paternalistic Conservatism)", vec: { econ: -2, auth: 3, nat: 2, soc: -5, tech: 1 }, desc: "主张统治阶级对下层负有有机责任，结合了传统道德秩序与适度的社会福利保障。" },
+        { name: "基督教民主主义 (Christian Democracy)", vec: { econ: -1, auth: 1, nat: -2, soc: -3, tech: 2 }, desc: "将基督教伦理与社会市场经济结合，主张社会和谐、家庭价值、辅助性原则与温和福利。" },
+        { name: "右翼民粹主义 (Right-Wing Populism)", vec: { econ: 2, auth: 4, nat: 8, soc: -6, tech: 1 }, desc: "动员“纯洁的民众”反抗“腐败的全球化精英”，强调反移民、本土优先与强人政治。" },
+        { name: "君主立宪主义 (Constitutional Monarchism)", vec: { econ: 2, auth: 2, nat: 3, soc: -4, tech: 1 }, desc: "主张在宪法和议会框架内保留君主作为国家统一与传统延续的象征。" },
+        { name: "绝对君主主义 (Absolute Monarchism)", vec: { econ: 1, auth: 8, nat: 4, soc: -8, tech: -2 }, desc: "主张君权神授或世袭君主拥有至高无上的政治与法律权力，反对政党政治与民主选举。" },
+
+        // 绿色、科技与前沿派系 (51-62)
+        { name: "绿党主义 / 生态主义 (Green Politics)", vec: { econ: -4, auth: -3, nat: -6, soc: 8, tech: -2 }, desc: "以生态平衡、非暴力、社会正义与基层民主为核心，主张可持续发展与去中心化。" },
+        { name: "深层生态学 (Deep Ecology)", vec: { econ: -5, auth: -2, nat: -5, soc: 5, tech: -8 }, desc: "认为所有生物都具有相等的内在价值，人类绝非地球的主宰，主张大幅减少人口与工业活动。" },
+        { name: "左翼民粹主义 (Left-Wing Populism)", vec: { econ: -6, auth: 2, nat: -2, soc: 5, tech: 2 }, desc: "动员底层大众反抗金融资本家与政治精英，主张财富重分配与国有化。" },
+        { name: "海盗党主义 (Pirate Politics)", vec: { econ: -1, auth: -6, nat: -6, soc: 8, tech: 9 }, desc: "专注于网络自由、信息透明、改革版权专利制度、保护数字隐私与液体民主。" },
+        { name: "超人类主义 (Transhumanism)", vec: { econ: 2, auth: -2, nat: -5, soc: 7, tech: 10 }, desc: "主张利用基因工程、控制论与人工智能消除生老病死，超越人类肉体与智力的生物学极限。" },
+        { name: "科技官僚主义 (Technocracy)", vec: { econ: -3, auth: 6, nat: -2, soc: 2, tech: 9 }, desc: "主张废除政党政治，由科学家、工程师与技术专家依据科学数据来管理国家与经济。" },
+        { name: "无政府工团国家主义 (National Syndicalism)", vec: { econ: -4, auth: 6, nat: 7, soc: -5, tech: 1 }, desc: "融合了工团主义的经济模式与极端的民族主义/国家主义，是法西斯主义的重要理论前身之一。" },
+        { name: "第三位置主义 (Third Position)", vec: { econ: -4, auth: 7, nat: 8, soc: -7, tech: 0 }, desc: "反对资本主义也反对马克思主义，主张种族隔离/分离、国家国家主义与温和干预经济。" },
+        { name: "乔治主义 (Georgism)", vec: { econ: -2, auth: -3, nat: -3, soc: 3, tech: 4 }, desc: "主张人们应当拥有其创造的价值，但土地与自然资源属于全人类，应征收单一土地价值税。" },
+        { name: "互助主义 (Mutualism)", vec: { econ: -5, auth: -7, nat: -5, soc: 5, tech: 2 }, desc: "无政府主义变体，主张基于自由劳动力交换、无息贷款与互助银行的无剥削自由市场。" },
+        { name: "新反动主义 / 暗启蒙 (Neoreaction / NRx)", vec: { econ: 5, auth: 8, nat: 5, soc: -9, tech: 8 }, desc: "反对民主与启蒙思想，主张将国家视为由CEO（封建君主）管理的科技公司，结合高科技与极权秩序。" },
+        { name: "空想社会主义 (Utopian Socialism)", vec: { econ: -7, auth: -4, nat: -5, soc: 5, tech: 1 }, desc: "主张通过道德感召、建立示范合作社与自愿公社来消除资本主义弊端，反对暴力革命。" }
+    ];
+
+    let currentQ = 0;
+    let scores = { econ: 0, auth: 0, nat: 0, soc: 0, tech: 0 };
+    let chartInstance = null;
+
+    function renderQuestion() {
+        const q = questions[currentQ];
+        document.getElementById("q-text").innerText = q.text;
+        document.getElementById("progress").style.width = `${(currentQ / questions.length) * 100}%`;
+
+        const optsContainer = document.getElementById("opts-container");
+        optsContainer.innerHTML = "";
+
+        const optLabels = [
+            { text: "强烈同意", weight: 1 },
+            { text: "同意", weight: 0.5 },
+            { text: "反对", weight: -0.5 },
+            { text: "强烈反对", weight: -1 }
+        ];
+
+        optLabels.forEach(opt => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerText = opt.text;
+            btn.onclick = () => selectOption(opt.weight);
+            optsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(weight) {
+        const q = questions[currentQ];
+        scores[q.axis] += q.dir * weight * 1.8;
+
+        if (q.extra) {
+            scores[q.extra.axis] += q.extra.dir * weight * 1.5;
+        }
+
+        currentQ++;
+        if (currentQ < questions.length) {
+            renderQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    // 向量距离计算：匹配60+种意识形态中最接近的一项
+    function calculateMatch() {
+        let minDistance = Infinity;
+        let bestMatch = DB_60[0];
+
+        DB_60.forEach(item => {
+            let dist = Math.pow(scores.econ - item.vec.econ, 2) +
+                       Math.pow(scores.auth - item.vec.auth, 2) +
+                       Math.pow(scores.nat - item.vec.nat, 2) +
+                       Math.pow(scores.soc - item.vec.soc, 2) +
+                       Math.pow(scores.tech - item.vec.tech, 2);
+            
+            if (dist < minDistance) {
+                minDistance = dist;
+                bestMatch = item;
+            }
+        });
+
+        return bestMatch;
+    }
+
+    function showResult() {
+        document.getElementById("quiz-box").style.display = "none";
+        document.getElementById("result-box").style.display = "block";
+
+        // 限制边界 [-10, 10]
+        for (let k in scores) {
+            scores[k] = Math.min(10, Math.max(-10, scores[k]));
+        }
+
+        const matched = calculateMatch();
+
+        document.getElementById("result-title").innerText = matched.name;
+        document.getElementById("result-desc").innerText = matched.desc;
+
+        renderRadarChart();
+    }
+
+    function renderRadarChart() {
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: [
+                    '自由市场',
+                    '强权政治',
+                    '民族主义',
+                    '多元进步',
+                    '科技/加速'
+                ],
+                datasets: [{
+                    label: '你的五轴意识形态指数',
+                    data: [
+                        (scores.econ + 10) * 5,
+                        (scores.auth + 10) * 5,
+                        (scores.nat + 10) * 5,
+                        (scores.soc + 10) * 5,
+                        (scores.tech + 10) * 5
+                    ],
+                    backgroundColor: 'rgba(37, 99, 235, 0.25)',
+                    borderColor: '#2563eb',
+                    pointBackgroundColor: '#1d4ed8'
+                }]
+            },
+            options: {
+                scales: {
+                    r: { min: 0, max: 100, ticks: { display: false } }
+                }
+            }
+        });
+    }
+
+    function restart() {
+        currentQ = 0;
+        scores = { econ: 0, auth: 0, nat: 0, soc: 0, tech: 0 };
+        document.getElementById("quiz-box").style.display = "block";
+        document.getElementById("result-box").style.display = "none";
+        renderQuestion();
+    }
+
+    renderQuestion();
+</script>
+
+</body>
+</html>
