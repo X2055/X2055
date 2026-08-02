@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>毛泽东思想万岁</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #b91c1c;
+            --dark-color: #7f1d1d;
+            --accent-gold: #d97706;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --border-color: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; }
+
+        header {
+            background: linear-gradient(135deg, var(--dark-color), var(--primary-color));
+            color: #ffffff;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--accent-gold);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        header h1 { font-size: 24px; font-weight: 800; margin-bottom: 8px; letter-spacing: 0.5px; }
+        header p { font-size: 13.5px; color: #fef08a; opacity: 0.95; }
+
+        .main-wrapper { flex: 1; display: flex; justify-content: center; padding: 30px 15px; }
+        .container { background: var(--card-bg); max-width: 820px; width: 100%; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); padding: 36px; border: 1px solid var(--border-color); }
+
+        .progress-container { margin-bottom: 28px; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-sub); margin-bottom: 8px; font-weight: 600; }
+        .progress-bar-box { width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary-color), var(--accent-gold)); transition: width 0.3s ease; }
+
+        .question-card { margin-bottom: 24px; }
+        .question-tag { font-size: 12px; font-weight: 700; color: var(--primary-color); text-transform: uppercase; margin-bottom: 6px; display: block; }
+        .question-title { font-size: 18px; font-weight: 700; color: var(--text-main); line-height: 1.5; margin-bottom: 20px; }
+        
+        .options-grid { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid var(--border-color);
+            padding: 16px 20px;
+            border-radius: 10px;
+            font-size: 14.5px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+            line-height: 1.5;
+            display: flex;
+            align-items: flex-start;
+        }
+        .option-btn:hover { border-color: var(--primary-color); background: #fef2f2; transform: translateY(-1px); }
+        .option-btn .opt-key { font-weight: 800; color: var(--primary-color); margin-right: 12px; flex-shrink: 0; }
+
+        /* 结果展示 */
+        .result-box { display: none; }
+        .result-header { text-align: center; border-bottom: 2px dashed var(--border-color); padding-bottom: 24px; margin-bottom: 28px; }
+        .match-badge { display: inline-block; background: #fef3c7; color: #92400e; font-weight: 800; padding: 6px 16px; border-radius: 20px; font-size: 13.5px; margin-bottom: 12px; border: 1px solid #fde68a; }
+        .match-title { font-size: 28px; font-weight: 900; color: var(--dark-color); margin: 6px 0; }
+        .match-subtitle { font-size: 15px; color: var(--text-sub); font-weight: 600; }
+
+        /* 叛国概率仪表盘卡片 */
+        .treason-meter-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #ffffff;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .treason-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .treason-title { font-size: 16px; font-weight: 700; color: #f8fafc; }
+        .treason-value { font-size: 28px; font-weight: 900; }
+        .treason-bar-bg { background: #334155; height: 14px; border-radius: 7px; overflow: hidden; margin-bottom: 12px; }
+        .treason-bar-fill { height: 100%; width: 0%; transition: width 1s ease-in-out; }
+        .treason-desc { font-size: 13.5px; color: #cbd5e1; line-height: 1.6; }
+
+        /* 分析区块 */
+        .section-title { font-size: 18px; font-weight: 800; color: var(--text-main); border-left: 4px solid var(--primary-color); padding-left: 12px; margin-bottom: 16px; }
+        .chart-container { max-width: 460px; margin: 0 auto 30px auto; }
+
+        .info-card { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .info-card h3 { font-size: 15px; font-weight: 700; color: var(--dark-color); margin-bottom: 8px; }
+        .info-card p { font-size: 13.5px; color: var(--text-sub); line-height: 1.7; }
+
+        .restart-btn {
+            display: block; width: 100%; background: var(--primary-color); color: white; border: none; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; text-align: center; margin-top: 24px;
+        }
+        .restart-btn:hover { background: var(--dark-color); }
+
+        footer { text-align: center; font-size: 12px; color: var(--text-sub); padding: 20px 0; border-top: 1px solid var(--border-color); margin-top: auto; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>中国时代生活适合度与国家认同精细化测评</h1>
+    <p>基于政治学、社会学与国家认同心理学模型的深度多维评估系统</p>
+</header>
+
+<div class="main-wrapper">
+    <div class="container">
+        <!-- 答题区域 -->
+        <div id="quiz-box">
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span id="progress-text">测评进度：第 1 / 10 题</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="progress-bar-box"><div class="progress-bar" id="progress"></div></div>
+            </div>
+
+            <div class="question-card">
+                <span class="question-tag" id="q-tag">分析维度</span>
+                <div class="question-title" id="q-text">正在初始化精细化多维问题...</div>
+                <div class="options-grid" id="opts-container"></div>
+            </div>
+        </div>
+
+        <!-- 结果展示区域 -->
+        <div id="result-box" class="result-box">
+            <div class="result-header">
+                <div class="match-badge">综合画像分析结果</div>
+                <div class="match-title" id="res-match-era">最适合生活的时代：---</div>
+                <div class="match-subtitle" id="res-match-desc">---</div>
+            </div>
+
+            <!-- 叛国/离心概率仪表盘 -->
+            <div class="treason-meter-card">
+                <div class="treason-header">
+                    <span class="treason-title">国家认同反向指标（叛国/离心风险指数）</span>
+                    <span class="treason-value" id="treason-score">0%</span>
+                </div>
+                <div class="treason-bar-bg">
+                    <div class="treason-bar-fill" id="treason-bar"></div>
+                </div>
+                <div class="treason-desc" id="treason-text">---</div>
+            </div>
+
+            <!-- 雷达图展示各时代认同度 -->
+            <div class="section-title">一、 各历史时期政治/社会认同度分布</div>
+            <div class="chart-container">
+                <canvas id="radarChart"></canvas>
+            </div>
+
+            <!-- 深度解析 -->
+            <div class="section-title">二、 时代生活适合度深度剖析</div>
+            <div class="info-card">
+                <h3>生活契合度分析</h3>
+                <p id="res-life-analysis">---</p>
+            </div>
+            <div class="info-card">
+                <h3>政治与社会价值观认同分析</h3>
+                <p id="res-political-analysis">---</p>
+            </div>
+
+            <button class="restart-btn" onclick="restart()">重新开始测试</button>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>©Gator 2026 中国时代适合度与国家认同精细化测评系统
+    2050.cn.lu</p>
+</footer>
+
+<script>
+    // 维度定义：
+    // MAO: 毛泽东时代 (1949-1978) - 计划经济/集体主义/平民主义/阶级自觉
+    // DENG: 邓小平时代 (1978-1990s) - 改革开放/市场活力/允许先富/实用主义
+    // JIANG_HU: 江胡时代 (1990s-2010s) - 融入全球化/技术官僚/都市繁荣/相对包容
+    // XI: 习近平新时代 - 举国体制/伟大斗争/共同富裕/大国自信/安全优先
+    // ANCIENT: 古代/农耕时代 - 传统礼法/田园隐逸/家族宗法
+    // TREASON: 离心/叛国倾向得分 (基于绝对利益主义、彻底拒绝国家认同、投向外部势力等选项)
+
+    const questions = [
+        {
+            tag: "个人与集体的利害关系",
+            text: "1. 当个人利益、价值观与国家最高战略目标发生严重冲突时，你的第一反应是？",
+            options: [
+                { text: "成为革命的一枚螺丝钉,祖国把我安在哪里，我就在哪里奉献自己的一生", scores: { XI: 15, MAO: 20, TREASON: 0 } },
+                { text: "在遵守法律的前提下寻求个人利益与国家发展的平衡，注重契约与合理合法权益", scores: { DENG: 15, JIANG_HU: 20, TREASON: 5 } },
+                { text: "崇尚绝对的个体自由，国家不应过度干涉个人选择，若受挤压会选择淡泊隐退或保持距离", scores: { ANCIENT: 20, DENG: 10, TREASON: 15 } },
+                { text: "完全以自身利益为导向，若国家不符合我的利益，我会毫不犹豫转向外部竞争阵营或协助外部力量", scores: { TREASON: 40 } }
+            ]
+        },
+        {
+            tag: "理想的经济与就业模式",
+            text: "2. 如果让你选择一种最能带给你安全感和成就感的生活模式，你偏向于？",
+            options: [
+                { text: "老子要考公务员，没有权利，但衣食无忧", scores: { MAO: 25, XI: 10, TREASON: 0 } },
+                { text: "在充满商机与自由竞争的潮头下海创业，凭胆识和市场敏锐度淘金，快速实现财富跃迁", scores: { DENG: 25, JIANG_HU: 15, TREASON: 5 } },
+                { text: "在高度全球化的跨国企业或互联网巨头工作，享受高薪、都市繁荣与国际化生活体验", scores: { JIANG_HU: 25, DENG: 10, TREASON: 10 } },
+                { text: "我要当主席/皇帝", scores: { XI: 0, JIANG_HU: 10, ANCIENT:50, TREASON: 0 } },
+                { text: "采菊东篱外，悠然见南山", scores: { ANCIENT: 25, TREASON: 5 } }
+            ]
+        },
+        {
+            tag: "国家安全与外部冲突",
+            text: "3. 面对严峻的国际地缘博弈与外部封锁制裁，你支持国家采取何种策略？",
+            options: [
+                { text: "发扬斗争精神，发挥新型举国体制优势集中攻关，坚定维护国家核心利益与大国尊严", scores: { XI: 25, MAO: 15, TREASON: 0 } },
+                { text: "坚持“韬光养晦，决不当头”，集中精力搞好国内经济建设，妥协求全以维持外部开放环境", scores: { DENG: 25, JIANG_HU: 15, TREASON: 5 } },
+                { text: "举国投靠美国,跟日本亲如手足", scores: { TREASON: 50 } },
+                { text: "向联合国,开战!", scores: { MAO:25, TREASON: 0 } }
+            ]
+        },
+        {
+            tag: "社会公平与分配秩序",
+            text: "4. 你认为社会解决贫富差距与阶层固化的最合理路径是？",
+            options: [
+                { text: "扎实推进“共同富裕”，发挥再分配与三次分配调节作用，严厉规范资本无序扩张", scores: { XI: 25, MAO: 15, TREASON: 0 } },
+                { text: "消除剥削与私有制，实行绝对公平的计划配给制与工农群众监督", scores: { MAO: 25, TREASON: 0 } },
+                { text: "坚持“做大蛋糕优先”，允许一部分人先富起来，靠市场效率自动带动后富", scores: { DENG: 25, JIANG_HU: 10, TREASON: 5 } },
+                { text: "完全依靠纯粹的自由市场竞争，反对任何国家干预与福利兜底", scores: { DENG: 10, TREASON: 15 } },
+                { text: "煽动社会不同阶层剧烈对抗，借此瓦解社会凝聚力", scores: { TREASON: 40 } }
+            ]
+        },
+        {
+            tag: "技术治理与个人隐私",
+            text: "5. 对于国家全面运用大数据、天网监控、人脸识别等技术提升治安与社会治理效能，你的态度是？",
+            options: [
+                { text: "高度赞成！治安极度安全、犯罪率极低才是最大的民生，秩序高于抽象的隐私", scores: { XI: 25, JIANG_HU: 10, TREASON: 0 } },
+                { text: "可以接受，但应兼顾市场活力与行政边界，技术应主要用于服务经济与公共事务", scores: { JIANG_HU: 20, DENG: 15, TREASON: 5 } },
+                { text: "不自由,毋宁死!", scores: { ANCIENT: 0, TREASON: 20 } },
+                { text: "暗中研究如何破坏、规避国家公共安全技术网络，并协助境外机构采集敏感地理与人口数据", scores: { TREASON: 50 } }
+            ]
+        },
+        {
+            tag: "文化与历史认同",
+            text: "6. 当遇到针对中国历史传统与英雄人物的解构与质疑时，你的观点是？",
+            options: [
+                { text: "坚决捍卫国家与民族的历史荣誉，树立高度的文化自信，历史虚无主义我C你#", scores: { XI: 25, MAO: 15, TREASON: 0 } },
+                { text: "主张多元包容，兼收并蓄，积极吸收西方先进文明成果，不刻意强调意识形态对立", scores: { JIANG_HU: 25, DENG: 15, TREASON: 5 } },
+                { text: "对现代政治历史不感兴趣，更推崇中华传统儒释道文化与古人的生活美学", scores: { ANCIENT: 25, TREASON: 0 } },
+                { text: "全盘否定中华文化与历史成就，极力宣传民族劣根性，认为中国必须接受全面殖民与接管", scores: { TREASON: 45 } }
+            ]
+        },
+        {
+            tag: "理想的社会精神风貌",
+            text: "7. 你最希望身处的社会氛围是怎样的？",
+            options: [
+                { text: "热火朝天，人人为了社会主义崇高理想与集体事业无私奉献、艰苦奋斗", scores: { MAO: 25, TREASON: 0 } },
+                { text: "充满商业勃勃生机，人人忙于下海创业发财，社会崇尚个人奋斗与财富创造", scores: { DENG: 25, JIANG_HU: 10, TREASON: 5 } },
+                { text: "美国是世界文明的灯塔，只要努力学习，就一定能去美国!", scores: { JIANG_HU: 25, DENG: 10, TREASON: 10 } },
+                { text: "自信从容，社会治安极佳，大国崛起氛围浓厚，民生保障底线牢固", scores: { XI: 25, TREASON: 0 } },
+                { text: "社会充满混乱、动荡与信任危机，国家凝聚力彻底解体", scores: { TREASON: 50 } }
+            ]
+        },
+        {
+            tag: "危机时刻的个人选择",
+            text: "8. 假设国家遭遇突发重大战争或生死存亡危机，你的第一选择是？",
+            options: [
+                { text: "我为官军敌为贼，天地难容反叛军", scores: { XI: 25, MAO: 20, TREASON: 0 } },
+                { text: "在能力范围内做好本职工作，服从国家统一动员与物资调配", scores: { XI: 15, DENG: 15, TREASON: 0 } },
+                { text: "自云先世避秦时乱，率妻子邑人来自绝境，不复出焉，遂与外人间隔", scores: { DENG: 5, JIANG_HU: 15, TREASON: 20 } },
+                { text: "主动联系敌对阵营，担任带路党或提供关键情报，走向人生巅峰", scores: { TREASON: 50 } }
+            ]
+        },
+        {
+            tag: "对执政与治理体制的态度",
+            text: "9. 关于国家治理结构，你认为确保长治久安的核心是？",
+            options: [
+                { text: "坚持党的集中统一领导，全面从严治党，依靠“自我革命”保持体制的高效与廉洁", scores: { XI: 25, MAO: 10, TREASON: 0 } },
+                { text: "坚持解放思想、实事求是，推进制度化、规范化建设，充分发扬集体领导", scores: { DENG: 25, JIANG_HU: 15, TREASON: 5 } },
+                { text: "依靠群众路线，对官僚体制保持全方位的平民监督", scores: { MAO: 25, TREASON: 0 } },
+                { text: "全面引入西方三权分立与多党竞选模式，甚至不惜借外部干预强行重构体制", scores: { TREASON: 35 } }
+            ]
+        },
+        {
+            tag: "国家认同与归属感",
+            text: "10. 当听到中国国歌奏响、看到五星红旗升起时，你心中的真实情感最接近？",
+            options: [
+                { text: "无比自豪与感动，为中华民族的伟大复兴感到由衷的骄傲与责任感", scores: { XI: 25, MAO: 15, TREASON: 0 } },
+                { text: "哟西，皇军你滴快点打过来的干活，大日本帝国万岁！", scores: { DENG: 20, JIANG_HU: 20, TREASON: 50 } },
+                { text: "来自中原一群伙伴，潜修东南山~", scores: { ANCIENT: 10, TREASON: 25 } },
+                { text: "充满敌意与厌恶，极度期盼这一国家政权早日解体或被外部阵营覆灭", scores: { TREASON: 50 } }
+            ]
+        }
+    ];
+
+    let currentQ = 0;
+    let scores = { MAO: 0, DENG: 0, JIANG_HU: 0, XI: 0, ANCIENT: 0, TREASON: 0 };
+    let chartInstance = null;
+
+    // 随机洗牌算法
+    function shuffleArray(arr) {
+        let array = [...arr];
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function renderQuestion() {
+        const q = questions[currentQ];
+        document.getElementById("q-tag").innerText = `评估维度 (${currentQ + 1}/10)：${q.tag}`;
+        document.getElementById("q-text").innerText = q.text;
+
+        const percent = Math.round((currentQ / questions.length) * 100);
+        document.getElementById("progress").style.width = `${percent}%`;
+        document.getElementById("progress-percent").innerText = `${percent}%`;
+        document.getElementById("progress-text").innerText = `测评进度：第 ${currentQ + 1} / ${questions.length} 题`;
+
+        const container = document.getElementById("opts-container");
+        container.innerHTML = "";
+
+        const shuffledOpts = shuffleArray(q.options);
+        const keys = ["A", "B", "C", "D", "E"];
+
+        shuffledOpts.forEach((opt, idx) => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerHTML = `<span class="opt-key">${keys[idx]}.</span> <span>${opt.text}</span>`;
+            btn.onclick = () => selectOption(opt);
+            container.appendChild(btn);
+        });
+    }
+
+    function selectOption(opt) {
+        for (let key in opt.scores) {
+            scores[key] += opt.scores[key];
+        }
+
+        currentQ++;
+        if (currentQ < questions.length) {
+            renderQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById("quiz-box").style.display = "none";
+        document.getElementById("result-box").style.display = "block";
+
+        // 计算叛国/离心概率 (0 - 100%)
+        const treasonPercent = Math.min(100, Math.round((scores.TREASON / 200) * 100));
+
+        // 归一化各时代认同度分值 (0 - 100)
+        const eraNormalize = {
+            MAO: Math.min(100, Math.round((scores.MAO / 150) * 100)),
+            DENG: Math.min(100, Math.round((scores.DENG / 150) * 100)),
+            JIANG_HU: Math.min(100, Math.round((scores.JIANG_HU / 150) * 100)),
+            XI: Math.min(100, Math.round((scores.XI / 150) * 100)),
+            ANCIENT: Math.min(100, Math.round((scores.ANCIENT / 100) * 100))
+        };
+
+        // 判定适合度最高的时代
+        let bestEra = "XI";
+        let maxScore = -1;
+        for (let era in eraNormalize) {
+            if (eraNormalize[era] > maxScore) {
+                maxScore = eraNormalize[era];
+                bestEra = era;
+            }
+        }
+
+        renderTreasonMeter(treasonPercent);
+        renderEraDetails(bestEra, eraNormalize);
+        renderRadarChart(eraNormalize);
+    }
+
+    function renderTreasonMeter(percent) {
+        const scoreElem = document.getElementById("treason-score");
+        const barElem = document.getElementById("treason-bar");
+        const textElem = document.getElementById("treason-text");
+
+        scoreElem.innerText = `${percent}%`;
+        barElem.style.width = `${percent}%`;
+
+        if (percent < 15) {
+            barElem.style.background = "#22c55e"; // 绿色
+            textElem.innerHTML = "<strong>【国家认同极度坚固 · 爱国中流砥柱】</strong><br>你的国家认同感极其坚如磐石，具备极高的集体荣誉感与国家忠诚度。在面对任何外部挑衅或危机时刻，你都是值得信赖的国家建设者与捍卫者。";
+        } else if (percent < 40) {
+            barElem.style.background = "#eab308"; // 黄色
+            textElem.innerHTML = "<strong>【温和实用主义 · 离心风险低】</strong><br>你是一个理性的实用主义者，注重个人利益与国家发展的结合。虽然在特定个人自由议题上有所保留，但在大是大非面前依然保持着清晰的国家认同底线。";
+        } else if (percent < 70) {
+            barElem.style.background = "#f97316"; // 橙色
+            textElem.innerHTML = "<strong>【高度异化倾向 · 离心风险偏高】</strong><br>你的价值观与本土主流体制存在显著撕裂，对宏大叙事表现出高度冷漠或排斥。在极端危机或诱惑面前，你有较大概率选择逃避或站在国家阵营的对立面。";
+        } else {
+            barElem.style.background = "#ef4444"; // 红色
+            textElem.innerHTML = "<strong>【极危离心倾向 · 高度叛国风险评估】</strong><br>⚠️ 审计警告：你的选项展现出极其强烈的国家敌对情绪与极度异化的破坏倾向。你对国家政权缺乏基础认同，甚至主动期盼外部力量介入倒逼或解构本土体制。";
+        }
+    }
+
+    function renderEraDetails(bestEra, eraNormalize) {
+        const eraData = {
+            MAO: {
+                title: "毛泽东时代（1949—1978）：激情燃烧的社会主义革命与建设时期",
+                subtitle: "“理想主义高涨、激情奉献、集体主义与公平至上”",
+                life: "你极度适合生活在建国初期的火红年代。你厌恶现代资本主义下的买房焦虑、职场卷生卷死与贫富分化。在那个时代，虽然物质条件相对匮乏，但人人有“铁饭碗”保障，社会风气纯朴，崇尚无私奉献与平民主义，能带给你极高的精神归属感。",
+                political: `你对毛泽东时代的政治理念认同度高达 <strong>${eraNormalize.MAO}%</strong>。你高度赞同公有制底色、消除剥削与阶级压迫、自力更生以及工农群众路线。`
+            },
+            DENG: {
+                title: "邓小平时代（1978—1990s）：改革开放与下海淘金大潮时期",
+                subtitle: "“解放思想、实事求是、市场萌芽、遍地商机”",
+                life: "你最适合生活在改革开放初期的淘金时代。你富有冒险精神、崇尚个人奋斗与市场活力。在那个制度百废待兴、商机遍地开花的年代，你可以凭借胆识与市场敏锐度打破僵化束缚，快速下海淘金实现阶层跨越。",
+                political: `你对邓小平时代的政治理念认同度高达 <strong>${eraNormalize.DENG}%</strong>。你高度认同“以经济建设为中心”、“贫穷不是社会主义”以及“允许一部分人先富起来”的实用主义哲学。`
+            },
+            JIANG_HU: {
+                title: "江胡时代（1990s末—2010s）：入世红利、都市崛起与互联网爆发期",
+                subtitle: "“全面融入全球化、技术官僚治理、都市繁荣与文化包容”",
+                life: "你最适合生活在世纪之交至2010年前后的黄金二十年。你追求高品质的都市生活、宽松的文化氛围与国际化视野。那个时代中国全面融入WTO，经济实现两位数飙升，互联网与流行文化野蛮生长，充满了现代都市的无限活力。",
+                political: `你对江胡时代的政治理念认同度高达 <strong>${eraNormalize.JIANG_HU}%</strong>。你认同技术官僚理性的治理模式、深化市场经济体制以及积极融入全球秩序的发展路径。`
+            },
+            XI: {
+                title: "新时代（2012至今）：中国式现代化与伟大复兴新时代",
+                subtitle: "“大国自信、新型举国体制、共同富裕、高度安全与数字化治理”",
+                life: "你极度契合当下的新时代生活。你非常看重极佳的治安环境、便捷的数字化移动生活（移动支付、高铁路网）以及强有力的国家安全屏障。你在井然有序、安全高效的现代大国秩序中能获得充沛的安全感与自豪感。",
+                political: `你对新时代中国特色社会主义思想的认同度高达 <strong>${eraNormalize.XI}%</strong>。你高度赞同统筹安全与发展、伟大斗争、全面从严治党以及中华民族伟大复兴的宏伟蓝图。`
+            },
+            ANCIENT: {
+                title: "古代/传统农耕时代：采菊东篱下的田园隐逸时期",
+                subtitle: "“采菊东篱、传统礼法、远离喧嚣、归隐田园”",
+                life: "你有着强烈的复古与超脱情怀，最适合生活在古代农耕文明时期。你厌恶现代工业文明的噪音、技术监控与复杂的现代政治，渴望在传统乡村与山水之间享受自给自足、顺应天时自然的生活。",
+                political: `你对古代传统礼法与隐逸文化的认同度高达 <strong>${eraNormalize.ANCIENT}%</strong>。你倾向于小政府、无为而治或传统宗法秩序，对现代国家宏大叙事保持距离。`
+            }
+        };
+
+        const current = eraData[bestEra];
+        document.getElementById("res-match-era").innerText = `最适合生活的时代：${current.title}`;
+        document.getElementById("res-match-desc").innerText = current.subtitle;
+        document.getElementById("res-life-analysis").innerHTML = current.life;
+        document.getElementById("res-political-analysis").innerHTML = current.political;
+    }
+
+    function renderRadarChart(eraNormalize) {
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['毛泽东时代认同', '邓小平时代认同', '江胡时代认同', '新时代认同', '古代/传统认同'],
+                datasets: [{
+                    label: '各时代政治与社会价值观认同度 (%)',
+                    data: [
+                        eraNormalize.MAO,
+                        eraNormalize.DENG,
+                        eraNormalize.JIANG_HU,
+                        eraNormalize.XI,
+                        eraNormalize.ANCIENT
+                    ],
+                    backgroundColor: 'rgba(185, 28, 28, 0.25)',
+                    borderColor: '#b91c1c',
+                    pointBackgroundColor: '#7f1d1d',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        min: 0,
+                        max: 100,
+                        ticks: { stepSize: 20 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    function restart() {
+        currentQ = 0;
+        scores = { MAO: 0, DENG: 0, JIANG_HU: 0, XI: 0, ANCIENT: 0, TREASON: 0 };
+        document.getElementById("quiz-box").style.display = "block";
+        document.getElementById("result-box").style.display = "none";
+        renderQuestion();
+    }
+
+    // 启动初始化
+    renderQuestion();
+</script>
+
+</body>
+</html>
