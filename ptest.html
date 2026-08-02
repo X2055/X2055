@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 关键设置：绕过百度百科等外部图片的防盗链 Referrer 检查 -->
-    <meta name="referrer" content="no-referrer">
     <title>近现代中国200核心历史人物倾向精细测评 (1912–至今)</title>
     <style>
         :root {
@@ -161,16 +159,6 @@
             align-items: center;
         }
 
-        .person-img {
-            width: 100%;
-            height: 280px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background-color: #f1f5f9;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
         .person-info h3 { font-size: 1.6rem; color: var(--primary); margin-bottom: 4px; }
         .person-title { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 16px; font-weight: 600; }
 
@@ -218,7 +206,7 @@
 <body>
 
 <header>
-    <h1>中国近现代历史人物倾向精细测评</h1>
+    <h1>中国近现代历史人物倾向评估系统</h1>
     <p>基于 200 位历史人物高维空间向量分析匹配算法 (1912 – 至今)</p>
 </header>
 
@@ -230,7 +218,7 @@
             本测评系统已全量载入近现代历史（含民国时期与中华人民共和国时期）<b>共计 200 位核心历史人物</b>。
         </p>
         <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">
-            系统将通过 10 道深度社会哲学与治理选择题，实时生成你的 <b>5 维矢量空间坐标</b>（意识形态倾向、权力结构取向、变革方式偏好、外交博弈态度、行动哲学导向），并通过高维空间余弦相似度（Cosine Similarity），在 200 位人物中计算出与你<b>思想最契合的人物</b>以及你的<b>镜像对立人物（宿敌）</b>。
+            系统将通过 10 道深度社会哲学与治理选择题，实时生成你的 <b>5 维矢量空间坐标</b>，并通过高维空间余弦相似度，在 200 位人物中计算出与你<b>思想最契合的人物</b>以及你的<b>镜像对立人物（宿敌）</b>。
         </p>
         <button class="btn" onclick="startQuiz()">开始精细测评 (10题)</button>
     </div>
@@ -249,7 +237,7 @@
     <div id="loadingScreen" class="card loading-screen" style="display: none;">
         <div class="spinner"></div>
         <h3 style="color: var(--primary); font-size: 1.2rem;">正在 200 位历史人物向量库中比对计算...</h3>
-        <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 8px;">计算高维余弦相似度、历史冲突点与镜像映射矩阵</p>
+        <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 8px;">计算高维余弦相似度与镜像映射矩阵</p>
     </div>
 
     <!-- 4. 结果屏幕 -->
@@ -262,7 +250,8 @@
             
             <div class="person-profile">
                 <div class="person-img-box">
-                    <img id="matchImg" src="" alt="肖像" class="person-img" onerror="handleImgError(this)">
+                    <!-- MC 方块人头像渲染容器 -->
+                    <div id="matchAvatarContainer" style="width: 100%;"></div>
                     <a id="matchBaike" href="#" target="_blank" class="baike-btn">🔗 百度百科完整词条</a>
                 </div>
                 <div class="person-info">
@@ -298,7 +287,8 @@
             
             <div class="person-profile">
                 <div class="person-img-box">
-                    <img id="opposingImg" src="" alt="肖像" class="person-img" onerror="handleImgError(this)">
+                    <!-- 对立方块人头像渲染容器 -->
+                    <div id="opposingAvatarContainer" style="width: 100%;"></div>
                     <a id="opposingBaike" href="#" target="_blank" class="baike-btn" style="background: #991b1b;">🔗 百度百科完整词条</a>
                 </div>
                 <div class="person-info">
@@ -345,7 +335,6 @@
 // 全量 200 位历史人物数据库
 const rawFigures = [
     // 一、中华民国时期 (90人)
-    // (一) 辛亥革命与民国创立 (15)
     ["孙中山", "民国创立", "中华民国临时大总统、中国国民党总理", [-0.3, 0.4, -0.9, -0.2, -0.8], "天下为公、三民主义，主张推翻帝制建立民主共和国。", "领导辛亥革命，建立中华民国临时政府；推动第一次国共合作。", "理想主义、革命先行者、意志坚韧。"],
     ["黄兴", "民国创立", "同盟会主要领袖、南京临时政府陆军总长", [-0.2, 0.1, -0.9, -0.1, -0.5], "无我胜有我，笃实践履，注重武装起义与实干。", "黄花岗起义、武昌起义后统帅革命军与清军决战。", "勇猛无私、重情重义、务实行动派。"],
     ["宋教仁", "民国创立", "国民党主要创办人（被刺杀）", [0.2, -0.7, -0.5, 0.3, -0.6], "议会政党政治、政党内阁制、地方分权制宪。", "组建中国国民党，主持首届国会选举并获胜，后遭刺杀。", "法治主义者、宪政理想主义者、雄辩韬略。"],
@@ -536,16 +525,16 @@ const rawFigures = [
     ["李克强", "现代中国", "国务院总理（2013–2023）", [-0.3, 0.1, 0.5, 0.7, 0.8], "“克强经济学”、放管服改革、大众创业万众创新。", "力推“放管服”与减税降费，关心基层大众疾苦与市场主体活力。", "学者型总理、平民情怀、务实开明。"],
     ["栗战书", "现代中国", "全国人大常委会委员长（十三届）", [-0.5, 0.8, 0.2, -0.2, 0.7], "宪法修正案通过、国家安全立法、坚定维护核心。", "主政全国人大期间主持通过多部国家安全与治国理重头法律。", "忠诚担当、雷厉风行。"],
     ["汪洋", "现代中国", "全国政协主席（十三届）", [-0.2, -0.1, 0.5, 0.7, 0.9], "“腾笼换鸟”、广东改革、协商民主建设。", "主政广东期间推行产业转型“腾笼换鸟”；主政政协提倡广泛民主。", "思想开明、务实幽默。"],
-    ["王沪宁", "现代中国", "全国政协主席（十四届）、思想理论家", [-0.4, 0.7, 0.4, 0.3, 0.7], "政治理论建构、国家治理体系现代化、新权威主义。", "长期主政中央政策研究，是多项国家重大战略理论的核心起草者。", "深邃学者、低调严谨。"],
-    ["赵乐际", "现代中国", "全国人大常委会委员长（十四届）", [-0.5, 0.8, 0.3, 0.1, 0.7], "反腐败深化、巡视利剑、人大监督。", "长期主政组织与纪检监督体系，推进全面从严治党。", "沉稳干练、严谨高效。"],
+    ["王沪宁", "现代中国", "全国政协主席（十四届）、思想理论家", [-0.4, 0.7, 0.4, 0.3, 0.7], "政治理论建构、国家治理体系现代化、新权威主义。", "长期主导中央政策研究，是多项国家重大战略理论的核心起草者。", "深邃学者、低调严谨。"],
+    ["赵乐际", "现代中国", "全国人大常委会委员长（十四届）", [-0.5, 0.8, 0.3, 0.1, 0.7], "反腐败深化、巡视利剑、人大监督。", "长期主导组织与纪检监督体系，推进全面从严治党。", "沉稳干练、严谨高效。"],
     ["韩正", "现代中国", "国家副主席、国务院副总理", [-0.3, 0.4, 0.5, 0.7, 0.8], "上海城市繁荣建设、港澳事务统筹、财税体制。", "主政上海多年打造现代国际大都市，精通经济与宏观管理。", "务实精明、资深管理者。"],
-    ["李强", "现代中国", "国务院总理（十四届）", [-0.3, 0.4, 0.5, 0.7, 0.9], "优化营商环境、长三角一体化、民营经济支持。", "长期主政东部沿海经济大省，大力推动营商环境改善与市场活力。", "务实高效、亲商重商。"],
+    ["李强", "现代中国", "国务院总理（十四届）", [-0.3, 0.4, 0.5, 0.7, 0.9], "优化营商环境、长三角一体化、民营经济支持。", "长期主导东部沿海经济大省，大力推动营商环境改善与市场活力。", "务实高效、亲商重商。"],
     ["蔡奇", "现代中国", "中共中央书记处书记、中央办公厅主任", [-0.6, 0.9, -0.3, -0.3, 0.8], "首都规划治理、首都功能疏解、新媒体政务尝试。", "主政北京期间强力推动疏解非首都功能，执行力极强。", "强力执行、严谨高效。"],
     ["丁薛祥", "现代中国", "国务院常务副总理", [-0.4, 0.7, 0.4, 0.4, 0.8], "中央中枢运转、宏观经济统筹、科教创新。", "长期掌管中央中枢服务保障，协助统筹国家科技与宏观经济。", "严谨细致、年轻有为。"],
     ["李希", "现代中国", "中纪委书记", [-0.5, 0.8, 0.1, -0.1, 0.7], "正风肃纪、打虎拍蝇、全面从严治党。", "主政广东及中纪委，保持反腐败高压态势不放松。", "铁面无私、坚守原则。"],
     ["王岐山", "现代中国", "国家副主席、中纪委书记", [-0.3, 0.7, -0.5, 0.6, 1.0], "“救火队长”、雷霆反腐、金融风险化解、历史哲学。", "以雷霆万钧之势推进反腐败；抗击非典及化解广东金融风险。", "极度睿智、铁血强硬、大智大勇。"],
-    ["张又侠", "现代中国", "中央军委副主席", [-0.5, 0.8, -0.4, -0.8, 0.6], "实战经验名将、对越作战战功、军队现代化武器装备。", "具备丰富实战经验，长期主政国防科技与装备大飞跃。", "将门虎子、实战派将领。"],
-    ["王毅", "现代中国", "中共中央外办主任、外交部长", [-0.4, 0.5, -0.2, 0.2, 0.8], "大国外交、捍卫国家主权、高超外交艺术。", "长期主政中国外交，在国际博弈中强硬捍卫国家利益与正义。", "儒雅威严、大国外交家。"],
+    ["张又侠", "现代中国", "中央军委副主席", [-0.5, 0.8, -0.4, -0.8, 0.6], "实战经验名将、对越作战战功、军队现代化武器装备。", "具备丰富实战经验，长期主导国防科技与装备大飞跃。", "将门虎子、实战派将领。"],
+    ["王毅", "现代中国", "中共中央外办主任、外交部长", [-0.4, 0.5, -0.2, 0.2, 0.8], "大国外交、捍卫国家主权、高超外交艺术。", "长期主导中国外交，在国际博弈中强硬捍卫国家利益与正义。", "儒雅威严、大国外交家。"],
 
     // (五) 知名高层落马与争议典型 (15)
     ["陈希同", "争议典型", "中央政治局委员、北京市委书记（1998年获刑）", [-0.3, 0.7, 0.2, 0.1, 0.8], "主政北京亚运会建设、后因巨额腐败落马。", "主政北京期间推进城市建设，后因腐败被判刑。", "能力突出、腐化堕落。"],
@@ -577,8 +566,6 @@ const figureDatabase = rawFigures.map((item, idx) => {
         values: item[4],
         events: item[5],
         traits: item[6],
-        // 自动接入百度百科官方 CDN 与词条跳转
-        avatar: `https://bkimg.cdn.bcebos.com/pic/${encodeURIComponent(name)}`,
         baike: `https://baike.baidu.com/item/${encodeURIComponent(name)}`
     };
 });
@@ -749,6 +736,75 @@ function cosineSim(vecA, vecB) {
     return dot / (Math.sqrt(nA) * Math.sqrt(nB));
 }
 
+// 核心功能：根据人物特征动态生成 Minecraft 风格方块人像素画像 SVG
+function generateMinecraftAvatar(fig) {
+    const name = fig.name;
+    const traits = fig.traits + fig.title + fig.events;
+    
+    let skinColor = "#f5d0b1"; 
+    let hairColor = "#1e293b"; 
+    let clothesColor = "#334155"; 
+    
+    // 特征解析
+    let hasGlasses = traits.includes("眼镜") || name.includes("胡适") || name.includes("孙中山") || name.includes("邓小平") || name.includes("周恩来") || name.includes("蒋介石") || name.includes("陈独秀") || name.includes("王沪宁");
+    let hasMustache = traits.includes("须") || name.includes("孙中山") || name.includes("鲁迅") || name.includes("袁世凯") || name.includes("张作霖") || name.includes("毛泽东");
+    let isMilitary = traits.includes("军") || traits.includes("司令") || traits.includes("元帅") || traits.includes("将军") || traits.includes("总长") || traits.includes("总司令") || traits.includes("师长");
+    let isLeader = traits.includes("主席") || traits.includes("总统") || traits.includes("总书记") || traits.includes("总理");
+
+    if (isMilitary) {
+        clothesColor = "#365314"; // 军绿色
+        hairColor = "#0f172a";
+    } else if (isLeader) {
+        clothesColor = "#1e293b"; // 深色中山装/西装
+        hairColor = "#111827";
+    } else if (traits.includes("学者") || traits.includes("教育") || traits.includes("民主")) {
+        clothesColor = "#475569"; // 学者灰蓝
+        hairColor = "#334155";
+    } else {
+        clothesColor = "#0f766e"; 
+    }
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="280" viewBox="0 0 220 280" style="background:#0f172a; border-radius:8px; border: 1px solid var(--border);">
+        <defs>
+            <pattern id="grid_${fig.id}" width="16" height="16" patternUnits="userSpaceOnUse">
+                <rect width="16" height="16" fill="#1e293b" stroke="#334155" stroke-width="0.5" opacity="0.6"/>
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid_${fig.id})" />
+        
+        <!-- 方块身体 / 躯干 -->
+        <rect x="65" y="155" width="90" height="100" fill="${clothesColor}" stroke="#0f172a" stroke-width="4" rx="4"/>
+        <rect x="85" y="155" width="50" height="40" fill="#ffffff" opacity="0.15"/>
+
+        <!-- 方块头部 -->
+        <rect x="55" y="55" width="110" height="105" fill="${skinColor}" stroke="#0f172a" stroke-width="4" rx="6"/>
+        
+        <!-- 头发 / 军帽 -->
+        <rect x="53" y="52" width="114" height="35" fill="${hairColor}" rx="4"/>
+        ${isMilitary ? '<polygon points="53,65 167,65 185,45 35,45" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>' : ''}
+        
+        <!-- 眼睛 -->
+        <rect x="75" y="95" width="18" height="12" fill="#ffffff" rx="2"/>
+        <rect x="83" y="97" width="8" height="8" fill="#0f172a"/>
+        <rect x="127" y="95" width="18" height="12" fill="#ffffff" rx="2"/>
+        <rect x="135" y="97" width="8" height="8" fill="#0f172a"/>
+        
+        <!-- 眼镜 -->
+        ${hasGlasses ? '<rect x="70" y="90" width="28" height="22" fill="none" stroke="#cbd5e1" stroke-width="3" rx="2"/><rect x="122" y="90" width="28" height="22" fill="none" stroke="#cbd5e1" stroke-width="3" rx="2"/><line x1="98" y1="101" x2="122" y2="101" stroke="#cbd5e1" stroke-width="3"/>' : ''}
+        
+        <!-- 胡须 -->
+        ${hasMustache ? '<rect x="85" y="128" width="50" height="10" fill="${hairColor}" rx="3"/>' : ''}
+        
+        <!-- 嘴巴 -->
+        <rect x="100" y="140" width="20" height="5" fill="#7f1d1d" rx="2"/>
+        
+        <!-- MC 风格名字标签铭牌 -->
+        <rect x="15" y="225" width="190" height="36" fill="#020617" opacity="0.9" rx="6" stroke="#475569" stroke-width="2"/>
+        <text x="110" y="244" dominant-baseline="middle" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="bold" font-family="monospace">${name}</text>
+        <text x="110" y="210" dominant-baseline="middle" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="sans-serif">【MC】</text>
+    </svg>`;
+}
+
 function displayFinalMatch(uVec) {
     let best = null, maxS = -2;
     let worst = null, minS = 2;
@@ -774,7 +830,9 @@ function displayFinalMatch(uVec) {
     document.getElementById('matchValues').innerText = best.values;
     document.getElementById('matchEvents').innerText = best.events;
     document.getElementById('matchTraits').innerText = best.traits;
-    document.getElementById('matchImg').src = best.avatar;
+    
+    // 渲染最佳匹配人物的 MC 方块人头像
+    document.getElementById('matchAvatarContainer').innerHTML = generateMinecraftAvatar(best);
     document.getElementById('matchBaike').href = best.baike;
 
     // 对立宿敌
@@ -782,7 +840,9 @@ function displayFinalMatch(uVec) {
     document.getElementById('opposingTitle').innerText = `${worst.period} | ${worst.title}`;
     document.getElementById('opposingValues').innerText = worst.values;
     document.getElementById('opposingEvents').innerText = worst.events;
-    document.getElementById('opposingImg').src = worst.avatar;
+    
+    // 渲染对立人物的 MC 方块人头像
+    document.getElementById('opposingAvatarContainer').innerHTML = generateMinecraftAvatar(worst);
     document.getElementById('opposingBaike').href = worst.baike;
 
     renderDimBars(uVec);
@@ -817,22 +877,67 @@ function renderDimBars(uVec) {
     });
 }
 
-// 优雅的图片加载失败替代方案（生成包含人物姓名的 SVG 肖像占位图）
-function handleImgError(imgElem) {
-    const name = imgElem.alt || "历史人物";
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="280" viewBox="0 0 220 280">
-        <rect width="100%" height="100%" fill="#1e293b"/>
-        <text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="#94a3b8" font-size="16" font-family="sans-serif">历史人物肖像</text>
-        <text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="bold" font-family="sans-serif">${name}</text>
-    </svg>`;
-    imgElem.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-}
-
 function restartQuiz() {
     document.getElementById('resultScreen').style.display = 'none';
     document.getElementById('introScreen').style.display = 'block';
 }
 </script>
+<!-- 广告位招租模块 -->
+<div class="ad-rental-module">
+    <div class="ad-rental-content">
+        <span class="ad-tag">广告合作</span>
+        <h3>广告位招租</h3>
+        <p>精准流量，强势曝光，让您的品牌触达更多目标用户。</p>
+        <a href="Duck230@icloud.com" class="ad-action-btn">立即咨询</a>
+    </div>
+</div>
+
+<style>
+.ad-rental-module {
+    width: 100%;
+    max-width: 1200px;
+    margin: 40px auto 20px;
+    padding: 24px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #ced4da;
+    border-radius: 12px;
+    text-align: center;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+.ad-rental-content .ad-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    font-size: 12px;
+    color: #6c757d;
+    background: #dee2e6;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+.ad-rental-content h3 {
+    font-size: 18px;
+    color: #343a40;
+    margin: 0 0 8px 0;
+}
+.ad-rental-content p {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0 0 16px 0;
+}
+.ad-rental-content .ad-action-btn {
+    display: inline-block;
+    padding: 8px 20px;
+    font-size: 14px;
+    color: #ffffff;
+    background: #007bff;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.ad-rental-content .ad-action-btn:hover {
+    background: #0056b3;
+}
+</style>
 
 </body>
 </html>
