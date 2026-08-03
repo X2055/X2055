@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html  lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>哔哩哔哩 (゜-゜)つロ 干杯~-bilibili</title>
+    <meta
+      name="description"
+      content="哔哩哔哩（bilibili.com)是国内知名的视频弹幕网站，这里有及时的动漫新番，活跃的ACG氛围，有创意的Up主。大家可以在这里找到许多欢乐。"
+    />
+    <meta
+      name="keywords"
+      content="bilibili,哔哩哔哩,哔哩哔哩动画,哔哩哔哩弹幕网,弹幕视频,B站,弹幕,字幕,AMV,MAD,MTV,ANIME,动漫,动漫音乐,游戏,游戏解说,二次元,游戏视频,ACG,galgame,动画,番组,新番,初音,洛天依,vocaloid,日本动漫,国产动漫,手机游戏,网络游戏,电子竞技,ACG燃曲,ACG神曲,追新番,新番动漫,新番吐槽,巡音,镜音双子,千本樱,初音MIKU,舞蹈MMD,MIKUMIKUDANCE,洛天依原创曲,洛天依翻唱曲,洛天依投食歌,洛天依MMD,vocaloid家族,OST,BGM,动漫歌曲,日本动漫音乐,宫崎骏动漫音乐,动漫音乐推荐,燃系mad,治愈系mad,MAD MOVIE,MAD高燃"
+    />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="spm_prefix" content="333.1007" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <meta name="applicable-device" content="pc">
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta name="server_render" content="is_server_render" />
+    <link rel="dns-prefetch" href="//s1.hdslb.com" />
+    <link rel="apple-touch-icon" href="https://i0.hdslb.com/bfs/static/jinkela/long/images/512.png" />
+    <link rel="shortcut icon" href="https://i0.hdslb.com/bfs/static/jinkela/long/images/favicon.ico" />
+    <link rel="canonical" href="https://www.bilibili.com/" />
+    <link rel="alternate" media="only screen and (max-width: 640px)" href="https://m.bilibili.com" />
+    <script>window._BiliGreyResult={"method":"gray","grayVersion":"269469"}</script><script type="text/javascript">window.__bili_graystyle_fetched__=true</script>
+    <script type="text/javascript">
+      ;(function () {
+        if (document.querySelector('meta[name=server_render]')) {
+          return
+        }
+        var ua = window.navigator.userAgent,
+          agents = ['Android', 'Phone', 'SymbianOS', 'iPod'],
+          isPC = true
+        if (/\sVR\s/g.test(ua)) return
+        for (var i = 0, len = agents.length; i < len; i++) {
+          if (ua.indexOf(agents[i]) > 0) {
+            isPC = false
+            break
+          }
+        }
+        if (!isPC) {
+          window.location.href = window.location.href.replace('www', 'm')
+        }
+      })()
+    </script>
+    <script src="//s1.hdslb.com/bfs/seed/jinkela/short/bmg/register/fallback.js"></script>
+    <!--preload-fetch-->
+    
+    <script type="text/javascript">
+    window.__NANO_VERSION_HASH__ = "b237bb82"
+  </script>
+    <script type="text/javascript">
+    if (!window.abtest) {
+      window.abtest = {
+        'b_ut': '4',
+        'home_version': 'V8',
+        'in_new_ab': true,
+        'ab_version': {"for_ai_home_version":"V8","rcmd_timeout_config":"550","enable_ssr_channel":"DISABLED"},
+        'ab_split_num': {"for_ai_home_version":115,"rcmd_timeout_config":3,"enable_ssr_channel":115},
+        'uniq_page_id': '346617362717',
+        'is_modern': true,
+      }
+    }
+  </script>
+    <script type="text/javascript">
+      window.spmReportData = {}
+      window.reportConfig = {
+        sample: 1,
+        msgObjects: 'spmReportData',
+        errorTracker: true
+      }
+    </script>
+    <script type="text/javascript" src="//s1.hdslb.com/bfs/seed/log/report/log-reporter.js"></script>
+    <script>
+      // bili-mirror 告警上报
+      const isBilibili = location.host.includes('bilibili.com')
+      const isSpider = !(navigator && navigator.userAgent) || /bot|spider/i.test(navigator.userAgent)
+      if (isBilibili && !isSpider) {
+        class MirrorErrorFilterPlugin {
+          static get errorFilterList() {
+            return ['extension', 'log-reporter', 'static.geetest.com']
+          }
+          static get rejectionFilterList() {
+            return ['extension', 'aborted', 'failed', 'timeout', 'network', 'log-reporter']
+          }
+          static get resourceFilterList() {
+            return ['extension']
+          }
+          // static cookieMidRegExp = /DedeUserID=(.+?);/
+          // static notBiliResourceRegExp = /^(?!.*\.hdslb\.com|.*\.bilibili\.com).*$/
+          checkInWhitelist(list, message, stack) {
+            if (!list || !list.length) return false
+            const isMsgMatch = message && list.some(str => {
+              return message.toLowerCase().includes(str)
+            })
+            const isStackMatch = stack && list.some(str => {
+              return stack.toLowerCase().includes(str)
+            })
+            return isMsgMatch || isStackMatch
+          }
+          mirrorHandleBefore(type, data) {
+            return new Promise(resolve => {
+              if (type === 'error') {
+                const isMatch = this.checkInWhitelist(
+                  MirrorErrorFilterPlugin.errorFilterList,
+                  data && data.message ? data.message : '',
+                  data && data.stack ? data.stack : ''
+                )
+                return resolve(!isMatch)
+              }
+              else if (type === 'unhandledrejection') {
+                const isMatch = this.checkInWhitelist(
+                  MirrorErrorFilterPlugin.rejectionFilterList,
+                  data && data.message ? data.message : '',
+                  data && data.stack ? data.stack : ''
+                )
+                return resolve(!isMatch)
+              }
+              else if (type === 'resource') {
+                const cookieMid = MirrorErrorFilterPlugin.cookieMidRegExp.exec(document.cookie)
+                MirrorErrorFilterPlugin.cookieMidRegExp.lastIndex = 0
+                if (!cookieMid) {
+                  return resolve(false)
+                }
+                const isNotBiliResource = MirrorErrorFilterPlugin.notBiliResourceRegExp.test(data && data.message ? data.message : '')
+                MirrorErrorFilterPlugin.notBiliResourceRegExp.lastIndex = 0
+                if (isNotBiliResource) {
+                  return resolve(false)
+                }
+                const isMatch = this.checkInWhitelist(
+                  MirrorErrorFilterPlugin.resourceFilterList,
+                  data && data.message ? data.message : '',
+                  data && data.stack ? data.stack : ''
+                )
+                return resolve(!isMatch)
+              }
+
+              resolve(true)
+            })
+          }
+          mirrorHandleAfter() {
+            return Promise.resolve()
+          }
+        }
+        MirrorErrorFilterPlugin.cookieMidRegExp = /DedeUserID=(.+?);/
+        MirrorErrorFilterPlugin.notBiliResourceRegExp = /^(?!.*\.hdslb\.com|.*\.bilibili\.com).*$/
+        window.__MIRROR_CONFIG__ = {
+          origin: 'main',
+          module: 'home-page',
+          spmId: '333.1007',
+          plugins: new MirrorErrorFilterPlugin(),
+          config: {
+            isAutoInit: true,
+            whiteScreen: {
+              maxLoop: 10,
+              checkDom: ['#app', '.bili-feed4-layout', '.bili-mini-mask', '.geetest_panel_ghost', '#bewly', '.bewly-design', '.home-redesign-base', '.bilibili-helper-dark-mode', '.bili-wrapper'],
+              callback: status => {
+                console.log('白屏检测是否正常', status)
+              },
+              isSkeleton: false
+            },
+            ignoreVersion: '2.0.0',
+            ignorePageVersion: [108288]
+          }
+        }
+      }
+    </script>
+    <script src="//s1.hdslb.com/bfs/seed/jinkela/short/b-mirror/biliMirror.umd.mini.js"></script>
+    <script type="text/javascript">
+      /** 性能上报相关 */
+      function fsrCb() {
+        const t = new Date().getTime()
+        if (window.performance && window.performance.timing) {
+          window.performance.timing.firstscreenfinish = t
+        }
+      }
+      window.__HOME_PAGE_PERFORMANCE__ = {} // 赋值，防止后面使用存在判空报错
+      // 2024首页性能打点上报 start
+      var isHeaderBannerReported = false
+      function headerBannerLoaded() {
+        if (!isHeaderBannerReported) {
+          isHeaderBannerReported = true
+          window.__HOME_PAGE_PERFORMANCE__.header_static_img_load = +new Date() - window.performance.timing.navigationStart
+          if (window.__MIRROR_REPORT__ && typeof window.__MIRROR_REPORT__.customPerformanceQuota === 'function') {
+            window.__MIRROR_REPORT__.customPerformanceQuota({
+              name: 'header_static_img_load',
+              value: window.__HOME_PAGE_PERFORMANCE__.header_static_img_load,
+            })
+          }
+        }
+      }
+      var isFirstSwipeLoadReported = false
+      function firstSwipeLoaded(index) {
+        if (+index <= 1 && !isFirstSwipeLoadReported) {
+          isFirstSwipeLoadReported = true
+          window.__HOME_PAGE_PERFORMANCE__.swipe_img_load = +new Date() - window.performance.timing.navigationStart
+          if (window.__MIRROR_REPORT__ && typeof window.__MIRROR_REPORT__.customPerformanceQuota === 'function') {
+            window.__MIRROR_REPORT__.customPerformanceQuota({
+              name: 'swipe_img_load',
+              value: window.__HOME_PAGE_PERFORMANCE__.swipe_img_load,
+            })
+          }
+        }
+      }
+      var isFirstVideoCardImgLoadReported = false
+      function firstVideoCardImgLoaded() {
+        if (!isFirstVideoCardImgLoadReported) {
+          isFirstVideoCardImgLoadReported = true
+          window.__HOME_PAGE_PERFORMANCE__.videocard_img_load = +new Date() - window.performance.timing.navigationStart
+          if (window.__MIRROR_REPORT__ && typeof window.__MIRROR_REPORT__.customPerformanceQuota === 'function') {
+            window.__MIRROR_REPORT__.customPerformanceQuota({
+              name: 'videocard_img_load',
+              value: window.__HOME_PAGE_PERFORMANCE__.videocard_img_load,
+            })
+          }
+        }
+      }
+      // 2024首页性能打点上报 end
+      // 图片降级使用
+      function imgOnError(img) {
+        typeof window.imgAutoFallbackOnError === 'function' && window.imgAutoFallbackOnError(img)
+      }
+      // 图片降级使用
+      function imgOnLoad(img) {
+        typeof window.imgAutoFallbackOnLoad === 'function' && window.imgAutoFallbackOnLoad(img)
+      }
+      function lqipCb(img) {
+        var lqip =
+          img && img.parentNode && img.parentNode.querySelector('.lqip')
+        if (lqip) {
+          lqip.classList.add('is-active')
+        }
+      }
+      window.page_load_time = Date.now()
+      if (history.scrollRestoration) {
+        history.scrollRestoration = 'manual'
+      }
+    </script>
+    
+    <link rel="stylesheet" href="//s1.hdslb.com/bfs/static/shanks/laputa-home/assets/index-f14e9360.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);async function* g(){};if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  </head>
+  <body style="background-color: var(--bg3)">
+    <div class="browser-tip"></div>
+    <script>
+      if (
+        window.abtest &&
+        window.abtest.is_modern === false
+      ) {
+        document.querySelector('.browser-tip').innerHTML =
+          '<div class="title">当前浏览器版本较低，为保证您的使用体验，建议使用最新版本的浏览器访问。</div>'
+      }
+      if (/(Mac|iPhone|iPod|iPad)/i.test(window.navigator.platform)) {
+        document.body.classList.add('mac')
+      } else {
+        document.body.classList.add('win')
+      }
+    </script>
+    <div id="app"><!--[--><!--[--><div class="bili-video-card__wrap __scale-wrap" data-v-a6998ac5><a href="//cm.bilibili.com" data-target-url="**" data-v-a6998ac5></a
