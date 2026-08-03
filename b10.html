@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>舞蹈 - 哔哩哔哩社区</title>
+    <link rel="stylesheet" href="../css/b2.css">
+    <link rel="stylesheet" href="../css/b3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="../b1.html" class="logo"><i class="fas fa-play-circle"></i><span>哔哩哔哩</span></a>
+                <nav class="main-nav">
+                    <a href="../b1.html" class="nav-item">首页</a>
+                    <a href="b7.html" class="nav-item">动画</a><a href="游戏.html" class="nav-item">游戏</a><a href="音乐.html" class="nav-item">音乐</a><a href="舞蹈.html" class="nav-item active">舞蹈</a><a href="科技.html" class="nav-item">科技</a><a href="影视.html" class="nav-item">影视</a><a href="生活.html" class="nav-item">生活</a><a href="美食.html" class="nav-item">美食</a><a href="运动.html" class="nav-item">运动</a><a href="汽车.html" class="nav-item">汽车</a><a href="b17.html" class="nav-item">动漫</a><a href="时尚.html" class="nav-item">时尚</a><a href="学习.html" class="nav-item">学习</a><a href="创意.html" class="nav-item">创意</a>
+                </nav>
+            </div>
+            <div class="nav-right">
+                <div class="search-box">
+                    <input type="text" placeholder="搜索你想看的内容" id="searchInput">
+                    <button class="search-btn" onclick="handleSearch()"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="user-actions" id="userActions">
+                    <div class="not-logged-in" id="notLoggedIn">
+                        <button class="btn-login" onclick="openModal('loginModal')">登录</button>
+                        <button class="btn-register" onclick="openModal('registerModal')">注册</button>
+                    </div>
+                    <div class="logged-in" id="loggedIn" style="display:none;">
+                        <div class="user-avatar" onclick="toggleUserMenu()">
+                            <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=default" alt="头像">
+                            <span id="username-display">用户名</span>
+                            <i class="fas fa-caret-down"></i>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="b21.html"><i class="fas fa-user"></i> 个人中心</a>
+                            <a href="b22.html"><i class="fas fa-upload"></i> 投稿</a>
+                            <a href="b23.html"><i class="fas fa-heart"></i> 收藏</a>
+                            <a href="b24.html"><i class="fas fa-history"></i> 历史记录</a>
+                            <hr><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 退出登录</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="zone-header">
+        <div class="zone-header-content" style="background: linear-gradient(135deg, #fa709a, #fa709a88);">
+            <div class="zone-icon"><i class="fas fa-child"></i></div>
+            <div class="zone-info">
+                <h1>舞蹈区</h1>
+                <p>宅舞、街舞、国风舞蹈，舞力全开</p>
+            </div>
+        </div>
+        <div class="zone-tabs">
+            <button class="zone-tab active" onclick="switchZoneTab('综合', this)">综合</button><button class="zone-tab" onclick="switchZoneTab('宅舞', this)">宅舞</button><button class="zone-tab" onclick="switchZoneTab('街舞', this)">街舞</button><button class="zone-tab" onclick="switchZoneTab('国风', this)">国风</button><button class="zone-tab" onclick="switchZoneTab('韩舞', this)">韩舞</button>
+        </div>
+    </div>
+
+    <section class="recommend-section">
+        <div class="section-container">
+            <h2 class="section-title"><i class="fas fa-fire"></i> 舞蹈热门</h2>
+            <div class="video-grid" id="zoneVideoGrid"></div>
+        </div>
+    </section>
+
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('loginModal')"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2><i class="fas fa-sign-in-alt"></i> 登录</h2><p>登录后体验更多功能</p></div>
+            <form class="auth-form" onsubmit="handleLogin(event)">
+                <div class="form-group"><label><i class="fas fa-user"></i> 用户名</label><input type="text" id="loginUsername" placeholder="请输入用户名" required></div>
+                <div class="form-group"><label><i class="fas fa-lock"></i> 密码</label><input type="password" id="loginPassword" placeholder="请输入密码" required></div>
+                <div class="form-options"><label><input type="checkbox" id="rememberMe"> 记住我</label><a href="#">忘记密码？</a></div>
+                <button type="submit" class="btn-submit">登录</button>
+            </form>
+            <div class="modal-footer"><p>还没有账号？<a href="#" onclick="switchModal('loginModal','registerModal')">立即注册</a></p></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('registerModal')"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2><i class="fas fa-user-plus"></i> 注册</h2><p>加入我们，开启精彩旅程</p></div>
+            <form class="auth-form" onsubmit="handleRegister(event)">
+                <div class="form-group"><label><i class="fas fa-user"></i> 用户名</label><input type="text" id="regUsername" placeholder="请输入用户名（3-16字符）" required minlength="3" maxlength="16"></div>
+                <div class="form-group"><label><i class="fas fa-envelope"></i> 邮箱</label><input type="email" id="regEmail" placeholder="请输入邮箱地址" required></div>
+                <div class="form-group"><label><i class="fas fa-lock"></i> 密码</label><input type="password" id="regPassword" placeholder="请输入密码（至少6位）" required minlength="6"></div>
+                <div class="form-group"><label><i class="fas fa-lock"></i> 确认密码</label><input type="password" id="regPasswordConfirm" placeholder="请再次输入密码" required></div>
+                <div class="form-options"><label><input type="checkbox" id="agreeTerms" required> 我已阅读并同意<a href="#">用户协议</a></label></div>
+                <button type="submit" class="btn-submit">注册</button>
+            </form>
+            <div class="modal-footer"><p>已有账号？<a href="#" onclick="switchModal('registerModal','loginModal')">立即登录</a></p></div>
+        </div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+    <a href="b22.html" class="upload-fab" title="投稿"><i class="fas fa-plus"></i></a>
+
+    <script src="../js/b4.js"></script>
+    <script src="../js/b6.js"></script>
+    <script>
+        const zoneVideoData = [
+            { title: '【舞蹈】热门视频推荐TOP1', author: 'UP主A', views: '856万', danmaku: '12.3万', duration: '8:30', cover: 'https://picsum.photos/seed/dance1/400/225' },
+            { title: '【舞蹈】新手入门完全指南', author: 'UP主B', views: '423万', danmaku: '5.6万', duration: '15:20', cover: 'https://picsum.photos/seed/dance2/400/225' },
+            { title: '【舞蹈】年度最佳盘点', author: 'UP主C', views: '678万', danmaku: '9.1万', duration: '20:45', cover: 'https://picsum.photos/seed/dance3/400/225' },
+            { title: '【舞蹈】超详细教程分享', author: 'UP主D', views: '234万', danmaku: '3.2万', duration: '12:10', cover: 'https://picsum.photos/seed/dance4/400/225' },
+            { title: '【舞蹈】趣味挑战赛', author: 'UP主E', views: '567万', danmaku: '7.8万', duration: '6:25', cover: 'https://picsum.photos/seed/dance5/400/225' },
+            { title: '【舞蹈】深度解析专栏', author: 'UP主F', views: '189万', danmaku: '2.4万', duration: '18:50', cover: 'https://picsum.photos/seed/dance6/400/225' },
+            { title: '【舞蹈】搞笑合集', author: 'UP主G', views: '345万', danmaku: '4.9万', duration: '10:15', cover: 'https://picsum.photos/seed/dance7/400/225' },
+            { title: '【舞蹈】专业评测报告', author: 'UP主H', views: '276万', danmaku: '3.7万', duration: '14:30', cover: 'https://picsum.photos/seed/dance8/400/225' },
+        ];
+        renderZoneVideos(zoneVideoData);
+    </script>
+</body>
+</html>

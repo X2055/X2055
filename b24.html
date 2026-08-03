@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史记录 - 哔哩哔哩社区</title>
+    <link rel="stylesheet" href="../css/b2.css">
+    <link rel="stylesheet" href="../css/b3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="../b1.html" class="logo"><i class="fas fa-play-circle"></i><span>哔哩哔哩</span></a>
+            </div>
+            <div class="nav-right">
+                <div class="user-actions" id="userActions">
+                    <div class="not-logged-in" id="notLoggedIn">
+                        <button class="btn-login" onclick="openModal('loginModal')">登录</button>
+                        <button class="btn-register" onclick="openModal('registerModal')">注册</button>
+                    </div>
+                    <div class="logged-in" id="loggedIn" style="display:none;">
+                        <div class="user-avatar" onclick="toggleUserMenu()">
+                            <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=default" alt="头像">
+                            <span id="username-display">用户名</span>
+                            <i class="fas fa-caret-down"></i>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="b21.html"><i class="fas fa-user"></i> 个人中心</a>
+                            <a href="b22.html"><i class="fas fa-upload"></i> 投稿</a>
+                            <a href="b23.html"><i class="fas fa-heart"></i> 收藏</a>
+                            <a href="b24.html"><i class="fas fa-history"></i> 历史记录</a>
+                            <hr><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 退出登录</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="list-container">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+            <h2 class="section-title" style="margin-bottom:0;"><i class="fas fa-history"></i> 历史记录</h2>
+            <button onclick="clearHistory()" style="padding:8px 16px;background:#ff4d4f;color:#fff;border-radius:8px;font-size:13px;"><i class="fas fa-trash"></i> 清空历史</button>
+        </div>
+        <div class="video-grid" id="historyGrid"></div>
+    </div>
+
+    <!-- 登录/注册模态框 -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('loginModal')"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2><i class="fas fa-sign-in-alt"></i> 登录</h2><p>登录后体验更多功能</p></div>
+            <form class="auth-form" onsubmit="handleLogin(event)">
+                <div class="form-group"><label><i class="fas fa-user"></i> 用户名</label><input type="text" id="loginUsername" placeholder="请输入用户名" required></div>
+                <div class="form-group"><label><i class="fas fa-lock"></i> 密码</label><input type="password" id="loginPassword" placeholder="请输入密码" required></div>
+                <div class="form-options"><label><input type="checkbox" id="rememberMe"> 记住我</label><a href="#">忘记密码？</a></div>
+                <button type="submit" class="btn-submit">登录</button>
+            </form>
+            <div class="modal-footer"><p>还没有账号？<a href="#" onclick="switchModal('loginModal','registerModal')">立即注册</a></p></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('registerModal')"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2><i class="fas fa-user-plus"></i> 注册</h2><p>加入我们，开启精彩旅程</p></div>
+            <form class="auth-form" onsubmit="handleRegister(event)">
+                <div class="form-group"><label><i class="fas fa-user"></i> 用户名</label><input type="text" id="regUsername" placeholder="请输入用户名（3-16字符）" required minlength="3" maxlength="16"></div>
+                <div class="form-group"><label><i class="fas fa-envelope"></i> 邮箱</label><input type="email" id="regEmail" placeholder="请输入邮箱地址" required></div>
+                <div class="form-group"><label><i class="fas fa-lock"></i> 密码</label><input type="password" id="regPassword" placeholder="请输入密码（至少6位）" required minlength="6"></div>
+                <div class="form-group"><label><i class="fas fa-lock"></i> 确认密码</label><input type="password" id="regPasswordConfirm" placeholder="请再次输入密码" required></div>
+                <div class="form-options"><label><input type="checkbox" id="agreeTerms" required> 我已阅读并同意<a href="#">用户协议</a></label></div>
+                <button type="submit" class="btn-submit">注册</button>
+            </form>
+            <div class="modal-footer"><p>已有账号？<a href="#" onclick="switchModal('registerModal','loginModal')">立即登录</a></p></div>
+        </div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="../js/b4.js"></script>
+    <script>
+        const sampleHistory = [
+            { title: '【2026年7月新番】7月新番导视合集', author: '哔哩哔哩番剧', views: '892万', duration: '15:20', cover: 'https://picsum.photos/seed/hist1/400/225', watchedAt: '2026-08-03 14:23' },
+            { title: '【编程教程】从零开始学Python', author: '技术UP主', views: '156万', duration: '18:30', cover: 'https://picsum.photos/seed/hist2/400/225', watchedAt: '2026-08-03 10:15' },
+            { title: 'NBA精彩扣篮集锦 2025-26赛季', author: '篮球之家', views: '723万', duration: '6:30', cover: 'https://picsum.photos/seed/hist3/400/225', watchedAt: '2026-08-02 21:45' },
+            { title: '【美食】自制深夜食堂 - 日式拉面', author: '美食探索家', views: '289万', duration: '12:05', cover: 'https://picsum.photos/seed/hist4/400/225', watchedAt: '2026-08-02 19:30' },
+            { title: '【舞蹈】BTS - Dynamite 翻跳', author: '舞社小姐姐', views: '678万', duration: '3:58', cover: 'https://picsum.photos/seed/hist5/400/225', watchedAt: '2026-08-01 22:10' },
+            { title: '【科普】量子力学入门', author: '科学探索', views: '445万', duration: '14:22', cover: 'https://picsum.photos/seed/hist6/400/225', watchedAt: '2026-08-01 16:00' },
+        ];
+        
+        function loadHistory() {
+            const user = getCurrentUser();
+            const grid = document.getElementById('historyGrid');
+            if (!user) {
+                showToast('请先登录', 'warning');
+                setTimeout(() => openModal('loginModal'), 500);
+                grid.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><p>登录后查看观看历史</p></div>';
+                return;
+            }
+            
+            const users = getUsers();
+            const fullUser = users.find(u => u.id === user.id) || user;
+            const history = fullUser.history && fullUser.history.length > 0 ? fullUser.history : sampleHistory;
+            
+            if (history.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><p>暂无观看记录</p></div>';
+                return;
+            }
+            
+            grid.innerHTML = history.map((v, i) => `
+                <div class="video-card" style="animation-delay:${i*0.05}s">
+                    <div class="video-cover">
+                        <img src="${v.cover}" alt="${v.title}" loading="lazy">
+                        <span class="video-duration">${v.duration}</span>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">${v.title}</h3>
+                        <div class="video-meta">
+                            <span class="video-author"><i class="fas fa-user-circle"></i> ${v.author}</span>
+                            <div class="video-stats"><span><i class="fas fa-clock"></i> ${v.watchedAt || ''}</span></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function clearHistory() {
+            if (!confirm('确定要清空所有历史记录吗？')) return;
+            
+            const user = getCurrentUser();
+            const users = getUsers();
+            const idx = users.findIndex(u => u.id === user.id);
+            if (idx !== -1) {
+                users[idx].history = [];
+                saveUsers(users);
+            }
+            
+            showToast('历史记录已清空', 'info');
+            loadHistory();
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadHistory);
+    </script>
+</body>
+</html>
