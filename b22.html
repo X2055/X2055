@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投稿 - 哔哩哔哩社区</title>
+    <link rel="stylesheet" href="../css/b2.css">
+    <link rel="stylesheet" href="../css/b3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="../b1.html" class="logo"><i class="fas fa-play-circle"></i><span>哔哩哔哩</span></a>
+            </div>
+            <div class="nav-right">
+                <div class="user-actions" id="userActions">
+                    <div class="not-logged-in" id="notLoggedIn">
+                        <button class="btn-login" onclick="openModal('loginModal')">登录</button>
+                        <button class="btn-register" onclick="openModal('registerModal')">注册</button>
+                    </div>
+                    <div class="logged-in" id="loggedIn" style="display:none;">
+                        <div class="user-avatar" onclick="toggleUserMenu()">
+                            <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=default" alt="头像">
+                            <span id="username-display">用户名</span>
+                            <i class="fas fa-caret-down"></i>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="b21.html"><i class="fas fa-user"></i> 个人中心</a>
+                            <a href="b22.html"><i class="fas fa-upload"></i> 投稿</a>
+                            <a href="b23.html"><i class="fas fa-heart"></i> 收藏</a>
+                            <a href="b24.html"><i class="fas fa-history"></i> 历史记录</a>
+                            <hr><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 退出登录</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="upload-area">
+        <h2 class="section-title"><i class="fas fa-cloud-upload-alt"></i> 投稿上传</h2>
+        
+        <div class="upload-box" id="uploadBox" onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p><strong>点击或拖拽文件到此处上传</strong></p>
+            <p style="font-size:13px;margin-top:8px;">支持 MP4, AVI, MOV 格式，最大 4GB</p>
+            <input type="file" id="fileInput" style="display:none;" accept="video/*" onchange="handleFileSelect(event)">
+        </div>
+
+        <form class="upload-form" id="uploadForm" style="display:none;">
+            <div class="form-group">
+                <label><i class="fas fa-heading"></i> 视频标题</label>
+                <input type="text" id="videoTitle" placeholder="给视频起个吸引人的标题吧" maxlength="80">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="form-group">
+                    <label><i class="fas fa-folder"></i> 选择分区</label>
+                    <select id="videoCategory" style="padding:12px 16px;border:1px solid var(--border-color);border-radius:10px;font-size:14px;background:var(--bg-color);outline:none;">
+                        <option value="animation">动画</option>
+                        <option value="game">游戏</option>
+                        <option value="music">音乐</option>
+                        <option value="dance">舞蹈</option>
+                        <option value="tech">科技</option>
+                        <option value="movie">影视</option>
+                        <option value="life">生活</option>
+                        <option value="food">美食</option>
+                        <option value="sports">运动</option>
+                        <option value="car">汽车</option>
+                        <option value="anime">动漫</option>
+                        <option value="fashion">时尚</option>
+                        <option value="study">学习</option>
+                        <option value="creative">创意</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-clock"></i> 视频时长（分钟）</label>
+                    <input type="number" id="videoDuration" placeholder="例如: 10" min="1" max="600">
+                </div>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-tags"></i> 标签（用逗号分隔）</label>
+                <input type="text" id="videoTags" placeholder="例如: 搞笑,日常,校园">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-align-left"></i> 视频简介</label>
+                <textarea id="videoDesc" placeholder="介绍一下你的视频内容吧..." rows="4" style="padding:12px 16px;border:1px solid var(--border-color);border-radius:10px;font-size:14px;background:var(--bg-color);outline:none;resize:vertical;font-family:inherit;"></textarea>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-image"></i> 封面图URL（可选）</label>
+                <input type="url" id="videoCover" placeholder="输入封面图片链接">
+            </div>
+            <div style="display:flex;gap:12px;margin-top:8px;">
+                <button type="button" class="btn-submit" onclick="submitUpload()" style="flex:1;">发布视频</button>
+                <button type="button" class="btn-submit" onclick="saveDraft()" style="flex:1;background:#9499a0;">存为草稿</button>
+            </div>
+        </form>
+
+        <!-- 上传进度 -->
+        <div id="uploadProgress" style="display:none;margin-top:20px;background:var(--card-bg);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);">
+            <h3 style="margin-bottom:12px;"><i class="fas fa-spinner fa-spin"></i> 正在上传...</h3>
+            <div style="background:var(--bg-color);border-radius:8px;height:8px;overflow:hidden;">
+                <div id="progressBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--primary-color),#667eea);transition:width 0.3s ease;border-radius:8px;"></div>
+            </div>
+            <p id="progressText" style="margin-top:8px;font-size:13px;color:var(--text-secondary);">0%</p>
+        </div>
+
+        <!-- 已投稿列表 -->
+        <div style="margin-top:32px;" id="myUploads">
+            <h3 class="section-title"><i class="fas fa-folder-open"></i> 我的投稿</h3>
+            <div id="uploadsList"></div>
+        </div>
+    </div>
+
+    <!-- 登录/注册模态框 -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('loginModal')"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2><i class="fas fa-sign-in-alt"></i> 登录</h2><p>登录后体验更多功能</p></div>
+            <form class="auth-form" onsubmit="handleLogin(event)">
+                <div class="form-group"><label><i class="fas fa-user"></i> 用户名</label><input type="text" id="loginUsername" placeholder="请输入用户名" required></div>
+                <div class="form-group"><label><i class="fas fa-lock"></i> 密码</label><input type="password" id="loginPassword" placeholder="请输入密码" required></div>
+                <div class="form-options"><label><input type="checkbox" id="rememberMe"> 记住我</label><a href="#">忘记密码？</a></div>
+                <button type="submit" class="btn-submit">登录</button>
+            </form>
+            <div class="modal-footer"><p>还没有账号？<a href="#" onclick="switchModal('loginModal','registerModal')">立即注册</a></p></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('registerModal')"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2><i class="fas fa-user-plus"></i> 注册</h2><p>加入我们，开启精彩旅程</p></div>
+            <form class="auth-form" onsubmit="handleRegister(event)">
+                <div class="form-group"><label><i class="fas fa-user"></i> 用户名</label><input type="text" id="regUsername" placeholder="请输入用户名（3-16字符）" required minlength="3" maxlength="16"></div>
+                <div class="form-group"><label><i class="fas fa-envelope"></i> 邮箱</label><input type="email" id="regEmail" placeholder="请输入邮箱地址" required></div>
+                <div class="form-group"><label><i class="fas fa-lock"></i> 密码</label><input type="password" id="regPassword" placeholder="请输入密码（至少6位）" required minlength="6"></div>
+                <div class="form-group"><label><i class="fas fa-lock"></i> 确认密码</label><input type="password" id="regPasswordConfirm" placeholder="请再次输入密码" required></div>
+                <div class="form-options"><label><input type="checkbox" id="agreeTerms" required> 我已阅读并同意<a href="#">用户协议</a></label></div>
+                <button type="submit" class="btn-submit">注册</button>
+            </form>
+            <div class="modal-footer"><p>已有账号？<a href="#" onclick="switchModal('registerModal','loginModal')">立即登录</a></p></div>
+        </div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="../js/b4.js"></script>
+    <script>
+        const UPLOADS_KEY = 'bilibili_user_uploads';
+        
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const user = getCurrentUser();
+            if (!user) {
+                showToast('请先登录再上传', 'warning');
+                openModal('loginModal');
+                return;
+            }
+            
+            if (file.size > 4 * 1024 * 1024 * 1024) {
+                showToast('文件大小不能超过4GB', 'error');
+                return;
+            }
+            
+            showToast(`已选择文件: ${file.name}`, 'success');
+            document.getElementById('uploadForm').style.display = 'flex';
+            document.getElementById('videoTitle').value = file.name.replace(/\.[^/.]+$/, "");
+        }
+        
+        function submitUpload() {
+            const user = getCurrentUser();
+            if (!user) { showToast('请先登录', 'warning'); return; }
+            
+            const title = document.getElementById('videoTitle').value.trim();
+            if (!title) { showToast('请输入视频标题', 'error'); return; }
+            
+            // 模拟上传进度
+            simulateUpload(title, false);
+        }
+        
+        function saveDraft() {
+            const user = getCurrentUser();
+            if (!user) { showToast('请先登录', 'warning'); return; }
+            
+            const title = document.getElementById('videoTitle').value.trim() || '未命名草稿';
+            simulateUpload(title, true);
+        }
+        
+        function simulateUpload(title, isDraft) {
+            const progressDiv = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            progressDiv.style.display = 'block';
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    // 保存到localStorage
+                    const uploads = JSON.parse(localStorage.getItem(UPLOADS_KEY) || '{}');
+                    if (!uploads[user.id]) uploads[user.id] = [];
+                    
+                    uploads[user.id].unshift({
+                        id: Date.now(),
+                        title: title,
+                        category: document.getElementById('videoCategory').value,
+                        duration: document.getElementById('videoDuration').value || '10',
+                        tags: document.getElementById('videoTags').value,
+                        desc: document.getElementById('videoDesc').value,
+                        cover: document.getElementById('videoCover').value || `https://picsum.photos/seed/${Date.now()}/400/225`,
+                        status: isDraft ? 'draft' : 'published',
+                        createdAt: new Date().toISOString()
+                    });
+                    
+                    localStorage.setItem(UPLOADS_KEY, JSON.stringify(uploads));
+                    
+                    setTimeout(() => {
+                        progressDiv.style.display = 'none';
+                        progressBar.style.width = '0%';
+                        progressText.textContent = '0%';
+                        document.getElementById('uploadForm').reset();
+                        document.getElementById('uploadForm').style.display = 'none';
+                        
+                        showToast(isDraft ? '已保存为草稿' : '视频发布成功！', 'success');
+                        loadMyUploads();
+                    }, 500);
+                }
+                
+                progressBar.style.width = Math.min(progress, 100) + '%';
+                progressText.textContent = Math.min(Math.round(progress), 100) + '%';
+            }, 300);
+        }
+        
+        function loadMyUploads() {
+            const user = getCurrentUser();
+            const list = document.getElementById('uploadsList');
+            if (!user || !list) return;
+            
+            const uploads = JSON.parse(localStorage.getItem(UPLOADS_KEY) || '{}');
+            const myUploads = uploads[user.id] || [];
+            
+            if (myUploads.length === 0) {
+                list.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>还没有投稿，快去上传吧！</p></div>';
+                return;
+            }
+            
+            list.innerHTML = '<div class="video-grid">' + myUploads.map(item => `
+                <div class="video-card">
+                    <div class="video-cover">
+                        <img src="${item.cover}" alt="${item.title}" loading="lazy">
+                        <span class="video-duration">${item.duration}:00</span>
+                        <span style="position:absolute;top:8px;left:8px;background:${item.status==='draft'?'#faad14':'#52c41a'};color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;">${item.status==='draft'?'草稿':'已发布'}</span>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">${item.title}</h3>
+                        <div class="video-meta">
+                            <span class="video-author"><i class="fas fa-folder"></i> ${item.category}</span>
+                            <div class="video-stats"><span>${new Date(item.createdAt).toLocaleDateString()}</span></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('') + '</div>';
+        }
+        
+        // 拖拽上传
+        const uploadBox = document.getElementById('uploadBox');
+        if (uploadBox) {
+            uploadBox.addEventListener('dragover', (e) => { e.preventDefault(); uploadBox.style.borderColor = 'var(--primary-color)'; });
+            uploadBox.addEventListener('dragleave', () => { uploadBox.style.borderColor = ''; });
+            uploadBox.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadBox.style.borderColor = '';
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    document.getElementById('fileInput').files = files;
+                    handleFileSelect({ target: { files: files } });
+                }
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = getCurrentUser();
+            if (!user) {
+                showToast('请先登录后再投稿', 'warning');
+                setTimeout(() => openModal('loginModal'), 800);
+            }
+            loadMyUploads();
+        });
+    </script>
+</body>
+</html>

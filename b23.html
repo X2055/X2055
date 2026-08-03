@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的收藏 - 哔哩哔哩社区</title>
+    <link rel="stylesheet" href="../css/b2.css">
+    <link rel="stylesheet" href="../css/b3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="../b1.html" class="logo"><i class="fas fa-play-circle"></i><span>哔哩哔哩</span></a>
+            </div>
+            <div class="nav-right">
+                <div class="user-actions" id="userActions">
+                    <div class="not-logged-in" id="notLoggedIn">
+                        <button class="btn-login" onclick="openModal('loginModal')">登录</button>
+                        <button class="btn-register" onclick="openModal('registerModal')">注册</button>
+                    </div>
+                    <div class="logged-in" id="loggedIn" style="display:none;">
+                        <div class="user-avatar" onclick="toggleUserMenu()">
+                            <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=default" alt="头像">
+                            <span id="username-display">用户名</span>
+                            <i class="fas fa-caret-down"></i>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="b21.html"><i class="fas fa-user"></i> 个人中心</a>
+                            <a href="b22.html"><i class="fas fa-upload"></i> 投稿</a>
+                            <a href="b23.html"><i class="fas fa-heart"></i> 收藏</a>
+                            <a href="b24.html"><i class="fas fa-history"></i> 历史记录</a>
+                            <hr><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 退出登录</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="list-container">
+        <h2 class="section-title"><i class="fas fa-heart" style="color:#ff4d4f;"></i> 我的收藏</h2>
+        <div class="video-grid" id="favoritesGrid"></div>
+    </div>
+
+    <!-- 登录/注册模态框 -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('loginModal')"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2><i class="fas fa-sign-in-alt"></i> 登录</h2><p>登录后体验更多功能</p></div>
+            <form class="auth-form" onsubmit="handleLogin(event)">
+                <div class="form-group"><label><i class="fas fa-user"></i> 用户名</label><input type="text" id="loginUsername" placeholder="请输入用户名" required></div>
+                <div class="form-group"><label><i class="fas fa-lock"></i> 密码</label><input type="password" id="loginPassword" placeholder="请输入密码" required></div>
+                <div class="form-options"><label><input type="checkbox" id="rememberMe"> 记住我</label><a href="#">忘记密码？</a></div>
+                <button type="submit" class="btn-submit">登录</button>
+            </form>
+            <div class="modal-footer"><p>还没有账号？<a href="#" onclick="switchModal('loginModal','registerModal')">立即注册</a></p></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('registerModal')"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><h2><i class="fas fa-user-plus"></i> 注册</h2><p>加入我们，开启精彩旅程</p></div>
+            <form class="auth-form" onsubmit="handleRegister(event)">
+                <div class="form-group"><label><i class="fas fa-user"></i> 用户名</label><input type="text" id="regUsername" placeholder="请输入用户名（3-16字符）" required minlength="3" maxlength="16"></div>
+                <div class="form-group"><label><i class="fas fa-envelope"></i> 邮箱</label><input type="email" id="regEmail" placeholder="请输入邮箱地址" required></div>
+                <div class="form-group"><label><i class="fas fa-lock"></i> 密码</label><input type="password" id="regPassword" placeholder="请输入密码（至少6位）" required minlength="6"></div>
+                <div class="form-group"><label><i class="fas fa-lock"></i> 确认密码</label><input type="password" id="regPasswordConfirm" placeholder="请再次输入密码" required></div>
+                <div class="form-options"><label><input type="checkbox" id="agreeTerms" required> 我已阅读并同意<a href="#">用户协议</a></label></div>
+                <button type="submit" class="btn-submit">注册</button>
+            </form>
+            <div class="modal-footer"><p>已有账号？<a href="#" onclick="switchModal('registerModal','loginModal')">立即登录</a></p></div>
+        </div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="../js/b4.js"></script>
+    <script>
+        // 模拟收藏数据
+        const sampleFavorites = [
+            { title: '【官方MV】周杰伦 - 最伟大的作品', author: '杰威尔音乐', views: '528万', duration: '4:32', cover: 'https://picsum.photos/seed/fav1/400/225' },
+            { title: '【黑神话：悟空】终极Boss战', author: '游戏风云', views: '1206万', duration: '22:18', cover: 'https://picsum.photos/seed/fav2/400/225' },
+            { title: '量子力学入门 - 薛定谔的猫', author: '科学探索', views: '445万', duration: '14:22', cover: 'https://picsum.photos/seed/fav3/400/225' },
+            { title: '自制深夜食堂 - 日式拉面', author: '美食探索家', views: '289万', duration: '12:05', cover: 'https://picsum.photos/seed/fav4/400/225' },
+        ];
+        
+        function loadFavorites() {
+            const user = getCurrentUser();
+            const grid = document.getElementById('favoritesGrid');
+            if (!user) {
+                showToast('请先登录', 'warning');
+                setTimeout(() => openModal('loginModal'), 500);
+                grid.innerHTML = '<div class="empty-state"><i class="fas fa-heart-broken"></i><p>登录后查看你的收藏</p></div>';
+                return;
+            }
+            
+            // 从用户数据中获取收藏
+            const users = getUsers();
+            const fullUser = users.find(u => u.id === user.id) || user;
+            const favs = fullUser.favorites && fullUser.favorites.length > 0 ? fullUser.favorites : sampleFavorites;
+            
+            if (favs.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><i class="fas fa-heart"></i><p>还没有收藏，去首页逛逛吧</p></div>';
+                return;
+            }
+            
+            grid.innerHTML = favs.map((v, i) => `
+                <div class="video-card" style="animation-delay:${i*0.05}s">
+                    <div class="video-cover">
+                        <img src="${v.cover}" alt="${v.title}" loading="lazy">
+                        <span class="video-duration">${v.duration}</span>
+                        <button onclick="removeFavorite(${i})" style="position:absolute;top:8px;right:8px;background:rgba(255,77,79,0.9);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;" title="取消收藏"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">${v.title}</h3>
+                        <div class="video-meta">
+                            <span class="video-author"><i class="fas fa-user-circle"></i> ${v.author}</span>
+                            <div class="video-stats"><span><i class="fas fa-play"></i> ${v.views}</span></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function removeFavorite(index) {
+            const user = getCurrentUser();
+            const users = getUsers();
+            const idx = users.findIndex(u => u.id === user.id);
+            if (idx === -1) return;
+            
+            if (!users[idx].favorites) users[idx].favorites = sampleFavorites;
+            users[idx].favorites.splice(index, 1);
+            saveUsers(users);
+            
+            showToast('已取消收藏', 'info');
+            loadFavorites();
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadFavorites);
+    </script>
+</body>
+</html>
