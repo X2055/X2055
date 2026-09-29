@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>颜值测试 · 数据后台</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+background:#0b0a1f;color:#e8e6f5;min-height:100vh;overflow-x:hidden;
+}
+.bg{position:fixed;inset:0;z-index:-1;
+background:
+radial-gradient(900px 600px at 15% -10%,rgba(183,33,255,.30),transparent 60%),
+radial-gradient(800px 600px at 110% 10%,rgba(33,212,253,.24),transparent 60%),
+radial-gradient(700px 700px at 50% 120%,rgba(255,107,157,.16),transparent 60%),
+linear-gradient(160deg,#0b0a1f,#17123a 55%,#0b0a1f);
+}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 18px 60px}
+
+/* ---------- 头部 ---------- */
+.hd{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px;flex-wrap:wrap}
+.hd-l{display:flex;align-items:center;gap:12px}
+.brand{width:42px;height:42px;border-radius:12px;flex:none;
+background:linear-gradient(135deg,#b721ff,#21d4fd);
+display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;
+box-shadow:0 8px 20px rgba(151,60,255,.4)}
+.hd h1{margin:0;font-size:22px;font-weight:800;letter-spacing:.5px}
+.hd p{margin:2px 0 0;font-size:12px;color:#8f8bb5}
+.live{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;
+background:rgba(61,220,132,.12);border:1px solid rgba(61,220,132,.3);font-size:12px;color:#3ddc84}
+.live i{width:6px;height:6px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84;font-style:normal;
+animation:pl 1.6s ease-in-out infinite}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ---------- 统计卡 ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+.stat{background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.04));
+border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:18px;backdrop-filter:blur(14px)}
+.stat .lb{font-size:12px;color:#8f8bb5;margin-bottom:8px}
+.stat .vl{font-size:30px;font-weight:800;line-height:1;
+background:linear-gradient(100deg,#ff6ba8,#b721ff 50%,#21d4fd);
+-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat .sb{font-size:11px;color:#6f6b93;margin-top:6px}
+
+/* ---------- 工具条 ---------- */
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.search{flex:1;min-width:200px;position:relative}
+.search input{width:100%;padding:11px 14px 11px 38px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+background:rgba(255,255,255,.06);color:#e8e6f5;font-size:14px;outline:none}
+.search input::placeholder{color:#6f6b93}
+.search input:focus{border-color:#b721ff}
+.search::before{content:"🔍";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.6}
+.btn{padding:11px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.16);
+background:rgba(255,255,255,.06);color:#dcd8f5;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn:active{transform:scale(.96)}
+.btn.pri{background:linear-gradient(100deg,#b721ff,#21d4fd);border-color:transparent;color:#fff;box-shadow:0 6px 18px rgba(151,60,255,.35)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;
+border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#cbc7e8;transition:all .15s}
+.chip.on{background:rgba(183,33,255,.2);border-color:rgba(183,33,255,.5);color:#fff}
+
+/* ---------- 表格 ---------- */
+.card{background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.04));
+border:1px solid rgba(255,255,255,.12);border-radius:20px;backdrop-filter:blur(14px);overflow:hidden}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead th{text-align:left;padding:14px 16px;font-size:12px;font-weight:600;color:#8f8bb5;
+background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.1);white-space:nowrap}
+tbody td{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:middle}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:rgba(255,255,255,.05)}
+tbody tr:last-child td{border-bottom:none}
+.mini-thumb{width:56px;height:70px;border-radius:8px;object-fit:cover;background:#000;cursor:pointer;transition:transform .15s}
+.mini-thumb:hover{transform:scale(1.12)}
+.id{font-size:12px;color:#8f8bb5;font-family:ui-monospace,Menlo,monospace}
+.t{font-size:13px;color:#cbc7e8;white-space:nowrap}
+
+/* 分数徽章 */
+.sc{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;
+font-size:17px;font-weight:800;color:#fff;flex:none;
+background:linear-gradient(135deg,#b721ff,#21d4fd)}
+.sc.gold{background:linear-gradient(135deg,#ffd166,#ff9f1c)}
+.sc.purple{background:linear-gradient(135deg,#b721ff,#ff6ba8)}
+.sc.blue{background:linear-gradient(135deg,#21d4fd,#3b82f6)}
+.sc.gray{background:linear-gradient(135deg,#6b7280,#9ca3af)}
+
+.tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.08);
+color:#cbc7e8;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acts{display:flex;gap:6px}
+.act{padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);
+color:#cbc7e8;font-size:12px;cursor:pointer;transition:all .15s;text-decoration:none;display:inline-block}
+.act:hover{border-color:#b721ff;color:#fff}
+.act.del:hover{border-color:#ff7a7a;color:#ff7a7a}
+.empty{padding:60px;text-align:center;color:#6f6b93}
+
+/* ---------- 分页 ---------- */
+.pager{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px;flex-wrap:wrap}
+.pg{padding:7px 13px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);
+color:#cbc7e8;font-size:13px;cursor:pointer;min-width:38px;text-align:center}
+.pg.on{background:linear-gradient(100deg,#b721ff,#21d4fd);border-color:transparent;color:#fff;font-weight:700}
+.pg:disabled{opacity:.3;cursor:not-allowed}
+
+/* ---------- 灯箱 ---------- */
+.light{position:fixed;inset:0;background:rgba(8,6,24,.92);display:none;align-items:center;justify-content:center;
+z-index:100;padding:20px;backdrop-filter:blur(6px)}
+.light.on{display:flex}
+.light-box{background:#12122a;border-radius:20px;max-width:560px;width:100%;overflow:hidden;
+border:1px solid rgba(255,255,255,.12);box-shadow:0 24px 70px rgba(0,0,0,.6)}
+.light-img{width:100%;display:block;background:#000}
+.light-info{padding:20px}
+.light-info .lg-sc{font-size:44px;font-weight:800;
+background:linear-gradient(100deg,#ff6ba8,#b721ff 50%,#21d4fd);
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.light-info .lg-t{font-size:16px;font-weight:700;margin:6px 0 14px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.kv div{background:rgba(255,255,255,.05);border-radius:10px;padding:10px 12px}
+.kv .k{font-size:11px;color:#8f8bb5;margin-bottom:3px}
+.kv .v{font-size:14px;color:#e8e6f5;font-weight:600}
+.light-close{position:absolute;top:24px;right:28px;width:38px;height:38px;border-radius:50%;
+background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:20px;cursor:pointer}
+.radar-sm{display:block;margin:14px auto 0;max-width:100%}
+
+.toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);
+background:rgba(20,16,45,.95);border:1px solid rgba(255,255,255,.16);color:#e8e6f5;
+padding:11px 20px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.28s;z-index:99}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{border-color:rgba(255,122,122,.5);color:#ff9f9f}
+@media (max-width:640px){
+.stats{grid-template-columns:repeat(2,1fr)}
+.hd h1{font-size:19px}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+
+  <header class="hd">
+    <div class="hd-l">
+      <div class="brand">(^▽^ )</div>
+      <div>
+        <h1>颜值测试 · 数据后台</h1>
+        <p id="sub">实时查看所有上传记录</p>
+      </div>
+    </div>
+    <span class="live"><i></i>实时同步</span>
+  </header>
+
+  <!-- 统计 -->
+  <div class="stats" id="stats">
+    <div class="stat"><div class="lb">总测试次数</div><div class="vl" id="s-total">-</div><div class="sb" id="s-total-sb">加载中…</div></div>
+    <div class="stat"><div class="lb">平均分</div><div class="vl" id="s-avg">-</div><div class="sb">综合评分均值</div></div>
+    <div class="stat"><div class="lb">最高分</div><div class="vl" id="s-max">-</div><div class="sb" id="s-max-sb">—</div></div>
+    <div class="stat"><div class="lb">近 24 小时</div><div class="vl" id="s-day">-</div><div class="sb">新增上传</div></div>
+  </div>
+
+  <!-- 工具条 -->
+  <div class="toolbar">
+    <div class="search"><input type="text" id="q" placeholder="搜索分数 / 标签 / 时间…"></div>
+    <button class="btn pri" id="b-refresh">🔄 刷新</button>
+    <button class="btn" id="b-export">⬇ 导出 CSV</button>
+    <div style="display:flex;gap:8px;align-items:center;margin-left:auto">
+      <span class="chip on" data-sort="created_at">最新</span>
+      <span class="chip" data-sort="score">最高分</span>
+      <span class="chip" data-sort="id">最早</span>
+    </div>
+  </div>
+
+  <!-- 表格 -->
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>照片</th><th>记录 ID</th><th>颜值分</th><th>评价</th>
+            <th>各维度</th><th>上传时间</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="7" class="empty">加载中…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pager" id="pager"></div>
+  </div>
+
+  <div style="text-align:center;font-size:11px;color:#6f6b93;margin-top:22px;line-height:1.9">
+    图片直接读取 Supabase Storage，无需中转<br>
+    当前为公开访问模式 · 数据仅供参考
+  </div>
+</div>
+
+<!-- 灯箱 -->
+<div class="light" id="light">
+  <button class="light-close" id="l-close">✕</button>
+  <div class="light-box">
+    <img class="light-img" id="l-img" src="" alt="">
+    <div class="light-info">
+      <div class="lg-sc" id="l-sc">--</div>
+      <div class="lg-t" id="l-t"></div>
+      <div class="kv" id="l-kv"></div>
+      <canvas id="l-radar" class="radar-sm" width="420" height="340"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+/* ==================================================================
+ * 颜值测试 · 后台管理页（公开访问版）
+ * 从 Supabase 读取 beauty_tests 表 + 拼接 Storage 图片地址
+ * ================================================================== */
+const SUPABASE_URL    = 'https://vsgsuifkiajfjmpkacqv.supabase.co';
+const SUPABASE_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzZ3N1aWZraWFqZmptcGthY3F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2NTgzMTgsImV4cCI6MjEwNjIzNDMxOH0.W7fuyrSNe0AYyXro1hSvEaPGcrR50DfpcRKLMRPnlt4';
+const BUCKET          = 'beauty-photos';
+const PAGE_SIZE       = 20;
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let ALL = [];          // 全量缓存（anon 可读，数据量不大时一次性拉取）
+let VIEW = [];         // 当前筛选结果
+let PAGE = 1;
+let SORT = 'created_at';
+
+/* ---------- 工具 ---------- */
+const $ = s => document.querySelector(s);
+const clamp = (v,a,b) => v<a?a:(v>b?b:v);
+function toast(m,err){
+  const t=$('#toast'); t.textContent=m; t.className='toast on'+(err?' err':'');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),2200);
+}
+function fmtTime(iso){
+  if(!iso) return '-';
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function relTime(iso){
+  if(!iso) return '-';
+  const diff = (Date.now() - new Date(iso).getTime())/1000;
+  if(diff<60) return '刚刚';
+  if(diff<3600) return Math.floor(diff/60)+' 分钟前';
+  if(diff<86400) return Math.floor(diff/3600)+' 小时前';
+  return Math.floor(diff/86400)+' 天前';
+}
+/* 分数 → 渐变类名 */
+function scoreClass(s){
+  if(s>=90) return 'gold';
+  if(s>=80) return 'purple';
+  if(s>=65) return 'blue';
+  return 'gray';
+}
+function tagOf(s){
+  if(s>=92) return '惊为天人';
+  if(s>=85) return '相当出众';
+  if(s>=78) return '耐看舒服';
+  if(s>=70) return '自然亲和';
+  if(s>=60) return '朴实真实';
+  return '独一无二';
+}
+/* 拼接 Storage 公开图片地址 */
+function imgUrl(path){
+  if(!path) return '';
+  if(/^https?:/.test(path)) return path;
+  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
+}
+/* 雷达图维度 */
+const RADAR_CATS = [
+  {k:'面部对称性',n:'对称性'},
+  {k:'五官比例',n:'五官比例'},
+  {k:'脸型轮廓',n:'脸型轮廓'},
+  {k:'立体轮廓',n:'立体轮廓'},
+  {k:'画面质感',n:'画面质感'},
+  {k:'构图对称性',n:'对称性'},
+  {k:'构图均衡',n:'构图均衡'},
+  {k:'主体比例',n:'主体比例'}
+];
+
+/* ==================================================================
+ * 数据加载
+ * ================================================================== */
+async function load(){
+  try{
+    const { data, error } = await sb
+      .from('beauty_tests')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(2000);
+    if(error) throw error;
+    ALL = (data || []).filter(r => !r.is_deleted);
+    $('#sub').textContent = `共 ${ALL.length} 条记录 · 实时同步`;
+    renderStats();
+    applyFilter();
+    toast('数据已刷新');
+  }catch(e){
+    console.error(e);
+    toast('加载失败：' + (e.message||'请检查 RLS 与 Storage 权限'), true);
+    $('#tbody').innerHTML = '<tr><td colspan="7" class="empty">加载失败，请确认已放开 anon 的 select 权限</td></tr>';
+  }
+}
+
+/* ---------- 统计 ---------- */
+function renderStats(){
+  const total = ALL.length;
+  const scores = ALL.map(r=>r.score).filter(v=>typeof v==='number');
+  const avg = scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : 0;
+  const max = scores.length ? Math.max(...scores) : 0;
+  const day = ALL.filter(r => Date.now()-new Date(r.created_at).getTime() < 86400000).length;
+
+  $('#s-total').textContent = total;
+  $('#s-total-sb').textContent = total ? '累计上传' : '暂无数据';
+  $('#s-avg').textContent = scores.length ? Math.round(avg) : '-';
+  $('#s-max').textContent = scores.length ? max : '-';
+  $('#s-day').textContent = day;
+
+  const top = ALL.find(r => r.score===max);
+  $('#s-max-sb').textContent = top ? relTime(top.created_at) : '-';
+}
+
+/* ---------- 筛选 + 排序 + 分页 ---------- */
+function applyFilter(){
+  const q = $('#q').value.trim().toLowerCase();
+  VIEW = ALL.filter(r => {
+    if(!q) return true;
+    return String(r.score).includes(q)
+        || String(r.score_label||'').toLowerCase().includes(q)
+        || String(r.storage_path||'').toLowerCase().includes(q)
+        || String(r.created_at||'').toLowerCase().includes(q)
+        || String(r.id).includes(q);
+  });
+
+  const dir = (SORT==='id') ? 1 : -1;
+  VIEW.sort((a,b) => {
+    if(SORT==='score') return (b.score-a.score);
+    if(SORT==='id')    return (a.id-b.id);
+    return (new Date(b.created_at)-new Date(a.created_at)) * dir;
+  });
+
+  PAGE = 1;
+  renderTable();
+}
+
+function renderTable(){
+  const start = (PAGE-1)*PAGE_SIZE;
+  const slice = VIEW.slice(start, start+PAGE_SIZE);
+  const tb = $('#tbody');
+
+  if(!slice.length){
+    tb.innerHTML = '<tr><td colspan="7" class="empty">暂无数据</td></tr>';
+    $('#pager').innerHTML = '';
+    return;
+  }
+
+  tb.innerHTML = slice.map(r => {
+    const url = imgUrl(r.storage_path);
+    const scCls = scoreClass(r.score);
+    return `<tr>
+      <td><img class="mini-thumb" src="${url}" alt="" data-id="${r.id}" onerror="this.style.opacity=.25"></td>
+      <td class="id">#${r.id}</td>
+      <td><div class="sc ${scCls}">${r.score??'-'}</div></td>
+      <td><span class="tag" title="${r.score_label||''}">${r.score_label||'-'}</span></td>
+      <td style="min-width:160px">${bars(r.score_breakdown)}</td>
+      <td class="t">${fmtTime(r.created_at)}<br><span style="color:#6f6b93;font-size:11px">${relTime(r.created_at)}</span></td>
+      <td>
+        <div class="acts">
+          <a class="act" href="${url}" target="_blank" rel="noopener">原图</a>
+          <button class="act" data-detail="${r.id}">详情</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  /* 缩略图点击 → 灯箱 */
+  tb.querySelectorAll('.mini-thumb').forEach(el => el.addEventListener('click', () => openLight(+el.dataset.id)));
+  tb.querySelectorAll('[data-detail]').forEach(el => el.addEventListener('click', () => openLight(+el.dataset.id)));
+
+  renderPager();
+}
+
+function bars(bd){
+  if(!bd) return '<span style="color:#6f6b93;font-size:12px">无数据</span>';
+  return Object.entries(bd).slice(0,3).map(([k,v]) => {
+    const pct = Math.min(100, +v||0);
+    return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:11px">
+      <span style="color:#8f8bb5;width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${k}</span>
+      <span style="flex:1;height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden">
+        <span style="display:block;height:100%;width:${pct}%;background:linear-gradient(90deg,#b721ff,#21d4fd);border-radius:3px"></span>
+      </span>
+      <span style="color:#cbc7e8;width:22px;text-align:right">${pct}</span>
+    </div>`;
+  }).join('') + (Object.keys(bd).length>3
+      ? `<span style="color:#6f6b93;font-size:11px">+${Object.keys(bd).length-3} 项</span>` : '');
+}
+
+function renderPager(){
+  const pages = Math.max(1, Math.ceil(VIEW.length/PAGE_SIZE));
+  let html = `<button class="pg" ${PAGE<=1?'disabled':''} data-pg="${PAGE-1}">‹</button>`;
+  const lo = Math.max(1, PAGE-2), hi = Math.min(pages, lo+4);
+  for(let i=lo;i<=hi;i++) html += `<button class="pg ${i===PAGE?'on':''}" data-pg="${i}">${i}</button>`;
+  html += `<button class="pg" ${PAGE>=pages?'disabled':''} data-pg="${PAGE+1}">›</button>`;
+  html += `<span style="color:#6f6b93;font-size:12px;margin-left:8px">共 ${VIEW.length} 条 · ${pages} 页</span>`;
+  const p = $('#pager');
+  p.innerHTML = html;
+  p.querySelectorAll('.pg[data-pg]').forEach(b => b.addEventListener('click', () => {
+    PAGE = +b.dataset.pg; renderTable(); window.scrollTo({top:0,behavior:'smooth'});
+  }));
+}
+
+/* ==================================================================
+ * 灯箱详情
+ * ================================================================== */
+function openLight(id){
+  const r = ALL.find(x => x.id===id);
+  if(!r) return;
+  $('#l-img').src = imgUrl(r.storage_path);
+  $('#l-sc').textContent = r.score ?? '--';
+  $('#l-t').textContent = r.score_label || tagOf(r.score||0);
+
+  const kv = $('#l-kv');
+  const items = [
+    ['记录 ID', '#'+r.id],
+    ['上传时间', fmtTime(r.created_at)],
+    ['文件', (r.file_name||r.storage_path||'-').split('/').pop()],
+    ['文件大小', r.file_size ? (r.file_size/1024).toFixed(1)+' KB' : '-'],
+    ['状态', r.status||'-'],
+    ['会话', r.session_id ? r.session_id.slice(0,8)+'…' : '-']
+  ];
+  kv.innerHTML = items.map(([k,v]) => `<div><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+
+  drawRadar(r.score_breakdown);
+
+  $('#light').classList.add('on');
+}
+function drawRadar(bd){
+  const cv=$('#l-radar'); const x=cv.getContext('2d');
+  const W=cv.width,H=cv.height,cx=W/2,cy=H/2+4,R=Math.min(W,H)/2-44;
+  x.clearRect(0,0,W,H);
+  let cats = RADAR_CATS.slice(0,5);
+  if(bd){ cats = Object.keys(bd).map(k => ({k,n:k.length>6?k.slice(0,6):k})).slice(0,6); }
+  const n=cats.length;
+  for(let r=1;r<=4;r++){
+    x.beginPath();
+    for(let i=0;i<n;i++){
+      const a=-Math.PI/2+i*2*Math.PI/n,rr=R*r/4;
+      const px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr;
+      i?x.lineTo(px,py):x.moveTo(px,py);
+    }
+    x.closePath();
+    x.strokeStyle='rgba(255,255,255,'+(r===4?.22:.11)+')';x.lineWidth=2;x.stroke();
+  }
+  x.font='500 18px -apple-system,"PingFang SC",sans-serif';
+  x.textAlign='center';x.textBaseline='middle';
+  for(let i=0;i<n;i++){
+    const a=-Math.PI/2+i*2*Math.PI/n;
+    x.beginPath();x.moveTo(cx,cy);x.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R);
+    x.strokeStyle='rgba(255,255,255,.10)';x.lineWidth=2;x.stroke();
+    x.fillStyle='#b3afd6';
+    x.fillText(cats[i].n, cx+Math.cos(a)*(R+24), cy+Math.sin(a)*(R+24));
+  }
+  if(bd){
+    x.beginPath();
+    for(let i=0;i<n;i++){
+      const a=-Math.PI/2+i*2*Math.PI/n;
+      const rr=R*clamp((bd[cats[i].k]??50)/100,.08,1);
+      const px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr;
+      i?x.lineTo(px,py):x.moveTo(px,py);
+    }
+    x.closePath();
+    const gr=x.createLinearGradient(cx-R,cy-R,cx+R,cy+R);
+    gr.addColorStop(0,'rgba(255,107,168,.55)');gr.addColorStop(.5,'rgba(183,33,255,.5)');gr.addColorStop(1,'rgba(33,212,253,.5)');
+    x.fillStyle=gr;x.fill();x.strokeStyle='#21d4fd';x.lineWidth=3;x.stroke();
+    for(let i=0;i<n;i++){
+      const a=-Math.PI/2+i*2*Math.PI/n;
+      const rr=R*clamp((bd[cats[i].k]??50)/100,.08,1);
+      x.beginPath();x.arc(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr,5,0,7);x.fillStyle='#fff';x.fill();
+    }
+  }
+}
+
+$('#l-close').addEventListener('click', () => $('#light').classList.remove('on'));
+$('#light').addEventListener('click', e => { if(e.target===$('#light')) $('#light').classList.remove('on'); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') $('#light').classList.remove('on'); });
+
+/* ==================================================================
+ * 交互
+ * ================================================================== */
+$('#q').addEventListener('input', applyFilter);
+$('#b-refresh').addEventListener('click', load);
+$('#b-export').addEventListener('click', exportCSV);
+document.querySelectorAll('.chip[data-sort]').forEach(c => c.addEventListener('click', () => {
+  document.querySelectorAll('.chip[data-sort]').forEach(o => o.classList.remove('on'));
+  c.classList.add('on'); SORT = c.dataset.sort; applyFilter();
+}));
+
+function exportCSV(){
+  if(!ALL.length){ toast('没有可导出的数据',true); return; }
+  const rows = [['id','score','label','created_at','file','size']];
+  ALL.forEach(r => rows.push([
+    r.id, r.score, r.score_label||'', r.created_at||'',
+    r.file_name||r.storage_path||'', r.file_size||''
+  ]));
+  const csv = '\ufeff' + rows.map(row => row.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'beauty_tests_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('已导出 CSV');
+}
+
+/* 每 30 秒自动刷新一次 */
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>
